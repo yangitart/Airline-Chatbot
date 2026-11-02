@@ -1,0 +1,9 @@
+export type EntityTypeNomenclature = 'BUDGETED' | 'BUSINESS';
+
+export type EntityRoles =
+  | 'LEADING-EXECUTING-ENTITY'
+  | 'LEADING-ENTITY'
+  | 'MANAGEMENT-ENTITY'
+  | 'PARTICIPANT-ENTITY'
+  | 'BENEFICIARY-ENTITY'
+  | 'CUSTOMER-ENTITY';
