@@ -2,6 +2,7 @@ import { isLeft } from "fp-ts/Either";
 import { NextRequest, NextResponse } from "next/server";
 import { FlightSearchQuery } from "@/src/features/flights/domain/models/FlightSearch";
 import { createServerSearchFlights } from "@/src/features/flights/ioc/serverSearchFlights";
+import { createSupabaseServerClient } from "@/src/core/api/supabase/server";
 
 function isValidDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -38,11 +39,12 @@ export async function GET(request: NextRequest) {
   }
 
   const query: FlightSearchQuery = { origin, destination, departureDate, returnDate, passengers, cabinClass };
-  const searchFlights = createServerSearchFlights();
+  const supabase = await createSupabaseServerClient();
+  const searchFlights = createServerSearchFlights(supabase);
   const result = await searchFlights.execute(query);
 
   if (isLeft(result)) {
-    return NextResponse.json({ detail: result.left }, { status: 500 });
+    return NextResponse.json({ detail: "Flight search is temporarily unavailable." }, { status: 500 });
   }
   return NextResponse.json(result.right);
 }

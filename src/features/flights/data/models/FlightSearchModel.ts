@@ -8,10 +8,33 @@ export type FlightSearchModel = {
   is_mock: boolean;
   notice: string;
   flights: Array<{
+    offer_id: string;
+    id: string;
     flight_number: string;
     departure: string;
     arrival: string;
     duration: string;
-    price: number;
+    departure_date: string;
+    arrival_date: string;
+    fare_minor: number;
+    currency: string;
+    number_of_bookable_seats: number;
+    is_demo: boolean;
+    source_label: string;
+  }>;
+  return_flights: Array<{
+    offer_id: string;
+    id: string;
+    flight_number: string;
+    departure: string;
+    arrival: string;
+    duration: string;
+    departure_date: string;
+    arrival_date: string;
+    fare_minor: number;
+    currency: string;
+    number_of_bookable_seats: number;
+    is_demo: boolean;
+    source_label: string;
   }>;
 };

@@ -1,10 +1,11 @@
 # Airline Chatbot — agent instructions
 
 ## Product and current milestone
-- Build the Air India exercise as a Next.js application backed by Supabase Auth and Supabase Postgres.
-- Current scope is the flight-search landing view and Google authentication. Visitors can search demo flights without signing in.
-- Flight schedules and fares are mock data. Never present them as live inventory.
-- Chat, policy ingestion, embeddings, and RAG are deferred. Supabase Postgres is the future data platform; do not enable vector storage until requirements and sources are reviewed.
+- Build the travel assistant as a Next.js application backed by Supabase Auth and Supabase Postgres.
+- Current code includes Google authentication, public search of Supabase flight rows, saved demo bookings, and an owner-scoped trip list.
+- Demo inventory stores Amadeus-shaped `flight-offer` JSON, demo orders store `flight-order` JSON, and demo operational snapshots use AviationStack-style nested flight data, alongside normalized columns for querying and transactions.
+- Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. The current booking RPC saves demo records only; it does not charge or issue tickets.
+- Chat, policy ingestion, embeddings, and RAG are planned next. Do not enable vector storage until requirements and sources are reviewed.
 
 ## Repository architecture
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.
@@ -38,7 +39,7 @@
 - Keep Supabase browser/server client factories under src/core/api/supabase. Client Components use the browser client; Server Components, Server Actions, Route Handlers, and middleware use the cookie-aware server client.
 - Use @supabase/ssr for cookie-based sessions. The middleware refreshes sessions; the OAuth callback exchanges the PKCE code.
 - Keep Supabase URL and publishable key in root .env.local and Vercel environment variables. Never expose a service-role key in NEXT_PUBLIC variables or browser code.
-- Use Supabase Auth for Google sign-in. Use Supabase Postgres with RLS for future application tables.
+- Use Supabase Auth for Google sign-in. Use Supabase Postgres with RLS for application tables.
 - Do not restore the old JWT token/refresh-cookie service; Supabase SSR owns auth session storage and refresh.
 - Route Handlers in app/api are the Next.js server boundary for app-specific logic. Keep them thin and put orchestration/data access in feature data sources and use cases.
 - A Route Handler validates/parses transport input, creates the server-side feature use case, and serializes the result. Keep mock fixtures, database queries, and business rules out of route.ts.
@@ -54,7 +55,8 @@
 - Register feature data sources, repositories, and use cases in the feature's ioc module. Register that module in src/ioc/application.container.ts after shared network/Supabase dependencies.
 - Use src/ioc/utils/applyDependencies and injector consistently; avoid direct construction of repositories in views.
 - The root Inversify container is the client composition root. Server Route Handlers may use a feature server factory to compose request-side use cases/repositories; create cookie-bound Supabase clients per request and never store them in the global container.
-- The active flight Route Handler delegates to a server use case and mock repository/data source. Keep fixture data outside route.ts; replace the mock adapter with a Supabase/provider adapter only when flight data is actually persisted or live.
+- The active flight Route Handler delegates to a server use case and a request-bound Supabase data source. `supabase/seed.sql` supplies demo inventory; it must remain labeled demo until a live provider is configured.
+- Demo booking creation runs through `public.create_demo_booking`, which derives `auth.uid()`, locks inventory, checks availability, and writes an owner-scoped demo record atomically. The UI must not present it as a ticket or paid purchase.
 - The GraphQL URL/query helpers still exist only for unregistered legacy user/nomenclature modules. Do not use them for Airline features; remove them once those legacy consumers are retired.
 
 ## Supabase security

@@ -8,6 +8,8 @@ import { injector } from "@/src/ioc/utils/injector";
 import { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
 import { GoogleAuthenticationSymbols } from "@/src/features/authentication/ioc/GoogleAuthenticationSymbols";
 import { GoogleAuthModal } from "@/src/features/authentication/ui/components/GoogleAuthModal";
+import type { Booking, CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
+import { BookingSymbols } from "@/src/features/bookings/ioc/BookingSymbols";
 import { FlightSearchQuery, FlightSearchResult } from "../../domain/models/FlightSearch";
 import { FlightSearchSymbols } from "../../ioc/FlightSearchSymbols";
 import { FlightSearchForm } from "../components/FlightSearchForm";
@@ -18,6 +20,7 @@ import { FlightResults } from "../components/FlightResults";
 type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
 type CurrentUserUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, GoogleUser | null>>>;
 type SignOutUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, void>>>;
+type CreateBookingUseCase = IUseCase<CreateDemoBookingCommand, Promise<import("fp-ts/Either").Either<string, Booking>>>;
 
 export default function FlightSearchView() {
   const { t } = useTranslation();
@@ -26,18 +29,47 @@ export default function FlightSearchView() {
   const [authLoading, setAuthLoading] = useState(true);
   const [results, setResults] = useState<FlightSearchResult | null>(null);
   const [error, setError] = useState("");
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [bookingError, setBookingError] = useState("");
+  const [bookingBusy, setBookingBusy] = useState(false);
   const searchUseCase = useMemo(() => injector<SearchUseCase>(FlightSearchSymbols.searchUseCase), []);
   const currentUserUseCase = useMemo(() => injector<CurrentUserUseCase>(GoogleAuthenticationSymbols.currentUserUseCase), []);
   const signOutUseCase = useMemo(() => injector<SignOutUseCase>(GoogleAuthenticationSymbols.signOutUseCase), []);
+  const createBookingUseCase = useMemo(() => injector<CreateBookingUseCase>(BookingSymbols.createDemoBookingUseCase), []);
+
+  const submitDemoBooking = useCallback(async (command: CreateDemoBookingCommand) => {
+    setBookingBusy(true);
+    setBookingError("");
+    const result = await createBookingUseCase.execute(command);
+    if (isLeft(result)) {
+      setBookingError(t("flightSearch.booking.saveFailed"));
+      setBookingBusy(false);
+      return;
+    }
+    setBooking(result.right);
+    setBookingBusy(false);
+    try { window.sessionStorage.removeItem("airline-pending-demo-booking"); } catch { /* optional storage */ }
+  }, [createBookingUseCase, t]);
 
   useEffect(() => {
     let active = true;
     void currentUserUseCase.execute()
-      .then((result) => { if (active && !isLeft(result)) setUser(result.right); })
+      .then((result) => {
+        if (!active || isLeft(result)) return;
+        setUser(result.right);
+        if (result.right) {
+          try {
+            const pending = window.sessionStorage.getItem("airline-pending-demo-booking");
+            if (pending) void submitDemoBooking(JSON.parse(pending) as CreateDemoBookingCommand);
+          } catch {
+            window.sessionStorage.removeItem("airline-pending-demo-booking");
+          }
+        }
+      })
       .catch(() => undefined)
       .finally(() => { if (active) setAuthLoading(false); });
     return () => { active = false; };
-  }, [currentUserUseCase]);
+  }, [currentUserUseCase, submitDemoBooking]);
 
   useEffect(() => {
     const authError = new URLSearchParams(window.location.search).get("authError");
@@ -49,6 +81,8 @@ export default function FlightSearchView() {
 
   const searchFlights = useCallback(async (query: FlightSearchQuery) => {
     setError("");
+    setBooking(null);
+    setBookingError("");
     setResults(null);
     const result = await searchUseCase.execute(query);
     if (isLeft(result)) {
@@ -57,6 +91,28 @@ export default function FlightSearchView() {
     }
     setResults(result.right);
   }, [searchUseCase, t]);
+
+  const bookFlight = useCallback((flightInstanceId: string, returnFlightInstanceId: string | undefined, expectedOutboundFareMinor: number, expectedReturnFareMinor?: number) => {
+    if (!results) return;
+    const command: CreateDemoBookingCommand = {
+      flightInstanceId,
+      returnFlightInstanceId,
+      cabinClass: results.cabin_class,
+      passengerCount: results.passengers,
+      expectedOutboundFareMinor,
+      expectedReturnFareMinor,
+      idempotencyKey: window.crypto.randomUUID(),
+    };
+    setBooking(null);
+    setBookingError("");
+    if (!user) {
+      try { window.sessionStorage.setItem("airline-pending-demo-booking", JSON.stringify(command)); } catch { /* sign-in still works */ }
+      setBookingError(t("flightSearch.booking.signInRequired"));
+      setModalOpen(true);
+      return;
+    }
+    void submitDemoBooking(command);
+  }, [results, submitDemoBooking, t, user]);
 
   const signOut = useCallback(async () => {
     const result = await signOutUseCase.execute();
@@ -76,7 +132,8 @@ export default function FlightSearchView() {
         <FlightSearchForm onSearch={searchFlights} />
       </section>
       {error && <p className="mx-auto my-[14px] w-[min(96%,1500px)] text-[#b42318]" role="alert">{error}</p>}
-      {results && <FlightResults result={results} />}
+      {results && <FlightResults key={`${results.origin}-${results.destination}-${results.departure_date}-${results.return_date ?? "one-way"}`} result={results} isAuthenticated={Boolean(user)} bookingBusy={bookingBusy} booking={booking} bookingError={bookingError} onBook={bookFlight} />}
+      {user && <div className="mx-auto my-6 w-[min(96%,1500px)] text-right"><a className="font-semibold text-[#86233d] underline" href="/my-trips">{t("flightSearch.booking.myTrips")}</a></div>}
       <footer className="flex justify-between gap-4 bg-white px-[3%] py-[22px] text-xs text-[#707780] max-[650px]:flex-col">
         <span>{t("flightSearch.footer.demo")}</span>
         <span>{t("flightSearch.footer.mock")}</span>

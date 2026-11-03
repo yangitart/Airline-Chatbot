@@ -1,12 +1,13 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { searchFlightsUseCase } from "../domain/useCases/searchFlightsUseCase";
 import { FlightSearchRepositoryImpl } from "../data/repositories/FlightSearchRepositoryImpl";
-import { MockFlightSearchDataSource } from "../data/data_sources/MockFlightSearchDataSource";
+import { SupabaseFlightSearchDataSourceImpl } from "../data/data_sources/SupabaseFlightSearchDataSource";
 
-/** Build the server adapter per request. Replace the mock source with a
- * Supabase/provider adapter when flight data becomes persistent or live. */
-export function createServerSearchFlights() {
-  const repository = FlightSearchRepositoryImpl(MockFlightSearchDataSource);
+/** Compose database-backed search with the cookie-bound Supabase client for this request. */
+export function createServerSearchFlights(supabase: SupabaseClient) {
+  const dataSource = SupabaseFlightSearchDataSourceImpl(supabase);
+  const repository = FlightSearchRepositoryImpl(dataSource);
   return searchFlightsUseCase(repository);
 }

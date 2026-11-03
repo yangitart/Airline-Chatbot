@@ -1,4 +1,4 @@
-import { AxiosInstance } from "axios";
+import type { AxiosInstance } from "axios";
 import { API_ROUTES } from "@/src/core/routes/routes";
 import { FlightSearchQuery } from "../../domain/models/FlightSearch";
 import { FlightSearchModel } from "../models/FlightSearchModel";

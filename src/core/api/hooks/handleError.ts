@@ -3,7 +3,12 @@ import { isAxiosError } from "axios";
 /** Convert transport failures to safe, domain-neutral error identifiers/messages. */
 export function handleError(error: unknown): string {
   if (!isAxiosError(error)) {
-    return error instanceof Error ? error.message : "unexpected_error";
+    if (error instanceof Error) return error.message;
+    if (typeof error === "object" && error !== null && "message" in error) {
+      const message = (error as { message?: unknown }).message;
+      if (typeof message === "string") return message;
+    }
+    return "unexpected_error";
   }
 
   if (error.code === "ECONNABORTED") return "request_timeout";

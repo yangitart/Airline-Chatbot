@@ -14,5 +14,5 @@
 - [x] T009 Initialize root Git configuration, ignore local secrets, and add typecheck/build CI.
 
 ## Evidence
-- User confirmed local Google sign-in succeeded.
+- Local Google sign-in succeeded.
 - TypeScript typecheck and Next.js production build completed successfully.

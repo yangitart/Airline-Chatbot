@@ -17,3 +17,12 @@ Use the spec-driven workflow for every user-facing feature.
 - <feature>/: approved feature-specific spec, plan, checklist, and tasks.
 
 A specification describes intended behavior. It does not mean the feature has been implemented.
+
+## Product sequence
+
+See [roadmap.md](roadmap.md) for the proposed service stages and their provider/data prerequisites.
+
+1. `001-google-auth-flight-search` — implemented as the initial UI/auth slice.
+2. `002-database-flight-booking` — local booking flow and hosted search verified; hosted authenticated booking confirmation remains before closing the spec.
+3. Manage trips, journey operations, travel information/chat, and optional partner services — future capabilities; each needs its own reviewed feature spec.
+4. Three.js visual refinement — a later presentation spec after core travel journeys work; it must provide accessible and mobile fallbacks and own no booking logic.

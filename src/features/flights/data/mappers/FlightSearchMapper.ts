@@ -11,4 +11,5 @@ export const mapFlightSearchModel = (model: FlightSearchModel): FlightSearchResu
   is_mock: model.is_mock,
   notice: model.notice,
   flights: model.flights.map((flight) => ({ ...flight })),
+  return_flights: model.return_flights.map((flight) => ({ ...flight })),
 });
