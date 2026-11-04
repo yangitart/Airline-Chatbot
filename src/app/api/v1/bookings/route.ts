@@ -18,6 +18,8 @@ function serializeBooking(booking: Booking) {
     total_fare_minor: booking.totalFareMinor,
     currency: booking.currency,
     status: booking.status,
+    payment_status: booking.paymentStatus,
+    demo_checkins: booking.checkIns.map((checkin) => ({ flight_leg: checkin.flightLeg, checked_in_at: checkin.checkedInAt, demo_seat: checkin.demoSeat, demo_boarding_pass_reference: checkin.boardingPassReference })),
     is_demo: true as const,
     itinerary_snapshot: booking.itinerarySnapshot,
     flight_order_payload: booking.flightOrderPayload,

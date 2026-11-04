@@ -28,7 +28,7 @@ function FlightCard({
       type="button"
       aria-pressed={selected}
       onClick={onSelect}
-      className={`grid w-full grid-cols-[1fr_.8fr_1fr_.9fr_auto] items-center gap-3 border-b border-[#edf0f2] p-4 text-left last:border-0 hover:bg-[#faf8f3] max-[650px]:grid-cols-2 ${selected ? "bg-[#f8f3e9] ring-2 ring-inset ring-[#86233d]" : "bg-white"}`}
+      className={`grid w-full grid-cols-[1fr_.8fr_1fr_.9fr_auto] items-center gap-3 border-b border-[#edf0f2] p-4 text-left last:border-0 hover:bg-[#faf8f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#86233d] max-[650px]:grid-cols-2 ${selected ? "bg-[#f8f3e9] ring-2 ring-inset ring-[#86233d]" : "bg-white"}`}
     >
       <span><strong className="block text-base text-[#17283b]">{flight.flight_number}</strong><small className="text-xs text-[#737b84]">{seatDescription}</small><small className="block text-[11px] text-[#755f34]">{sourceLabel}</small></span>
       <span><strong className="block">{flight.departure}</strong><small className="text-xs text-[#737b84]">{flight.departure_date}</small></span>

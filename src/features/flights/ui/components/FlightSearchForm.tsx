@@ -89,7 +89,7 @@ export function FlightSearchForm({
     >
       {(form) => (
         <Form>
-          <div className="py-[21px] max-[650px]:py-4">
+          <div className="mb-4 mt-5 flex items-center justify-between gap-4">
             <FormikRadioGroup
               name="tripType"
               label={t("flightSearch.trip.label")}
@@ -99,11 +99,11 @@ export function FlightSearchForm({
               ]}
             />
           </div>
-          <div className="grid min-h-[77px] grid-cols-[repeat(14,minmax(0,1fr))] items-stretch gap-y-3 max-[1050px]:grid-cols-6 max-[650px]:grid-cols-2">
-            <div className="col-span-4 grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch max-[1050px]:col-span-6 max-[650px]:col-span-2 max-[650px]:gap-2">
-              <FormikSelect name="origin" label={t("flightSearch.fields.origin")} options={airports} className="min-h-[66px] min-w-0 border-l-0 pl-1 max-[650px]:px-1" inputClassName="truncate text-xl font-semibold max-[650px]:text-sm" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+            <div className="grid min-w-0 grid-cols-1 items-center gap-2 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:col-span-4">
+              <FormikSelect name="origin" label={t("flightSearch.fields.origin")} options={airports} inputClassName="truncate" />
               <button
-                className="my-auto grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-full border border-[#ddd2c1] bg-[#fffefa] text-[#86233d]"
+                className="mx-auto grid h-9 w-9 rotate-90 place-items-center rounded-full border border-[#d7e1dd] bg-white text-[#315a50] shadow-sm transition hover:border-[#8ca9a0] hover:bg-[#f0f6f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#173e38] sm:rotate-0"
                 type="button"
                 aria-label={t("flightSearch.actions.swapAirports")}
                 onClick={() => {
@@ -114,22 +114,22 @@ export function FlightSearchForm({
               >
                 <ArrowLeftRight size={19} />
               </button>
-              <FormikSelect name="destination" label={t("flightSearch.fields.destination")} options={airports} className="min-h-[66px] min-w-0 max-[650px]:px-1" inputClassName="truncate text-xl font-semibold max-[650px]:text-sm" />
+              <FormikSelect name="destination" label={t("flightSearch.fields.destination")} options={airports} inputClassName="truncate" />
             </div>
-            <FormikDateInput name="departureDate" label={t("flightSearch.fields.depart")} min={localDate()} required className="col-span-2 min-w-0 max-[1050px]:col-span-3 max-[650px]:col-span-1 max-[650px]:px-2" />
+            <FormikDateInput name="departureDate" label={t("flightSearch.fields.depart")} min={localDate()} required className="lg:col-span-2" />
             {form.values.tripType === "round-trip" && (
-              <FormikDateInput name="returnDate" label={t("flightSearch.fields.return")} min={form.values.departureDate} required className="col-span-2 min-w-0 max-[1050px]:col-span-3 max-[650px]:col-span-1 max-[650px]:px-2" />
+              <FormikDateInput name="returnDate" label={t("flightSearch.fields.return")} min={form.values.departureDate} required className="lg:col-span-2" />
             )}
             <FormikSelect
               name="passengers"
               label={t("flightSearch.fields.passengers")}
-              className="col-span-2 min-w-0 max-[1050px]:col-span-3 max-[650px]:col-span-1 max-[650px]:px-2"
+              className="lg:col-span-2"
               options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => ({ value: String(count), label: `${count} ${t(count === 1 ? "flightSearch.fields.adult" : "flightSearch.fields.adults")}` }))}
             />
             <FormikSelect
               name="cabinClass"
               label={t("flightSearch.fields.class")}
-              className="col-span-2 min-w-0 max-[1050px]:col-span-3 max-[650px]:col-span-1 max-[650px]:px-2"
+              className="lg:col-span-2"
               options={[
                 { value: "economy", label: t("flightSearch.fields.economy") },
                 { value: "premium-economy", label: t("flightSearch.fields.premiumEconomy") },
@@ -137,9 +137,11 @@ export function FlightSearchForm({
                 { value: "first", label: t("flightSearch.fields.first") },
               ]}
             />
+          </div>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-xl text-xs leading-5 text-[#72817c]">{t("flightSearch.booking.publicSearchNote")}</p>
             <FormikSubmitButton label={t("flightSearch.actions.search")} busyLabel={t("flightSearch.actions.searching")} />
           </div>
-          <p className="mb-0 mt-[15px] text-right text-xs text-[#737b84] max-[650px]:text-left max-[650px]:leading-6">{t("flightSearch.booking.publicSearchNote")}</p>
         </Form>
       )}
     </Formik>

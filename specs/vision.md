@@ -28,7 +28,7 @@ Build a web travel assistant inspired by the service experience described on Air
 
 ## Service capability direction
 
-The product may grow across these capabilities, in sequence: database-backed flight search and booking; trip history and supported booking management; flight status, check-in, and baggage operations; verified travel information and a grounded assistant; optional loyalty and partner services; then visual refinement. See `roadmap.md` for boundaries and provider prerequisites.
+The product may grow across these capabilities, in sequence: database-backed flight search and demo booking; demo checkout, profile, check-in, and flight status; then a grounded AI Agent and RAG over verified travel information. See `roadmap.md` for boundaries and provider prerequisites.
 
 Public website pages describe customer-facing capabilities and policies. They do not establish that Air India exposes an API, licensed inventory feed, or permission to perform transactions. Live search, ticketing, check-in, payment, seat selection, baggage tracking, refunds, loyalty, and partner services require an authorized data or transaction provider. Persisted seed data must remain labeled as demo.
 
@@ -39,4 +39,4 @@ Public website pages describe customer-facing capabilities and policies. They do
 - Provider credentials and model/RAG calls remain server-side.
 
 ## Current implementation status
-The repository currently contains the landing flight-search view, Supabase-backed search and demo-booking code, Google OAuth, English/Spanish UI resources, and the feature/core/ioc architecture. The SQL migration and seed have not yet been applied to the configured Supabase project, so the database flow is not runtime-verified. The chat, LLM, RAG, source ingestion, intent classifier, evaluation benchmark, live inventory, payment, ticket issuance, and operational flight integrations are not yet implemented.
+The repository contains the landing flight-search view, Google OAuth configured on the AIRLINE project, Supabase-backed search/demo-booking code, English/Spanish UI resources, and the feature/core/ioc architecture. The current travel-operations slice adds test-mode Stripe Checkout/webhook code, owner-scoped profile editing, per-leg demo check-in, stored flight-status lookup, and a richer trip view. Migrations 001–006 are applied locally and on AIRLINE; local RLS/check-in/expiry paths, hosted search/status, and production build are verified. Stripe payment/webhook end-to-end verification still needs a configured deployment webhook, and the authenticated booking/profile flow still needs a signed-in hosted review. Chat, LLM, policy ingestion, RAG, intent handling, and evaluation remain part of the overall product vision but are outside the active feature specs.

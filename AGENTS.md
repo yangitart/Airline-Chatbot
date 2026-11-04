@@ -2,10 +2,10 @@
 
 ## Product and current milestone
 - Build the travel assistant as a Next.js application backed by Supabase Auth and Supabase Postgres.
-- Current code includes Google authentication, public search of Supabase flight rows, saved demo bookings, and an owner-scoped trip list.
+- Current code includes Google authentication, public search of Supabase flight rows, demo bookings, Stripe test-mode Checkout wiring, owner-scoped profiles, demo check-in, and stored demo flight status lookup.
 - Demo inventory stores Amadeus-shaped `flight-offer` JSON, demo orders store `flight-order` JSON, and demo operational snapshots use AviationStack-style nested flight data, alongside normalized columns for querying and transactions.
-- Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. The current booking RPC saves demo records only; it does not charge or issue tickets.
-- Chat, policy ingestion, embeddings, and RAG are planned next. Do not enable vector storage until requirements and sources are reviewed.
+- Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. Stripe integration uses test keys and a verified webhook; it records a demo payment and never issues a ticket. Demo check-in produces a sample seat/reference, not an airline boarding pass.
+- Chat, policy ingestion, embeddings, and RAG are future work outside the active 002/003 specs. Do not start that implementation or enable vector storage without a new reviewed feature spec and approved sources.
 
 ## Repository architecture
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.
@@ -40,6 +40,9 @@
 - Use @supabase/ssr for cookie-based sessions. The middleware refreshes sessions; the OAuth callback exchanges the PKCE code.
 - Keep Supabase URL and publishable key in root .env.local and Vercel environment variables. Never expose a service-role key in NEXT_PUBLIC variables or browser code.
 - Use Supabase Auth for Google sign-in. Use Supabase Postgres with RLS for application tables.
+- Stripe keys are server-only. Accept only `sk_test_` keys for demo checkout; verify webhook signatures against the raw request body and use the service-role client only in the webhook handler. Never store card data or mark payment complete from a browser redirect.
+- Demo check-in is stored per outbound/return leg. Use the owner-scoped RPC and show only sample seats/references; Stripe expiry releases demo inventory once using the idempotent event log.
+- Owner profile data lives in `profiles` under RLS. Flight status and schedules are seeded AviationStack-shaped demo snapshots; always label them as demo and not live.
 - Do not restore the old JWT token/refresh-cookie service; Supabase SSR owns auth session storage and refresh.
 - Route Handlers in app/api are the Next.js server boundary for app-specific logic. Keep them thin and put orchestration/data access in feature data sources and use cases.
 - A Route Handler validates/parses transport input, creates the server-side feature use case, and serializes the result. Keep mock fixtures, database queries, and business rules out of route.ts.

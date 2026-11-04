@@ -29,18 +29,25 @@ See `001-google-auth-flight-search` for implementation evidence.
 
 **Provider roles:** [Amadeus Self-Service](https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/faq/) is the candidate for a future bookable-offer lifecycle (search, reprice, order create/manage), subject to its production eligibility and ticket-issuance requirements. [AviationStack](https://aviationstack.com/pricing) is a candidate for flight status/operational schedules only; it cannot supply fare confirmation or book tickets. Keep these behind distinct server-side provider adapters.
 
-## Stage 2 — Manage a trip
+## Stage 2 — Demo checkout and trip operations
 
-Create a separate spec after Stage 1 is accepted.
+**Spec:** `003-travel-operations-and-checkout` (Code and AIRLINE migrations applied; awaiting Stripe test verification and signed-in hosted flow review)
 
-- Retrieve a booking by authenticated account and, if needed, a secure booking-reference flow.
-- Show itinerary, passenger/booking status, fare snapshot, and available actions.
-- Add seat selection, upgrades, and ancillary services only when the chosen booking source exposes their real availability and price.
-- Add cancellation, change, refund, and re-accommodation requests only with provider rules, fee data, and confirmation callbacks.
+- Test-mode Stripe Checkout and signature-verified webhooks.
+- Owner-scoped profile editing, per-leg demo check-in, flight-status lookup, expiry-safe inventory, and improved booking details.
+- Demo statuses only; no real payment, ticket, or airline action.
 
-**Dependencies:** provider-supported booking retrieval/change APIs, secure traveler verification, fare rules, payment/refund support, and audit history. Start with read-only trip details if write operations are unavailable.
+## Stage 3 — Manage a trip
 
-## Stage 3 — Journey operations
+Create a separate spec after the demo booking flow is accepted.
+
+- Retrieve bookings by account and show the saved itinerary, booking status, and fare snapshot.
+- Add seat selection, upgrades, and ancillaries only when a provider exposes their availability and price.
+- Add cancellation, changes, refunds, and re-accommodation only with provider rules and confirmed outcomes.
+
+**Dependencies:** provider-supported booking management, secure traveler verification, fare rules, payment/refund support, and audit history.
+
+## Stage 4 — Additional journey operations
 
 Create a separate spec for each operation or cohesive slice.
 
@@ -51,18 +58,6 @@ Create a separate spec for each operation or cohesive slice.
 
 **Dependencies:** live flight-operations and check-in interfaces, identity/PNR verification, codeshare rules, and event delivery. Air India's public pages describe capabilities and policies; they do not themselves provide an integration contract.
 
-## Stage 4 — Travel information and customer support
-
-Create a separate spec for verified content and the assistant.
-
-- Organize baggage, airport, visa/document, medical, family/children, and pet-travel information.
-- Build a reviewed source-ingestion and freshness process before answering policy questions.
-- Add the required chat UI, selected server-side LLM, multi-turn context, intent routing, Air India assistant behavior, and grounded RAG citations.
-- Abstain or direct travelers to official support when sources are missing, stale, conflicting, or require account-specific access.
-- Add contact/support handoff if a supported channel and workflow are defined.
-
-**Dependencies:** approved source list and usage terms, content review/update cadence, chosen LLM provider, privacy/retention rules, and evaluation set. Policies and personalized booking data must use separate access paths.
-
 ## Stage 5 — Additional travel services
 
 Treat each external service as an optional, independently specified integration.
@@ -70,15 +65,6 @@ Treat each external service as an optional, independently specified integration.
 - Maharaja Club profile, points, tier benefits, and member fares.
 - Offers, gift cards, hotels, cars, and other add-ons.
 - Loyalty or partner data must be sourced and authorized; do not infer balances, discounts, or availability locally.
-
-## Stage 6 — Visual refinement with Three.js
-
-Begin only after the core search, booking, and account journeys work reliably.
-
-- Add Three.js to selected presentation surfaces such as a route/destination hero or aircraft/seat visualization.
-- Keep booking, pricing, inventory, authentication, and accessibility behavior in normal React components and server features.
-- Lazy-load 3D assets, respect reduced-motion preferences, provide a static/mobile fallback, and measure loading/performance before broad use.
-- Avoid making 3D a dependency for finding, reviewing, buying, or managing a trip.
 
 ## Cross-stage requirements
 

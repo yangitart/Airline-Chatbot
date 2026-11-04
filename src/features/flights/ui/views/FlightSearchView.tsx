@@ -16,6 +16,8 @@ import { FlightSearchForm } from "../components/FlightSearchForm";
 import { FlightsHeader } from "../components/FlightsHeader";
 import { BookingTabs } from "../components/BookingTabs";
 import { FlightResults } from "../components/FlightResults";
+import { FlightHero } from "../components/FlightHero";
+import Image from "next/image";
 
 type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
 type CurrentUserUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, GoogleUser | null>>>;
@@ -126,18 +128,22 @@ export default function FlightSearchView() {
   return (
     <main className="min-h-screen bg-[#f4f2ee] text-[#162536]">
       <FlightsHeader user={user} authLoading={authLoading} onSignIn={() => setModalOpen(true)} onSignOut={() => void signOut()} />
-      <section className="mx-auto mt-6 w-[min(96%,1500px)] rounded-[20px] border border-[#e8e0d3] bg-[#fffefa] px-[26px] pb-[18px] pt-[22px] shadow-[0_12px_34px_rgb(24_39_54_/_7%)] max-[650px]:mt-3 max-[650px]:w-[calc(100%-22px)] max-[650px]:rounded-[14px] max-[650px]:p-[14px]" id="search" aria-labelledby="booking-title">
-        <BookingTabs />
-        <h1 className="sr-only" id="booking-title">{t("flightSearch.booking.title")}</h1>
+      <div className="relative isolate flex min-h-[calc(100svh-108px)] flex-col overflow-hidden bg-[#17283b] min-[651px]:min-h-[calc(100svh-124px)]">
+      <Image src="/images/airport-terminal-hero.png" alt="" fill priority sizes="100vw" className="-z-20 object-cover object-center" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#101b29]/95 via-[#152433]/75 to-[#17283b]/35" />
+      <FlightHero />
+      <section className="relative z-10 mx-auto mb-4 mt-auto w-[min(94%,1500px)] rounded-[20px] border border-white/70 bg-[#fffefa] px-[26px] pb-[18px] pt-[22px] shadow-[0_20px_60px_rgb(0_0_0_/_24%)] max-[650px]:w-[calc(100%-22px)] max-[650px]:rounded-[14px] max-[650px]:p-[14px]" id="search" aria-labelledby="booking-title">
+        <BookingTabs isAuthenticated={Boolean(user)} authLoading={authLoading} onSignIn={() => setModalOpen(true)} />
+        <h2 className="sr-only" id="booking-title">{t("flightSearch.booking.title")}</h2>
         <FlightSearchForm onSearch={searchFlights} />
       </section>
+      </div>
       {error && <p className="mx-auto my-[14px] w-[min(96%,1500px)] text-[#b42318]" role="alert">{error}</p>}
       {results && <FlightResults key={`${results.origin}-${results.destination}-${results.departure_date}-${results.return_date ?? "one-way"}`} result={results} isAuthenticated={Boolean(user)} bookingBusy={bookingBusy} booking={booking} bookingError={bookingError} onBook={bookFlight} />}
-      {user && <div className="mx-auto my-6 w-[min(96%,1500px)] text-right"><a className="font-semibold text-[#86233d] underline" href="/my-trips">{t("flightSearch.booking.myTrips")}</a></div>}
-      <footer className="flex justify-between gap-4 bg-white px-[3%] py-[22px] text-xs text-[#707780] max-[650px]:flex-col">
+      {(results || error) && <footer className="flex justify-between gap-4 bg-white px-[3%] py-[22px] text-xs text-[#707780] max-[650px]:flex-col">
         <span>{t("flightSearch.footer.demo")}</span>
         <span>{t("flightSearch.footer.mock")}</span>
-      </footer>
+      </footer>}
       {modalOpen && <GoogleAuthModal onClose={() => setModalOpen(false)} />}
     </main>
   );

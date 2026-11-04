@@ -1,14 +1,31 @@
+import { BriefcaseBusiness, ClipboardCheck, Radar, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
-export function BookingTabs() {
+export function BookingTabs({
+  isAuthenticated,
+  authLoading,
+  onSignIn,
+}: {
+  isAuthenticated: boolean;
+  authLoading: boolean;
+  onSignIn: () => void;
+}) {
   const { t } = useTranslation();
+  const router = useRouter();
+  const select = (action: "manage" | "checkin") => {
+    if (!isAuthenticated) { onSignIn(); return; }
+    if (action === "manage") router.push("/my-trips");
+    else router.push("/my-trips?check-in=1");
+  };
+  const item = "inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#66756f] transition hover:bg-[#f0f5f2] hover:text-[#183d37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#173e38] disabled:opacity-50 sm:px-4";
+
   return (
-    <div className="flex min-h-12 items-center gap-[clamp(10px,2.4vw,44px)] overflow-x-auto border-b border-[#eff0f2] px-1.5 pb-4 max-[650px]:gap-1" role="navigation" aria-label={t("flightSearch.booking.servicesLabel")}>
-      <a className="shrink-0 rounded-[7px] border border-[#e5d8c0] bg-[#f8f3e9] px-[13px] py-[10px] text-[13px] font-semibold uppercase text-[#86233d] no-underline shadow-[0_2px_6px_rgb(0_0_0_/_6%)] max-[650px]:px-2 max-[650px]:py-[9px] max-[650px]:text-[10px]" href="#search" aria-current="page">{t("flightSearch.booking.searchFlights")}</a>
-      <button className="shrink-0 cursor-pointer rounded-[7px] border-0 bg-transparent px-[13px] py-[10px] text-[13px] font-semibold uppercase text-[#252a30] disabled:cursor-not-allowed disabled:opacity-50 max-[650px]:px-2 max-[650px]:py-[9px] max-[650px]:text-[10px]" type="button" disabled title={t("flightSearch.booking.comingSoon")}>{t("flightSearch.booking.manageBooking")}</button>
-      <button className="shrink-0 cursor-pointer rounded-[7px] border-0 bg-transparent px-[13px] py-[10px] text-[13px] font-semibold uppercase text-[#252a30] disabled:cursor-not-allowed disabled:opacity-50 max-[650px]:px-2 max-[650px]:py-[9px] max-[650px]:text-[10px]" type="button" disabled title={t("flightSearch.booking.comingSoon")}>{t("flightSearch.booking.checkIn")}</button>
-      <button className="shrink-0 cursor-pointer rounded-[7px] border-0 bg-transparent px-[13px] py-[10px] text-[13px] font-semibold uppercase text-[#252a30] disabled:cursor-not-allowed disabled:opacity-50 max-[650px]:px-2 max-[650px]:py-[9px] max-[650px]:text-[10px]" type="button" disabled title={t("flightSearch.booking.comingSoon")}>{t("flightSearch.booking.flightStatus")}</button>
-      <span className="ml-auto rounded-lg bg-[#f5efdf] px-[13px] py-2 text-[13px] font-semibold text-[#755f34] max-[650px]:hidden">{t("flightSearch.booking.studentOffer")}</span>
-    </div>
+    <nav className="flex min-w-0 items-center gap-1 overflow-x-auto border-b border-[#e7ede9] pb-3" aria-label={t("flightSearch.booking.servicesLabel")}>
+      <a className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#e8f0ec] px-3 py-2.5 text-xs font-semibold text-[#173e38] no-underline sm:px-4" href="#search" aria-current="page"><Search size={16} aria-hidden="true" />{t("flightSearch.booking.searchFlights")}</a>
+      <button className={item} type="button" disabled={authLoading} onClick={() => select("manage")}><BriefcaseBusiness size={16} aria-hidden="true" />{t("flightSearch.booking.manageBooking")}</button>
+      <button className={item} type="button" disabled={authLoading} onClick={() => select("checkin")}><ClipboardCheck size={16} aria-hidden="true" />{t("flightSearch.booking.checkIn")}</button>
+      <button className={item} type="button" onClick={() => router.push("/flight-status")}><Radar size={16} aria-hidden="true" />{t("flightSearch.booking.flightStatus")}</button>
+    </nav>
   );
 }

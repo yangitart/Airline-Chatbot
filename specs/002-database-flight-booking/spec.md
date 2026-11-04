@@ -17,4 +17,4 @@ The platform searches invented flights stored in Supabase, lets a traveler selec
 - Verify the hosted booking flow with Google sign-in and the remote database.
 - Fix any issues and update the task evidence.
 
-Chatbot, RAG, and visual design are planned for later specs.
+Visual design refinements are deferred to a later spec.

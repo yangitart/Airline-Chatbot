@@ -11,6 +11,8 @@ export const mapBookingModel = (model: BookingModel): Booking => ({
   totalFareMinor: model.total_fare_minor,
   currency: model.currency,
   status: model.status,
+  paymentStatus: model.payment_status,
+  checkIns: (model.demo_checkins ?? []).map((checkin) => ({ flightLeg: checkin.flight_leg, checkedInAt: checkin.checked_in_at, demoSeat: checkin.demo_seat, boardingPassReference: checkin.demo_boarding_pass_reference })),
   isDemo: true,
   itinerarySnapshot: model.itinerary_snapshot,
   flightOrderPayload: model.flight_order_payload,
