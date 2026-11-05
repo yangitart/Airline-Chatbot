@@ -3,7 +3,12 @@ import type { BookingTripOperationsRepository, CheckoutBooking, DemoCheckIn } fr
 import type { createSupabaseTripOperationsDataSource } from "../data_sources/SupabaseTripOperationsDataSource";
 
 type DataSource = ReturnType<typeof createSupabaseTripOperationsDataSource>;
-const errorMessage = (error: unknown) => error instanceof Error ? error.message : "booking_operation_failed";
+function errorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") {
+    return error.message;
+  }
+  return "booking_operation_failed";
+}
 
 export function BookingTripOperationsRepositoryImpl(dataSource: DataSource): BookingTripOperationsRepository {
   return {

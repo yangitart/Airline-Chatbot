@@ -1,7 +1,7 @@
 # Product roadmap
 
 **Status:** Proposed capability sequence; individual future features still require their own reviewed specs.  
-**Last updated:** 2026-11-03
+**Last updated:** 2026-11-04
 
 This roadmap grows the current landing page into a travel service. It is a sequencing guide, not a claim that Air India APIs or live operational data are available. Every screen must distinguish seeded/demo records from information confirmed by an authorized source.
 
@@ -9,8 +9,8 @@ This roadmap grows the current landing page into a travel service. It is a seque
 
 - Next.js App Router application with feature, domain, data, and IoC layers.
 - Supabase Google authentication.
-- Responsive home page with public search, Google sign-in, and English/Spanish UI.
-- English and Spanish interface.
+- Responsive home page with public search and Google sign-in.
+- English, Spanish, Hindi, French, Brazilian Portuguese, and Simplified Chinese interface.
 
 See `001-google-auth-flight-search` for implementation evidence.
 
@@ -37,7 +37,16 @@ See `001-google-auth-flight-search` for implementation evidence.
 - Owner-scoped profile editing, per-leg demo check-in, flight-status lookup, expiry-safe inventory, and improved booking details.
 - Demo statuses only; no real payment, ticket, or airline action.
 
-## Stage 3 — Manage a trip
+## Stage 3 — Visual design polish
+
+**Spec:** `004-visual-design` (Implementation in progress)
+
+- Unify the visual language across search, sign-in, results, My Trips, profile, flight status, and the three public navigation pages.
+- Improve responsive composition, form/card states, accessibility, and visual hierarchy without changing service behavior.
+- Support English, Spanish, Hindi, French, Brazilian Portuguese, and Simplified Chinese in the language card and profile preference.
+- Keep the warm premium palette and use Tailwind utilities; no Three.js or backend work.
+
+## Stage 4 — Manage a trip
 
 Create a separate spec after the demo booking flow is accepted.
 
@@ -47,7 +56,7 @@ Create a separate spec after the demo booking flow is accepted.
 
 **Dependencies:** provider-supported booking management, secure traveler verification, fare rules, payment/refund support, and audit history.
 
-## Stage 4 — Additional journey operations
+## Stage 5 — Additional journey operations
 
 Create a separate spec for each operation or cohesive slice.
 
@@ -58,7 +67,7 @@ Create a separate spec for each operation or cohesive slice.
 
 **Dependencies:** live flight-operations and check-in interfaces, identity/PNR verification, codeshare rules, and event delivery. Air India's public pages describe capabilities and policies; they do not themselves provide an integration contract.
 
-## Stage 5 — Additional travel services
+## Stage 6 — Additional travel services
 
 Treat each external service as an optional, independently specified integration.
 
@@ -71,7 +80,7 @@ Treat each external service as an optional, independently specified integration.
 - **Truthfulness:** data source, demo/live status, freshness, and operation outcome remain visible and accurate.
 - **Security:** Supabase RLS protects application records; provider secrets and authenticated operational calls remain server-side.
 - **Architecture:** vertical features own UI, domain, data adapters, and IoC; Next Route Handlers stay thin.
-- **Localization/accessibility:** English and Spanish for all customer-facing flows, keyboard access, responsive layouts, clear loading/error/empty states.
+- **Localization/accessibility:** all six supported locales for customer-facing flows, keyboard access, responsive layouts, and clear loading/error/empty states.
 - **Quality:** focused domain/API/database tests, operational logs without sensitive data, and evaluation for assistant answers before release.
 
 ## Readiness gates

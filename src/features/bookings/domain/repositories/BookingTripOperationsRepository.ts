@@ -6,6 +6,7 @@ export type CheckoutBooking = {
   user_id: string;
   total_fare_minor: number;
   currency: string;
+  status: string;
   payment_status: "unpaid" | "checkout_pending" | "paid" | "failed";
   stripe_checkout_session_id: string | null;
   is_demo: boolean;

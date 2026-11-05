@@ -13,7 +13,7 @@ export const SuccessData = <T>(data: T) => right(data);
  * @param error Error capturado en el catch
  */
 
-export const ErrorData = (error: any) => {
+export const ErrorData = (error: unknown) => {
   const errorMessage = handleError(error);
   return left(errorMessage);
 };

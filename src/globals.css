@@ -17,11 +17,6 @@
     font-style: normal;
   }
 
-  :root {
-    --navbar-height: 5.38rem;
-    --sidebar-height: 2.94rem;
-  }
-
   body {
     font-family: 'Rubik', 'Roboto', sans-serif;
   }

@@ -1,7 +1,9 @@
+import type { SupportedLanguage } from "@/src/core/locales/supportedLanguages";
+
 export type TravelProfile = {
   displayName: string;
   phone: string;
-  preferredLanguage: "en" | "es";
+  preferredLanguage: SupportedLanguage;
   updatedAt: string;
 };
 

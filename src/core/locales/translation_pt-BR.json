@@ -1,0 +1,396 @@
+{
+  "travelPages": {
+    "carouselPrevious": "Rota anterior",
+    "carouselNext": "Próxima rota",
+    "carouselPause": "Pausar rotação",
+    "carouselPlay": "Retomar rotação",
+    "eyebrow": "SUA VIAGEM, COM LEVEZA",
+    "searchFlights": "Buscar voos",
+    "whereTitle": "Para onde voamos",
+    "whereDescription": "Explore destinos da nossa rede e escolha a rota ideal para sua viagem.",
+    "routeEyebrow": "DESTINOS",
+    "featuredRoutes": "Encontre sua próxima conexão",
+    "airportCount": "{{count}} destinos",
+    "routeCardLabel": "Rota popular",
+    "from": "De",
+    "to": "Para",
+    "searchRoute": "Explorar esta rota",
+    "routeNote": "Escolha as datas da viagem para consultar voos e tarifas disponíveis.",
+    "officialRouteMap": "Ver rotas disponíveis",
+    "prepareTitle": "Prepare-se para viajar",
+    "prepareDescription": "Encontre informações e serviços úteis para cada etapa da sua viagem.",
+    "resourcesEyebrow": "RECURSOS DE VIAGEM",
+    "resourcesTitle": "Tudo o que você precisa, em um só lugar",
+    "resources": {
+      "baggage": {
+        "title": "Regras de bagagem",
+        "description": "Consulte as regras para bagagem de mão, despachada, especial e itens restritos.",
+        "action": "Ver regras de bagagem"
+      },
+      "faqs": {
+        "title": "Perguntas frequentes",
+        "description": "Encontre respostas para dúvidas comuns sobre reservas, viagens e atendimento.",
+        "action": "Ver perguntas frequentes"
+      },
+      "checkin": {
+        "title": "Check-in online",
+        "description": "Consulte opções e informações de check-in para seu itinerário.",
+        "action": "Abrir informações de check-in"
+      },
+      "flightStatus": {
+        "title": "Status do voo",
+        "description": "Consulte informações de partida e chegada pelo número e pela data do voo.",
+        "action": "Consultar status do voo"
+      },
+      "help": {
+        "title": "Perguntas e ajuda",
+        "description": "Consulte opções de atendimento e contato por assunto.",
+        "action": "Ver ajuda"
+      }
+    },
+    "officialInfoNote": "Consulte seu itinerário salvo e os guias locais para conferir os detalhes da viagem.",
+    "experienceTitle": "A experiência de viagem",
+    "experienceDescription": "Conheça os serviços no aeroporto, o conforto a bordo e as aeronaves da rede.",
+    "experienceEyebrow": "A EXPERIÊNCIA",
+    "experienceAreasHeading": "Do aeroporto ao céu",
+    "experienceAreas": {
+      "airport": {
+        "title": "No aeroporto",
+        "description": "Conheça o check-in, as instalações e os serviços em terra."
+      },
+      "inAir": {
+        "title": "A bordo",
+        "description": "Descubra as cabines, os serviços a bordo e as opções de conforto."
+      },
+      "fleet": {
+        "title": "A frota",
+        "description": "Conheça as aeronaves que atendem à rede."
+      },
+      "transformation": {
+        "title": "Novas experiências",
+        "description": "Explore as mudanças na experiência de viagem."
+      }
+    },
+    "visitAirIndia": "Explorar informações de viagem",
+    "footer": "Planeje sua viagem com tranquilidade."
+  },
+  "tripOperations": {
+    "genericError": "Algo deu errado. Tente novamente.",
+    "paymentVerificationPending": "A Stripe está verificando o pagamento. Isso pode levar alguns segundos.",
+    "paymentVerified": "Pagamento confirmado.",
+    "paymentFailed": "A Stripe não conseguiu concluir este pagamento.",
+    "checkoutExpired": "Esta sessão expirou. Pesquise novamente para escolher outro itinerário.",
+    "paymentStillPending": "O pagamento ainda está pendente. Atualize suas viagens em instantes.",
+    "paymentCancelled": "O checkout foi cancelado. Nenhum pagamento foi registrado.",
+    "outbound": "Ida",
+    "return": "Volta",
+    "profile": "Perfil de viagem",
+    "profileDescription": "Salve os dados de contato e o idioma preferido para suas viagens.",
+    "displayName": "Nome de exibição",
+    "phone": "Telefone",
+    "preferredLanguage": "Idioma preferido",
+    "saveProfile": "Salvar perfil",
+    "profileSaved": "Seu perfil foi salvo.",
+    "backTrips": "Voltar às minhas viagens",
+    "backSearch": "Voltar à busca de voos",
+    "payment": "Pagamento",
+    "paymentStates": {
+      "unpaid": "Não pago",
+      "checkout_pending": "Pagamento pendente",
+      "paid": "Pago",
+      "failed": "Pagamento falhou"
+    },
+    "payTest": "Continuar para pagamento seguro",
+    "working": "Aguarde…",
+    "checkIn": "Fazer check-in",
+    "checkInPageTitle": "Faça check-in para sua viagem",
+    "checkInPageDescription": "Selecione um trecho pago para fazer check-in. O check-in online abre 48 horas antes da partida e fecha 60 minutos antes.",
+    "checkInPageHint": "Escolha um trecho elegível abaixo. Se o pagamento estiver pendente, conclua-o primeiro.",
+    "checkinSuccess": "Check-in concluído · Assento {{seat}} · Referência {{reference}}",
+    "boardingPass": "Assento {{seat}} · Referência de embarque {{reference}}",
+    "flightStatus": "Status do voo",
+    "statusDescription": "Consulte informações de partida e chegada do seu voo.",
+    "flightNumber": "Número do voo",
+    "date": "Data do voo",
+    "searchStatus": "Consultar status",
+    "demoData": "ÚLTIMA ATUALIZAÇÃO DO VOO",
+    "source": "Fonte",
+    "departure": "Partida",
+    "arrival": "Chegada",
+    "terminal": "Terminal",
+    "gate": "Portão",
+    "delayMinutes": "Atraso (minutos)",
+    "lastUpdated": "Atualizado em",
+    "errors": {
+      "auth_required": "Faça login para continuar.",
+      "flight_leg_required": "Escolha um trecho do voo.",
+      "invalid_flight_leg": "Escolha um trecho válido.",
+      "booking_not_found": "Não encontramos esta reserva.",
+      "payment_required": "Conclua o pagamento antes do check-in.",
+      "booking_not_eligible": "Esta reserva não está elegível para check-in.",
+      "checkin_window_closed": "O check-in online abre 48 horas antes da partida e fecha 60 minutos antes.",
+      "flight_leg_not_found": "Esta reserva não tem voo de volta.",
+      "flight_not_checkin_eligible": "Este voo não está mais elegível para check-in.",
+      "checkin_failed": "Não foi possível concluir o check-in.",
+      "booking_load_failed": "Não foi possível carregar a reserva.",
+      "booking_not_payable": "O pagamento desta reserva não está disponível.",
+      "payment_verifying": "O pagamento está sendo verificado. Atualize suas viagens em instantes.",
+      "checkout_unavailable": "O pagamento está temporariamente indisponível.",
+      "stripe_not_configured": "O pagamento está temporariamente indisponível. Tente novamente mais tarde.",
+      "profile_invalid": "Informe um nome, telefone e idioma válidos.",
+      "profile_load_failed": "Não foi possível carregar o perfil.",
+      "profile_save_failed": "Não foi possível salvar o perfil.",
+      "invalid_status_query": "Informe um número e uma data de voo válidos.",
+      "status_unavailable": "O status do voo está temporariamente indisponível.",
+      "status_not_found": "Não encontramos o status deste voo e data."
+    },
+    "flightStates": {
+      "scheduled": "Programado",
+      "active": "Em voo",
+      "landed": "Pousou",
+      "cancelled": "Cancelado",
+      "incident": "Incidente",
+      "diverted": "Desviado"
+    }
+  },
+  "errorMessages": {
+    "networkError": "Erro de rede. Verifique sua conexão com a internet.",
+    "unauthorized": "Acesso não autorizado. Faça login novamente."
+  },
+  "flightSearch": {
+    "hero": {
+      "eyebrow": "Uma viagem com mais cuidado",
+      "title": "O mundo está mais perto do que você imagina.",
+      "description": "Planeje sua próxima viagem com clareza, conforto e inspiração.",
+      "demoStatus": "Sua próxima viagem começa aqui."
+    },
+    "notFound": {
+      "title": "Não encontramos esta página.",
+      "description": "Volte à busca de voos para continuar.",
+      "home": "Voltar à busca de voos"
+    },
+    "nav": {
+      "bookManage": "Reservar e gerenciar",
+      "whereFly": "Para onde voamos",
+      "prepareTravel": "Prepare sua viagem",
+      "experience": "Experiência de viagem",
+      "signIn": "Entrar",
+      "signOut": "Sair",
+      "language": "Idioma",
+      "english": "English",
+      "spanish": "Español",
+      "checkingSession": "Verificando sessão…",
+      "faqs": "Perguntas frequentes",
+      "openMenu": "Abrir menu",
+      "closeMenu": "Fechar menu"
+    },
+    "booking": {
+      "title": "Buscar voos Veyra",
+      "servicesLabel": "Serviços de viagem",
+      "searchFlights": "Buscar voos",
+      "manageBooking": "Gerenciar reserva",
+      "checkIn": "Check-in",
+      "flightStatus": "Status do voo",
+      "comingSoon": "Em breve",
+      "studentOffer": "Tarifas para estudantes disponíveis",
+      "publicSearchNote": "Busque voos sem entrar. Faça login com Google para acessar os recursos da conta.",
+      "saving": "Salvando sua reserva…",
+      "saveDemo": "Reservar este voo",
+      "signInToSave": "Entre para reservar",
+      "signInRequired": "Entre para continuar com esta reserva. Seus voos selecionados serão mantidos.",
+      "saveFailed": "Não foi possível salvar a reserva. Pesquise novamente e tente outra vez.",
+      "saved": "Itinerário salvo · referência {{reference}}",
+      "demoOnly": "Revise seu itinerário e gerencie cada etapa da viagem.",
+      "myTrips": "Minhas viagens",
+      "myTripsDescription": "Gerencie suas reservas, pagamentos e opções de viagem em um só lugar.",
+      "tripsLoadFailed": "Não foi possível carregar suas viagens. Entre e tente novamente.",
+      "loadingTrips": "Carregando suas viagens…",
+      "noTrips": "Você ainda não tem reservas.",
+      "demoBooking": "Reserva de voo",
+      "demoNoTicket": "Seu itinerário e as opções da viagem aparecem abaixo.",
+      "backToSearch": "Voltar à busca de voos"
+    },
+    "trip": {
+      "label": "Tipo de viagem",
+      "roundTrip": "Ida e volta",
+      "oneWay": "Somente ida"
+    },
+    "fields": {
+      "origin": "Origem",
+      "destination": "Destino",
+      "depart": "Partida",
+      "return": "Volta",
+      "passengers": "Passageiros",
+      "adult": "Adulto",
+      "adults": "Adultos",
+      "class": "Classe",
+      "economy": "Econômica",
+      "premiumEconomy": "Econômica premium",
+      "business": "Executiva",
+      "first": "Primeira classe"
+    },
+    "airports": {
+      "DEL": "Delhi",
+      "BOM": "Mumbai",
+      "BLR": "Bengaluru",
+      "MAA": "Chennai",
+      "HYD": "Hyderabad"
+    },
+    "actions": {
+      "swapAirports": "Inverter origem e destino",
+      "search": "Buscar voos",
+      "searching": "Buscando…"
+    },
+    "validation": {
+      "originRequired": "Escolha a cidade de partida",
+      "destinationRequired": "Escolha um destino",
+      "differentAirport": "Escolha outro destino",
+      "departureRequired": "Escolha a data de partida",
+      "returnRequired": "Escolha a data de volta",
+      "returnAfterDeparture": "A volta deve ser depois da partida"
+    },
+    "errors": {
+      "searchFailed": "A busca de voos falhou. Tente novamente.",
+      "signInFailed": "Não foi possível iniciar o login com Google.",
+      "signOutFailed": "Não foi possível sair. Tente novamente."
+    },
+    "results": {
+      "eyebrow": "SUA VIAGEM",
+      "demoBadge": "OPÇÕES DE VOO",
+      "notice": "Veyra · Voos programados",
+      "mockNotice": "Escolha um itinerário para revisar horários e tarifa antes de continuar.",
+      "demoSource": "Voo Veyra",
+      "perAdult": "por passageiro",
+      "duration": "Duração",
+      "searchSummary": "{{passengers}} {{passengerLabel}} · {{cabinClass}}",
+      "outbound": "Escolha o voo de ida",
+      "return": "Escolha o voo de volta",
+      "noFlights": "Não há voos disponíveis para este trecho.",
+      "estimatedTotal": "Total para todos os passageiros: {{total}}"
+    },
+    "footer": {
+      "demo": "Veyra",
+      "mock": "Explore voos e planeje sua próxima viagem."
+    },
+    "auth": {
+      "brand": "Veyra",
+      "welcome": "Boas-vindas a bordo",
+      "createAccount": "Crie sua conta",
+      "signInDescription": "Entre para continuar sua viagem.",
+      "signUpDescription": "Cadastre-se com Google para criar sua conta.",
+      "signUp": "Cadastrar",
+      "continueGoogle": "Continuar com Google",
+      "connecting": "Conectando ao Google…",
+      "terms": "Ao continuar, você aceita os termos e o aviso de privacidade aplicáveis.",
+      "missingConfig": "Supabase não está configurado. Adicione a URL e a chave pública do projeto em .env.local.",
+      "close": "Fechar janela de login",
+      "accountAccess": "Acesso à conta"
+    }
+  },
+  "faqs": {
+    "eyebrow": "INFORMAÇÕES DE VIAGEM",
+    "title": "Perguntas frequentes",
+    "description": "Encontre informações práticas para planejar e gerenciar sua viagem.",
+    "allTopics": "Todos os tópicos",
+    "search": "Buscar tópicos",
+    "searchPlaceholder": "Buscar um tópico…",
+    "topicCount": "{{count}} tópicos",
+    "learnMore": "Ver tópico",
+    "disclaimer": "Este guia local reúne as informações de viagem por tema. Tarifas, elegibilidade, orientações de saúde e detalhes operacionais podem mudar; as notas de origem ficam nos registros locais para futuras atualizações.",
+    "categories": {
+      "booking": {
+        "title": "Reservas",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "checkin": {
+        "title": "Check-in",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "baggage": {
+        "title": "Bagagem",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "reaccommodation": {
+        "title": "Reacomodação self-service",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "loyalty": {
+        "title": "Programa de fidelidade",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "notifications": {
+        "title": "Notificações da viagem",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "insurance": {
+        "title": "Seguro viagem",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "cargo": {
+        "title": "Carga",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "health": {
+        "title": "Assistência médica",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "children": {
+        "title": "Viajar com crianças",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "pets": {
+        "title": "Viajar com animais",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "payments": {
+        "title": "Pagamento, reembolso e cancelamento",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "integration": {
+        "title": "Integração Air India–Vistara",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "rail": {
+        "title": "Rail and Fly",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "app": {
+        "title": "Aplicativo móvel",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "account": {
+        "title": "Cliente registrado",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "wifi": {
+        "title": "Wi-Fi a bordo",
+        "description": "Consulte respostas e orientações práticas para esta etapa da sua viagem."
+      },
+      "baggage-guidelines": {
+        "title": "Guia de bagagem",
+        "description": "Bagagem de cabine e despachada, itens restritos, bagagem especial, extravios e rastreamento."
+      },
+      "customer-support": {
+        "title": "Perguntas e ajuda",
+        "description": "Encontre o tema de ajuda, canal de atendimento, formulário de solicitação ou contato de itens perdidos."
+      },
+      "flight-status-info": {
+        "title": "Informações sobre status do voo",
+        "description": "Saiba quais dados o serviço de status aceita e qual período de datas está disponível."
+      },
+      "online-checkin-info": {
+        "title": "Informações sobre check-in online",
+        "description": "Consulte o prazo, documentos de embarque, despacho de bagagem e limitações do serviço."
+      }
+    },
+    "searchQuestions": "Buscar perguntas",
+    "searchQuestionsPlaceholder": "Buscar neste tópico…",
+    "selectSection": "Escolher seção",
+    "allSections": "Todas as seções",
+    "noQuestions": "Nenhuma pergunta corresponde à sua busca.",
+    "articleOverview": "Resumo do tópico",
+    "articleSections": "Neste artigo",
+    "openLocalStatus": "Abrir a consulta local de status do voo",
+    "articleQuestions": "Perguntas e respostas"
+  }
+}

@@ -1,73 +1,111 @@
-import { Globe2, UserRound } from "lucide-react";
-import { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
-import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
+"use client";
 
-export function FlightsHeader({
-  user,
-  authLoading,
-  onSignIn,
-  onSignOut,
-}: {
+import Image from "next/image";
+import Link, { useLinkStatus } from "next/link";
+import { Menu, UserRound, X } from "lucide-react";
+import { useRef, useState, type MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
+import type { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
+import { LanguagePicker } from "@/src/components/navigation/LanguagePicker";
+
+export const travelNavItems = [
+  { key: "bookManage", href: "/#search" },
+  { key: "whereFly", href: "/where-we-fly" },
+  { key: "prepareTravel", href: "/prepare-to-travel" },
+  { key: "faqs", href: "/faqs" },
+  { key: "experience", href: "/experience" },
+] as const;
+
+export type TravelTab = (typeof travelNavItems)[number]["key"];
+
+export function getTravelTab(pathname: string): TravelTab | undefined {
+  return travelNavItems.find(({ href }) => href !== "/#search" && (pathname === href || pathname.startsWith(href + "/")))?.key
+    ?? (pathname === "/flight-status" ? "prepareTravel" : ["/", "/my-trips", "/profile"].includes(pathname) ? "bookManage" : undefined);
+}
+
+const focusStyle = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet";
+
+function TabPending() {
+  const { pending } = useLinkStatus();
+  return <span aria-hidden="true" className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-airline-gold transition-opacity duration-150 motion-reduce:transition-none ${pending ? "opacity-100" : "opacity-0"}`} />;
+}
+
+export function FlightsHeader({ pathname = "/", user, authLoading, onSignIn, onSignOut, onEditSearch }: {
+  pathname?: string;
   user: GoogleUser | null;
   authLoading: boolean;
   onSignIn: () => void;
   onSignOut: () => void;
+  onEditSearch?: () => void;
 }) {
   const { t, i18n } = useTranslation();
-  const openUpcoming = () => {
-    if (!user) onSignIn();
-    else toast(t("flightSearch.booking.comingSoon"));
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const activeKey = getTravelTab(pathname);
+
+  const selectLink = (event: MouseEvent<HTMLAnchorElement>, key: string) => {
+    setMobileMenuOpen(false);
+    if (key !== "bookManage" || !onEditSearch || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    onEditSearch();
   };
+
   return (
-    <>
-      <div className="flex min-h-[42px] items-center justify-center gap-3 border-b border-[#25394e] bg-[#17283b] px-5 py-2 text-[13px] text-[#f4f1ea] max-[650px]:justify-start max-[650px]:text-[11px]">
-        <span aria-hidden="true">ⓘ</span>
-        <span>{t("flightSearch.alert.text")}</span>
-        <a className="font-semibold text-[#e5c98f]" href="https://www.airindia.com/" target="_blank" rel="noreferrer">{t("flightSearch.alert.viewAll")}</a>
-      </div>
-      <header className="flex h-[82px] items-center gap-9 border-b border-[#e7e8ea] bg-white px-[clamp(20px,4vw,72px)] shadow-[0_3px_14px_rgb(15_31_47_/_5%)] max-[1050px]:justify-between max-[650px]:h-[66px] max-[650px]:gap-2 max-[650px]:px-4">
-        <a className="flex items-center gap-1 whitespace-nowrap text-[25px] font-extrabold tracking-[.02em] text-[#c8102e] no-underline max-[650px]:text-xl" href="/" aria-label="Air India home">
-          <span className="text-[31px] text-[#c4a466]" aria-hidden="true">✦</span><span>AIR INDIA</span>
-        </a>
-        <nav className="flex flex-1 items-center justify-center gap-[clamp(12px,2vw,32px)] max-[1050px]:hidden" aria-label="Main navigation">
-          <a className="whitespace-nowrap text-xs font-semibold uppercase text-[#202329] no-underline" href="#search">{t("flightSearch.nav.bookManage")}</a>
-          <button className="whitespace-nowrap text-xs font-semibold uppercase text-[#202329] disabled:opacity-50" type="button" disabled={authLoading} onClick={openUpcoming}>{t("flightSearch.nav.whereFly")}</button>
-          <button className="whitespace-nowrap text-xs font-semibold uppercase text-[#202329] disabled:opacity-50" type="button" disabled={authLoading} onClick={openUpcoming}>{t("flightSearch.nav.prepareTravel")}</button>
-          <button className="whitespace-nowrap text-xs font-semibold uppercase text-[#202329] disabled:opacity-50" type="button" disabled={authLoading} onClick={openUpcoming}>{t("flightSearch.nav.experience")}</button>
+    <header className="sticky top-0 z-40 h-[62px] px-3 pt-2 sm:h-[72px] sm:px-6" onKeyDown={(event) => {
+      if (event.key === "Escape" && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        menuButton.current?.focus();
+      }
+    }}>
+      <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between gap-2 rounded-2xl border border-airline-line bg-airline-paper px-3 shadow-sm sm:gap-4 sm:px-5">
+        <Link href="/" aria-label="Veyra" className={"flex shrink-0 items-center gap-2 rounded-lg font-serif text-xl font-bold tracking-tight text-airline-night no-underline sm:text-2xl " + focusStyle}>
+          <Image src="/icon.svg" alt="" width={32} height={32} />
+          <span>Veyra</span>
+        </Link>
+
+        <nav className="hidden items-center gap-1 rounded-full bg-airline-canvas p-1 min-[1051px]:flex" aria-label="Main navigation">
+          {travelNavItems.map(({ key, href }) => (
+            <Link key={key} href={href} prefetch onClick={(event) => selectLink(event, key)} aria-current={key === activeKey ? "page" : undefined}
+              className={["relative rounded-full px-3 py-2 text-center text-xs font-semibold no-underline transition-colors motion-reduce:transition-none", focusStyle, key === activeKey ? "bg-airline-forest text-white" : "text-airline-ink hover:bg-white"].join(" ")}>
+              {t("flightSearch.nav." + key)}
+              <TabPending />
+            </Link>
+          ))}
         </nav>
-        <div className="flex min-w-0 items-center gap-3 max-[650px]:gap-1.5">
-          <label className="inline-flex items-center gap-1.5 text-[#202329]" aria-label={t("flightSearch.nav.language")}>
-            <Globe2 size={18} />
-            <select
-              className="cursor-pointer border-0 bg-transparent text-xs font-semibold text-inherit outline-offset-2"
-              value={i18n.resolvedLanguage?.startsWith("es") ? "es" : "en"}
-              onChange={(event) => {
-                window.localStorage.setItem("airline-language", event.target.value);
-                void i18n.changeLanguage(event.target.value);
-              }}
-              aria-label={t("flightSearch.nav.language")}
-            >
-              <option value="en">EN</option>
-              <option value="es">ES</option>
-            </select>
-          </label>
+
+        <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2">
+          <LanguagePicker />
           {authLoading ? (
-            <span className="px-[14px] py-[10px] text-[13px] text-[#707780]" role="status">{t("flightSearch.nav.checkingSession")}</span>
+            <span className="sr-only" role="status">{t("flightSearch.nav.checkingSession")}</span>
           ) : user ? (
-            <div className="flex items-center gap-2">
-              <a href="/my-trips" className="whitespace-nowrap text-xs font-semibold text-[#86233d] underline underline-offset-4">{t("flightSearch.booking.myTrips")}</a>
-              <button type="button" className="inline-flex max-w-[170px] cursor-pointer items-center gap-2 rounded-full border border-[#e0e1e4] bg-transparent px-[14px] py-[10px] font-semibold text-[#202329] max-[650px]:max-w-[105px] max-[650px]:px-2 max-[650px]:text-xs" onClick={onSignOut} title={t("flightSearch.nav.signOut")}>
-                <UserRound size={17} className="shrink-0" /> <span className="truncate">{user.name || user.email.split("@")[0]}</span>
+            <>
+              <Link href="/my-trips" className={"hidden rounded-full px-3 py-2 text-xs font-semibold text-airline-forest no-underline hover:bg-airline-canvas min-[1051px]:inline-flex " + focusStyle}>{t("flightSearch.booking.myTrips")}</Link>
+              <button type="button" onClick={onSignOut} title={t("flightSearch.nav.signOut")} aria-label={t("flightSearch.nav.signOut")} className={"grid h-9 w-9 shrink-0 place-items-center rounded-full bg-airline-forest text-sm font-bold text-white " + focusStyle}>
+                <span aria-hidden="true">{(user.name?.trim() || user.email.split("@")[0]).charAt(0).toLocaleUpperCase(i18n.resolvedLanguage ?? "en")}</span>
               </button>
-            </div>
+            </>
           ) : (
-            <button type="button" className="inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-[#e0e1e4] bg-transparent px-[14px] py-[10px] font-semibold text-[#202329] max-[650px]:px-2 max-[650px]:text-xs" onClick={onSignIn}>
-              <UserRound size={17} /> {t("flightSearch.nav.signIn")}
+            <button type="button" onClick={onSignIn} aria-label={t("flightSearch.nav.signIn")} className={"inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-airline-line px-2.5 text-xs font-semibold text-airline-ink hover:bg-airline-canvas sm:px-3 " + focusStyle}>
+              <UserRound size={16} aria-hidden="true" /><span className="hidden sm:inline">{t("flightSearch.nav.signIn")}</span>
             </button>
           )}
+          <button ref={menuButton} type="button" aria-label={t(mobileMenuOpen ? "flightSearch.nav.closeMenu" : "flightSearch.nav.openMenu")} aria-expanded={mobileMenuOpen}
+            aria-controls={mobileMenuOpen ? "veyra-mobile-menu" : undefined} onClick={() => setMobileMenuOpen((open) => !open)}
+            className={"grid h-9 w-9 shrink-0 place-items-center rounded-full bg-airline-canvas text-airline-night min-[1051px]:hidden " + focusStyle}>
+            {mobileMenuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+          </button>
         </div>
-      </header>
-    </>
+      </div>
+
+      {mobileMenuOpen && (
+        <nav id="veyra-mobile-menu" aria-label={t("flightSearch.booking.servicesLabel")} className="absolute right-3 top-full mt-2 grid w-[min(20rem,calc(100%_-_24px))] gap-1 rounded-2xl border border-airline-line bg-airline-paper p-2 shadow-xl sm:right-6 min-[1051px]:hidden">
+          {travelNavItems.map(({ key, href }) => (
+            <Link key={key} href={href} prefetch onClick={(event) => selectLink(event, key)} aria-current={key === activeKey ? "page" : undefined}
+              className={["rounded-xl px-4 py-3 text-sm font-semibold no-underline", focusStyle, key === activeKey ? "bg-airline-forest text-white" : "text-airline-ink hover:bg-airline-canvas"].join(" ")}>{t("flightSearch.nav." + key)}</Link>
+          ))}
+          {user && <Link href="/my-trips" onClick={() => setMobileMenuOpen(false)} className={"rounded-xl px-4 py-3 text-sm font-semibold text-airline-forest no-underline hover:bg-airline-canvas " + focusStyle}>{t("flightSearch.booking.myTrips")}</Link>}
+        </nav>
+      )}
+    </header>
   );
 }

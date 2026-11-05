@@ -1,0 +1,281 @@
+{
+  "documents": [
+    {
+      "id": "booking",
+      "title": "Booking",
+      "sections": [
+        "How to Book",
+        "Passenger Detail",
+        "Special Bookings",
+        "Fares",
+        "Payment & Security",
+        "Booking Confirmation",
+        "Change Your Booking",
+        "Before You Travel",
+        "EU/UK 261 Flight Compensation Claim",
+        "Travel Certificate",
+        "eVoucher"
+      ],
+      "summary": "Covers ways to book and the online booking journey, passenger-name and passenger-count questions, group and corporate travel, concessionary and fare-family topics, payments, confirmation recovery, itinerary changes and cancellations, travel certificates, and vouchers. The page includes route- and fare-dependent rules. Treat amounts, deadlines, eligibility, and name-document instructions as volatile and verify them against a current official rule before answering."
+    },
+    {
+      "id": "checkin",
+      "title": "Check-in",
+      "sections": [
+        "Online check-in",
+        "Airport check-in",
+        "Boarding pass",
+        "Other issues"
+      ],
+      "summary": "Explains online check-in through the website or app, the booking reference and passenger surname needed to retrieve a trip, seat and boarding-pass steps, airport-counter check-in, eligibility exceptions, and common troubleshooting. The reviewed page states a check-in window from 48 hours until 60 minutes before departure, with some airport-specific exceptions. Reconfirm time windows and special-assistance eligibility before using them as an answer."
+    },
+    {
+      "id": "baggage",
+      "title": "Baggage",
+      "sections": [
+        "Baggage Allowance",
+        "From Check-in to Claims",
+        "Baggage on Connecting Flights",
+        "Baggage Policy for Infants/Children",
+        "Excess Baggage",
+        "Issues with Baggage",
+        "Limits and Restrictions",
+        "Special Items"
+      ],
+      "summary": "Covers cabin and checked-baggage allowance, dimensions and weight, excess-baggage charges, connecting itineraries, infants and children, special items, restricted articles, baggage tracing, and claims. Allowance varies by itinerary, fare family, cabin, and loyalty status; the page points travelers to booking-specific baggage tools. Do not answer with a universal allowance or quote a fee without the trip details and a current source check."
+    },
+    {
+      "id": "reaccommodation",
+      "title": "Self-Service Re-accommodation",
+      "sections": [
+        "Self-Service Re-accommodation"
+      ],
+      "summary": "Describes rebooking after an eligible disruption, who may use the service, how travelers retrieve disrupted and replacement itinerary details, when an invitation may arrive, whether the process has a fee, and whether a replacement can be changed again. Eligibility depends on ticket, operating carrier, booking contact details, party size, seat availability, and disruption timing. Verify the latest conditions for the specific booking."
+    },
+    {
+      "id": "loyalty",
+      "title": "Maharaja Club (Loyalty)",
+      "sections": [
+        "Programme Overview",
+        "Eligibility and How to Join",
+        "Enrolment for Minors",
+        "Account & ID",
+        "Programme Tiers",
+        "Earn Points",
+        "Claim Missing Points and Buy Points",
+        "Redeem Points",
+        "Cabin Upgrade Vouchers",
+        "Welcome Kits",
+        "Complimentary Ticket Vouchers",
+        "Cash + Points",
+        "Award-flight Cancellations and Refunds",
+        "Star Alliance Benefits",
+        "Family Pool",
+        "Post-Merger",
+        "Data Protection & Consent Management"
+      ],
+      "summary": "Covers programme enrollment, account access, member and minor accounts, tier qualification and benefits, earning and claiming points, redemption, vouchers, family pooling, partner benefits, and account-data questions. It also contains merger-related legacy guidance. Point values, tier thresholds, partner rules, and dated merger statements can change; use current programme terms and the traveler's account context before answering."
+    },
+    {
+      "id": "notifications",
+      "title": "Journey Notifications",
+      "sections": [
+        "General Queries",
+        "Troubleshooting"
+      ],
+      "summary": "Describes journey alerts such as booking, check-in, baggage, gate, disruption, and post-travel updates; delivery channels; contact details needed for delivery; and troubleshooting when a travel agent made the booking or a message was not received. It advises keeping the booking email and phone current. Channel availability and notification schedules should be rechecked as service behavior may change."
+    },
+    {
+      "id": "insurance",
+      "title": "Travel Insurance",
+      "sections": [
+        "Eligibility and benefits",
+        "Coverage and medical treatment",
+        "Claims and customer support",
+        "Policy details and changes",
+        "Policy documents and terms"
+      ],
+      "summary": "This index topic leads to a travel-insurance product page and linked question pages rather than one FAQ article. The page presents insurance as a partner product and summarizes possible cover areas such as medical events, travel disruption, baggage problems, and cancellation, subject to the purchased policy. Eligibility shown on the page is limited by residence and trip origin. Coverage, exclusions, claims, and eligibility must come from the actual policy wording, not a general FAQ summary."
+    },
+    {
+      "id": "cargo",
+      "title": "Cargo",
+      "sections": [
+        "Booking",
+        "Tracking",
+        "Agent Registration",
+        "Cargo Handling, Process, and Facilities",
+        "Network",
+        "Claims and Refunds",
+        "Express Shipping",
+        "Pharma",
+        "Fresh",
+        "Mail",
+        "Courier",
+        "Dangerous Goods",
+        "Live Animals",
+        "Valuables",
+        "Vulnerables",
+        "Unaccompanied Baggage",
+        "Pets",
+        "Human Remains"
+      ],
+      "summary": "Cargo has a separate FAQ and service taxonomy for booking, tracking, agent onboarding, handling and facilities, network coverage, claims, product-specific requirements, and personal cargo. Cargo questions should be routed separately from passenger baggage and passenger-ticket policies. The source also presents cargo contact information and product categories; operational terms and contact details require periodic verification."
+    },
+    {
+      "id": "health",
+      "title": "Health and Medical Assistance",
+      "sections": [
+        "Medical Clearance and Paperwork",
+        "Wheelchairs",
+        "Bringing Medical Supplies On Board",
+        "Inflight Health & Wellness"
+      ],
+      "summary": "Covers medical clearance and forms, mobility and wheelchair requests, oxygen and medical equipment, travel after illness or surgery, special meals, service animals, and general in-flight health topics. The source describes advance requests and medical review for some services. Because this topic can affect a traveler's health and boarding eligibility, answers should be limited to sourced process guidance and direct users to the airline and a qualified clinician for case-specific decisions."
+    },
+    {
+      "id": "children",
+      "title": "Travelling with Children",
+      "sections": [
+        "Infant",
+        "Accompanied Minors",
+        "Unaccompanied Minors",
+        "Young Passengers"
+      ],
+      "summary": "Addresses infant age and travel documents, adult-to-infant accompaniment, bassinets and child equipment, children travelling with guardians, and services for accompanied or unaccompanied minors and young passengers. Rules depend on age, route, documentation, and the service requested. Confirm the current policy and destination-government requirements before advising on a specific child itinerary."
+    },
+    {
+      "id": "pets",
+      "title": "Travelling with Pets",
+      "sections": [
+        "Rules for Carriage of Pets"
+      ],
+      "summary": "Covers pet eligibility, cabin versus hold or cargo transport, carrier and weight requirements, booking lead time, required paperwork, destination-specific restrictions, and charges. The reviewed page distinguishes domestic cats and dogs and describes weight thresholds, but routes, aircraft, country rules, approvals, and prices can differ. Treat every pet request as itinerary-specific and verify before giving a definitive answer."
+    },
+    {
+      "id": "payments",
+      "title": "Payment, Refund, and Cancellation",
+      "sections": [
+        "Refund",
+        "Cancellations",
+        "Rescheduling",
+        "Self-Service Re-accommodation",
+        "Payment"
+      ],
+      "summary": "Covers how to request refunds, cancelled and missed flights, refund calculations, cancellation and rescheduling, payment methods and failures, and disruption-related re-accommodation. Outcomes depend on fare conditions, route, ticketing channel, timing, and payment status. Avoid promising a refund or fixed processing time; use the booking channel and current ticket rules."
+    },
+    {
+      "id": "integration",
+      "title": "Air India–Vistara Integration",
+      "sections": [
+        "Booking",
+        "Loyalty"
+      ],
+      "summary": "The page explains the Vistara transition, treatment of existing bookings and flight numbers, support channels, special assistance, loyalty-account migration, points and vouchers, and partner arrangements. Much of its content is tied to dates around the 2024 integration and may now be stale or superseded. Do not use this article for current operational guidance without checking the present-day booking or Maharaja Club rules."
+    },
+    {
+      "id": "rail",
+      "title": "Rail and Fly",
+      "sections": [
+        "Rail and Fly"
+      ],
+      "summary": "Covers combined air-and-rail reservations, train check-in and station selection, seat services, baggage, and changes or cancellations. At review time, the page stated that the Deutsche Bahn Rail & Fly service was temporarily suspended; this is a highly time-sensitive operational notice. Surface suspension status only with a fresh source check, and keep rail-provider rules distinct from flight rules."
+    },
+    {
+      "id": "app",
+      "title": "Mobile App",
+      "sections": [
+        "App installation and access",
+        "Bookings and trip management",
+        "Check-in and travel services",
+        "Payments and refunds",
+        "Troubleshooting"
+      ],
+      "summary": "The app FAQ concerns installation, sign-in, booking and managing trips, check-in, travel services, payment or refund flows, and resolving common app problems. App features and supported operating-system versions change frequently. This topic outline should be expanded from a current page review before it is used as a customer-support answer source."
+    },
+    {
+      "id": "account",
+      "title": "Registered Customer",
+      "sections": [
+        "Registration",
+        "Account access",
+        "Profile and benefits",
+        "Troubleshooting"
+      ],
+      "summary": "This topic is about registered-customer enrollment, account access, profile details, and account benefits. The index describes help for signing up and making use of an account. The specific login, verification, and benefit rules were not fully extracted in this research pass, so this record is a scope outline and must not be treated as a complete answer corpus."
+    },
+    {
+      "id": "wifi",
+      "title": "Inflight Wi-Fi",
+      "sections": [
+        "Availability and purchase",
+        "Login, connection and devices",
+        "Account verification and personal details",
+        "Payments and billing",
+        "Usage rules and restrictions",
+        "Maharaja Club benefits",
+        "Performance and connectivity",
+        "Privacy, security and compliance",
+        "System requirements"
+      ],
+      "summary": "Covers which flights may have Wi-Fi, onboard purchasing and login, supported devices, plan and billing questions, connectivity problems, usage restrictions, loyalty benefits, performance, privacy, and system requirements. Service availability can change by aircraft and route, while plans and loyalty entitlements can change over time. Verify flight-specific availability and current plan terms."
+    },
+    {
+      "id": "baggage-guidelines",
+      "title": "Baggage Guidelines",
+      "sections": [
+        "Cabin or Carry-on Baggage",
+        "Checked Baggage",
+        "Restricted Items and Baggage Advisory",
+        "Excess Baggage",
+        "Special Baggage",
+        "Lost or Damaged Baggage",
+        "Track Your Bags",
+        "Baggage Policy for International Airports",
+        "Baggage Calculator",
+        "Personal Cargo"
+      ],
+      "summary": "A packing and baggage guide covering cabin-bag pieces and weight, checked allowance for domestic, international, codeshare and interline itineraries, prohibited/restricted items, excess fees, special baggage, lost or damaged bags, tracking, airport-specific acceptance rules, and an itinerary-aware baggage calculator. The page directs unaccompanied baggage, pets as cargo, and human remains to cargo services. Exact allowances and fees depend on route, cabin and fare; keep values out of static answers unless they are freshly verified."
+    },
+    {
+      "id": "customer-support",
+      "title": "FAQ and Help",
+      "sections": [
+        "Frequently Asked Questions",
+        "Ask AI.g",
+        "WhatsApp Assistance",
+        "Submit a Help Request",
+        "India Customer Care",
+        "International Customer Care",
+        "Global Contact Centres",
+        "Worldwide Offices",
+        "Lost Items"
+      ],
+      "summary": "The current help/contact hub links the major FAQ topics, offers AI.g and WhatsApp assistance, accepts travel questions or concerns through a help-request flow, and lists India/international customer-care channels, global contact centres, offices and lost-item contacts. Contact options and phone numbers are changeable; the local guide should route users by help need and avoid embedding phone numbers or implying that it can submit a request."
+    },
+    {
+      "id": "flight-status-info",
+      "title": "Flight Status Information",
+      "sections": [
+        "Search by Flight Number",
+        "Search by Booking Reference (PNR)",
+        "Search by Route",
+        "Supported Date Window"
+      ],
+      "summary": "The official status page describes looking up departure and arrival status by flight number, booking reference, or route. At review time its stated search window was two days before through two days after the current date. This describes the airline page; this project currently has a separate local lookup over seeded demo snapshots, which is not connected to Air India live status."
+    },
+    {
+      "id": "online-checkin-info",
+      "title": "Online Check-in Information",
+      "sections": [
+        "Web Check-in Window",
+        "Baggage Drop",
+        "Domestic Boarding Card",
+        "International Confirmation Slip",
+        "Codeshare Eligibility",
+        "City Check-in"
+      ],
+      "summary": "The dedicated online check-in page describes check-in opening 48 hours before departure, separate domestic and international closing cutoffs, baggage-drop counters, domestic printable boarding cards, international confirmation slips that require airport document verification, codeshare exclusions, and a city check-in service. Air India pages give differing cutoffs: the dedicated page/search result says international check-in closes two hours before and domestic one hour before, while the FAQ has a general 60-minute statement. Keep this conflict explicit and do not give one universal cutoff until the source is reconciled."
+    }
+  ]
+}

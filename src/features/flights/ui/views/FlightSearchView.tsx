@@ -3,75 +3,81 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
+import Link from "next/link";
 import { IUseCase } from "@/src/core/interfaces/IUseCase";
 import { injector } from "@/src/ioc/utils/injector";
-import { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
-import { GoogleAuthenticationSymbols } from "@/src/features/authentication/ioc/GoogleAuthenticationSymbols";
-import { GoogleAuthModal } from "@/src/features/authentication/ui/components/GoogleAuthModal";
+import { useTravelShell } from "@/src/components/layout/TravelAppShell";
 import type { Booking, CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
 import { BookingSymbols } from "@/src/features/bookings/ioc/BookingSymbols";
 import { FlightSearchQuery, FlightSearchResult } from "../../domain/models/FlightSearch";
 import { FlightSearchSymbols } from "../../ioc/FlightSearchSymbols";
-import { FlightSearchForm } from "../components/FlightSearchForm";
-import { FlightsHeader } from "../components/FlightsHeader";
+import { FlightSearchForm, localDate } from "../components/FlightSearchForm";
 import { BookingTabs } from "../components/BookingTabs";
 import { FlightResults } from "../components/FlightResults";
-import { FlightHero } from "../components/FlightHero";
-import Image from "next/image";
+import { FlightHero, type FeaturedFlight } from "../components/FlightHero";
+import { DEMO_AIRPORT_CODES, DEMO_ROUTE_PAIRS, type DemoAirportCode } from "../../domain/models/DemoRoutes";
 
 type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
-type CurrentUserUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, GoogleUser | null>>>;
-type SignOutUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, void>>>;
 type CreateBookingUseCase = IUseCase<CreateDemoBookingCommand, Promise<import("fp-ts/Either").Either<string, Booking>>>;
+type RoutePrefill = { origin: DemoAirportCode; destination: DemoAirportCode; date?: string };
 
 export default function FlightSearchView() {
   const { t } = useTranslation();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [user, setUser] = useState<GoogleUser | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { user, authLoading, openSignIn, registerSearchAction } = useTravelShell();
   const [results, setResults] = useState<FlightSearchResult | null>(null);
   const [error, setError] = useState("");
   const [booking, setBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState("");
   const [bookingBusy, setBookingBusy] = useState(false);
+  const [routeRevision, setRouteRevision] = useState(0);
+  const [featuredFlights, setFeaturedFlights] = useState<FeaturedFlight[]>([]);
+  const [routePrefill, setRoutePrefill] = useState<RoutePrefill | null>(null);
   const searchUseCase = useMemo(() => injector<SearchUseCase>(FlightSearchSymbols.searchUseCase), []);
-  const currentUserUseCase = useMemo(() => injector<CurrentUserUseCase>(GoogleAuthenticationSymbols.currentUserUseCase), []);
-  const signOutUseCase = useMemo(() => injector<SignOutUseCase>(GoogleAuthenticationSymbols.signOutUseCase), []);
+  useEffect(() => {
+    let active = true;
+    const departureDate = localDate(1);
+    void Promise.allSettled(DEMO_ROUTE_PAIRS.map(async (route) => {
+      const result = await searchUseCase.execute({ ...route, departureDate, passengers: 1, cabinClass: "economy" });
+      if (isLeft(result)) return null;
+      const flight = result.right.flights.find((option) => option.number_of_bookable_seats > 0);
+      return flight ? { ...route, date: flight.departure_date, number: flight.flight_number } : null;
+    })).then((responses) => {
+      if (active) setFeaturedFlights(responses.flatMap((response) => response.status === "fulfilled" && response.value ? [response.value] : []));
+    });
+    return () => { active = false; };
+  }, [searchUseCase]);
+
   const createBookingUseCase = useMemo(() => injector<CreateBookingUseCase>(BookingSymbols.createDemoBookingUseCase), []);
 
   const submitDemoBooking = useCallback(async (command: CreateDemoBookingCommand) => {
     setBookingBusy(true);
     setBookingError("");
-    const result = await createBookingUseCase.execute(command);
-    if (isLeft(result)) {
+    try {
+      const result = await createBookingUseCase.execute(command);
+      if (isLeft(result)) {
+        setBookingError(t("flightSearch.booking.saveFailed"));
+        return;
+      }
+      setBooking(result.right);
+    } catch {
       setBookingError(t("flightSearch.booking.saveFailed"));
+    } finally {
       setBookingBusy(false);
-      return;
     }
-    setBooking(result.right);
-    setBookingBusy(false);
-    try { window.sessionStorage.removeItem("airline-pending-demo-booking"); } catch { /* optional storage */ }
   }, [createBookingUseCase, t]);
 
   useEffect(() => {
-    let active = true;
-    void currentUserUseCase.execute()
-      .then((result) => {
-        if (!active || isLeft(result)) return;
-        setUser(result.right);
-        if (result.right) {
-          try {
-            const pending = window.sessionStorage.getItem("airline-pending-demo-booking");
-            if (pending) void submitDemoBooking(JSON.parse(pending) as CreateDemoBookingCommand);
-          } catch {
-            window.sessionStorage.removeItem("airline-pending-demo-booking");
-          }
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => { if (active) setAuthLoading(false); });
-    return () => { active = false; };
-  }, [currentUserUseCase, submitDemoBooking]);
+    if (!user) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("signedIn") !== "1") return;
+    url.searchParams.delete("signedIn");
+    window.history.replaceState(window.history.state, "", url);
+    try {
+      const pending = window.sessionStorage.getItem("airline-pending-demo-booking");
+      window.sessionStorage.removeItem("airline-pending-demo-booking");
+      if (pending) void submitDemoBooking(JSON.parse(pending) as CreateDemoBookingCommand);
+    } catch { /* No recoverable booking. */ }
+  }, [user, submitDemoBooking]);
 
   useEffect(() => {
     const authError = new URLSearchParams(window.location.search).get("authError");
@@ -81,17 +87,43 @@ export default function FlightSearchView() {
     }
   }, [t]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const origin = params.get("origin");
+    const destination = params.get("destination");
+    if (origin && destination
+      && DEMO_AIRPORT_CODES.includes(origin as DemoAirportCode)
+      && DEMO_AIRPORT_CODES.includes(destination as DemoAirportCode)
+      && origin !== destination) {
+      setRoutePrefill({ origin: origin as DemoAirportCode, destination: destination as DemoAirportCode });
+      window.history.replaceState({}, "", `${window.location.pathname}#search`);
+      requestAnimationFrame(() => document.getElementById("search")?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "center",
+      }));
+    }
+  }, []);
+
   const searchFlights = useCallback(async (query: FlightSearchQuery) => {
     setError("");
     setBooking(null);
     setBookingError("");
     setResults(null);
-    const result = await searchUseCase.execute(query);
-    if (isLeft(result)) {
+    try {
+      const result = await searchUseCase.execute(query);
+      if (isLeft(result)) {
+        setError(t("flightSearch.errors.searchFailed"));
+        return;
+      }
+      setResults(result.right);
+      requestAnimationFrame(() => {
+        const panel = document.getElementById("flight-search-results");
+        panel?.focus({ preventScroll: true });
+        panel?.scrollIntoView({ block: "start" });
+      });
+    } catch {
       setError(t("flightSearch.errors.searchFailed"));
-      return;
     }
-    setResults(result.right);
   }, [searchUseCase, t]);
 
   const bookFlight = useCallback((flightInstanceId: string, returnFlightInstanceId: string | undefined, expectedOutboundFareMinor: number, expectedReturnFareMinor?: number) => {
@@ -108,43 +140,53 @@ export default function FlightSearchView() {
     setBooking(null);
     setBookingError("");
     if (!user) {
-      try { window.sessionStorage.setItem("airline-pending-demo-booking", JSON.stringify(command)); } catch { /* sign-in still works */ }
       setBookingError(t("flightSearch.booking.signInRequired"));
-      setModalOpen(true);
+      openSignIn(() => {
+        try { window.sessionStorage.setItem("airline-pending-demo-booking", JSON.stringify(command)); }
+        catch { /* Sign-in can continue when storage is unavailable. */ }
+      });
       return;
     }
     void submitDemoBooking(command);
-  }, [results, submitDemoBooking, t, user]);
+  }, [openSignIn, results, submitDemoBooking, t, user]);
 
-  const signOut = useCallback(async () => {
-    const result = await signOutUseCase.execute();
-    if (isLeft(result)) {
-      setError(t("flightSearch.errors.signOutFailed"));
-      return;
-    }
-    setUser(null);
-  }, [signOutUseCase, t]);
+  const backToSearch = useCallback(() => {
+    setResults(null);
+    requestAnimationFrame(() => {
+      const heading = document.getElementById("booking-title");
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ block: "nearest" });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (results) return registerSearchAction(backToSearch);
+  }, [backToSearch, registerSearchAction, results]);
 
   return (
-    <main className="min-h-screen bg-[#f4f2ee] text-[#162536]">
-      <FlightsHeader user={user} authLoading={authLoading} onSignIn={() => setModalOpen(true)} onSignOut={() => void signOut()} />
-      <div className="relative isolate flex min-h-[calc(100svh-108px)] flex-col overflow-hidden bg-[#17283b] min-[651px]:min-h-[calc(100svh-124px)]">
-      <Image src="/images/airport-terminal-hero.png" alt="" fill priority sizes="100vw" className="-z-20 object-cover object-center" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#101b29]/95 via-[#152433]/75 to-[#17283b]/35" />
-      <FlightHero />
-      <section className="relative z-10 mx-auto mb-4 mt-auto w-[min(94%,1500px)] rounded-[20px] border border-white/70 bg-[#fffefa] px-[26px] pb-[18px] pt-[22px] shadow-[0_20px_60px_rgb(0_0_0_/_24%)] max-[650px]:w-[calc(100%-22px)] max-[650px]:rounded-[14px] max-[650px]:p-[14px]" id="search" aria-labelledby="booking-title">
-        <BookingTabs isAuthenticated={Boolean(user)} authLoading={authLoading} onSignIn={() => setModalOpen(true)} />
-        <h2 className="sr-only" id="booking-title">{t("flightSearch.booking.title")}</h2>
-        <FlightSearchForm onSearch={searchFlights} />
+    <main className="relative isolate min-h-[calc(100dvh-62px)] text-airline-ink sm:min-h-[calc(100dvh-72px)]">
+      <div className={`mx-auto grid max-w-[1440px] items-stretch gap-4 px-4 py-5 sm:gap-6 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-8 ${results ? "lg:hidden" : ""}`}>
+      <FlightHero flights={featuredFlights} selectedDestination={results?.destination ?? routePrefill?.destination} onSelectRoute={(route) => {
+        setRoutePrefill(route);
+        setRouteRevision((revision) => revision + 1);
+        document.getElementById("booking-title")?.focus({ preventScroll: true });
+        document.getElementById("search")?.scrollIntoView({ block: "nearest" });
+      }} />
+      <section className="min-w-0 scroll-mt-20 rounded-[28px] border border-airline-line bg-airline-paper p-5 shadow-[0_16px_48px_rgb(23_40_59_/_7%)] sm:p-7 lg:p-8" id="search" aria-labelledby="booking-title">
+        <h2 className="mb-5 text-2xl font-semibold tracking-tight text-airline-night sm:text-3xl" id="booking-title" tabIndex={-1}>{t("flightSearch.booking.title")}</h2>
+        <BookingTabs isAuthenticated={Boolean(user)} authLoading={authLoading} onSignIn={() => openSignIn()} />
+        <FlightSearchForm key={routeRevision + (routePrefill ? `${routePrefill.origin}-${routePrefill.destination}` : "default-route")} initialOrigin={routePrefill?.origin} initialDestination={routePrefill?.destination} featuredDate={routePrefill?.date} onSearch={searchFlights} />
       </section>
       </div>
-      {error && <p className="mx-auto my-[14px] w-[min(96%,1500px)] text-[#b42318]" role="alert">{error}</p>}
-      {results && <FlightResults key={`${results.origin}-${results.destination}-${results.departure_date}-${results.return_date ?? "one-way"}`} result={results} isAuthenticated={Boolean(user)} bookingBusy={bookingBusy} booking={booking} bookingError={bookingError} onBook={bookFlight} />}
-      {(results || error) && <footer className="flex justify-between gap-4 bg-white px-[3%] py-[22px] text-xs text-[#707780] max-[650px]:flex-col">
-        <span>{t("flightSearch.footer.demo")}</span>
-        <span>{t("flightSearch.footer.mock")}</span>
-      </footer>}
-      {modalOpen && <GoogleAuthModal onClose={() => setModalOpen(false)} />}
+      {results ? (
+        <div id="flight-search-results" className="mx-auto flex w-full max-w-[1180px] scroll-mt-[62px] flex-col px-3 pt-3 sm:scroll-mt-[72px] sm:px-6 lg:h-[calc(100dvh-72px)] lg:px-8" tabIndex={-1}>
+          <FlightResults result={results} isAuthenticated={Boolean(user)} bookingBusy={bookingBusy} booking={booking} bookingError={bookingError} onBook={bookFlight} onBack={backToSearch} />
+        </div>
+      ) : error ? <p className="mx-auto my-4 w-[min(96%,1500px)] text-[#b42318]" role="alert">{error}</p> : null}
+      {!results && (bookingBusy || booking || bookingError) && <div className="mx-auto my-4 max-w-[1180px] px-4">
+        <p role={bookingError ? "alert" : "status"}>{bookingError || (booking ? t("flightSearch.booking.saved", { reference: booking.bookingReference.replace(/^DEMO-/i, "AI-") }) : t("flightSearch.booking.saving"))}</p>
+        {booking && <Link className="text-airline-forest underline" href="/my-trips">{t("flightSearch.booking.myTrips")}</Link>}
+      </div>}
     </main>
   );
 }

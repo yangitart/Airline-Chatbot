@@ -13,7 +13,7 @@ Visitors land on the flight-search page and can search without signing in. They 
 - Demo flights are explicitly labeled as mock; selected passengers/cabin do not change the sample fare.
 - Google OAuth uses Supabase Auth PKCE, the Next callback route, SSR cookies, and middleware session refresh.
 - Supabase Auth stores the user record; the UI can load the current user and sign out.
-- The interface supports English and Spanish through i18next.
+- The interface supports English, Spanish, Hindi, French, Brazilian Portuguese, and Simplified Chinese through i18next.
 - Supabase browser/server clients read the project URL and publishable key from environment variables.
 
 ## Verified evidence

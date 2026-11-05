@@ -1,25 +1,396 @@
 {
+  "travelPages": {
+    "carouselPrevious": "Previous route",
+    "carouselNext": "Next route",
+    "carouselPause": "Pause rotation",
+    "carouselPlay": "Resume rotation",
+    "eyebrow": "THE JOURNEY, CONSIDERED",
+    "searchFlights": "Search flights",
+    "whereTitle": "Where we fly",
+    "whereDescription": "Explore destinations in our network and start planning the route that brings your journey together.",
+    "routeEyebrow": "DESTINATIONS",
+    "featuredRoutes": "Find your next connection",
+    "airportCount": "{{count}} destinations",
+    "routeCardLabel": "Popular route",
+    "from": "From",
+    "to": "To",
+    "searchRoute": "Explore this route",
+    "routeNote": "Choose your travel dates to see available flights and fares for your journey.",
+    "officialRouteMap": "View route network",
+    "prepareTitle": "Prepare to travel",
+    "prepareDescription": "Find the information and services that help you get ready for every stage of your journey.",
+    "resourcesEyebrow": "TRAVEL RESOURCES",
+    "resourcesTitle": "Everything you need, in one place",
+    "resources": {
+      "baggage": {
+        "title": "Baggage guidelines",
+        "description": "Review cabin, checked, special and restricted baggage information before you pack.",
+        "action": "View baggage guidelines"
+      },
+      "faqs": {
+        "title": "Frequently asked questions",
+        "description": "Browse answers to common questions about bookings, travel and support.",
+        "action": "Browse FAQs"
+      },
+      "checkin": {
+        "title": "Check in online",
+        "description": "Find check-in information and online check-in options for your itinerary.",
+        "action": "Open check-in information"
+      },
+      "flightStatus": {
+        "title": "Flight status",
+        "description": "Look up departure and arrival information by flight number and date.",
+        "action": "Check flight status"
+      },
+      "help": {
+        "title": "FAQ and help",
+        "description": "Find customer-support options and contact information by topic.",
+        "action": "Browse help information"
+      }
+    },
+    "officialInfoNote": "Use your saved itinerary and the local travel guides to review trip details.",
+    "experienceTitle": "The travel experience",
+    "experienceDescription": "Explore airport services, onboard comforts and the aircraft used across the route network.",
+    "experienceEyebrow": "THE JOURNEY",
+    "experienceAreasHeading": "From the airport to the skies",
+    "experienceAreas": {
+      "airport": {
+        "title": "At the airport",
+        "description": "Explore check-in, airport facilities and ground services."
+      },
+      "inAir": {
+        "title": "In the air",
+        "description": "Discover cabin experiences, onboard services and comfort options."
+      },
+      "fleet": {
+        "title": "The fleet",
+        "description": "Learn about the aircraft serving the network."
+      },
+      "transformation": {
+        "title": "Transforming experiences",
+        "description": "Explore updates to the traveler experience."
+      }
+    },
+    "visitAirIndia": "Explore travel information",
+    "footer": "Plan your journey with confidence."
+  },
   "tripOperations": {
-    "genericError": "Something went wrong. Please try again.", "paymentVerificationPending": "Payment is being verified by Stripe. This may take a few seconds.", "paymentVerified": "Stripe verified the demo payment.", "paymentFailed": "Stripe could not complete this payment.", "checkoutExpired": "This checkout expired. Search again to make a new demo booking.", "paymentStillPending": "Payment is still pending. Refresh your trips in a moment.", "paymentCancelled": "Checkout was cancelled. No payment was recorded.", "outbound": "Outbound", "return": "Return", "profile": "Travel profile", "profileDescription": "Keep the contact details and language used for your travel experience.", "displayName": "Display name", "phone": "Phone", "preferredLanguage": "Preferred language", "saveProfile": "Save profile", "profileSaved": "Your profile was saved.", "backTrips": "Back to my trips", "backSearch": "Back to flight search", "payment": "Payment", "paymentStates": { "unpaid": "Not paid", "checkout_pending": "Payment pending", "paid": "Demo payment complete", "failed": "Payment failed" }, "payTest": "Pay in test mode", "working": "Please wait…", "checkIn": "Demo check-in", "checkinSuccess": "Demo check-in complete · Seat {seat} · Pass {reference}", "boardingPass": "Demo seat {seat} · Pass {reference}", "flightStatus": "Flight status", "statusDescription": "Look up a seeded flight status. These records are sample data, not live operational updates.", "flightNumber": "Flight number", "date": "Flight date", "searchStatus": "Check status", "demoData": "DEMO DATA · NOT LIVE", "source": "Source", "departure": "Departure", "arrival": "Arrival", "terminal": "Terminal", "gate": "Gate", "delayMinutes": "Delay (minutes)", "lastUpdated": "Record updated", "errors": { "auth_required": "Sign in to continue.", "flight_leg_required": "Choose a flight leg.", "invalid_flight_leg": "Choose a valid flight leg.", "booking_not_found": "We could not find this booking.", "payment_required": "Complete demo payment before check-in.", "booking_not_eligible": "This demo booking is not eligible for check-in.", "checkin_window_closed": "Demo check-in opens 48 hours before departure and closes 60 minutes before.", "flight_leg_not_found": "This booking has no return flight.", "flight_not_checkin_eligible": "This demo flight is no longer eligible for check-in.", "checkin_failed": "Check-in could not be completed.", "booking_load_failed": "Booking could not be loaded.", "booking_not_payable": "This demo booking cannot be paid again.", "payment_verifying": "Payment is being verified. Refresh your trips shortly.", "checkout_unavailable": "Payment checkout is temporarily unavailable.", "stripe_not_configured": "Demo payments are not configured. Add Stripe test and webhook keys.", "profile_invalid": "Enter a valid name, phone, and language.", "profile_load_failed": "Profile could not be loaded.", "profile_save_failed": "Profile could not be saved.", "invalid_status_query": "Enter a valid demo flight number and date.", "status_unavailable": "Flight status is temporarily unavailable.", "status_not_found": "No demo status was found for that flight and date." }, "flightStates": { "scheduled": "Scheduled", "active": "In flight", "landed": "Landed", "cancelled": "Cancelled", "incident": "Incident", "diverted": "Diverted" }
+    "genericError": "Something went wrong. Please try again.",
+    "paymentVerificationPending": "Payment is being verified by Stripe. This may take a few seconds.",
+    "paymentVerified": "Payment confirmed.",
+    "paymentFailed": "Stripe could not complete this payment.",
+    "checkoutExpired": "This checkout expired. Search again to choose another itinerary.",
+    "paymentStillPending": "Payment is still pending. Refresh your trips in a moment.",
+    "paymentCancelled": "Checkout was cancelled. No payment was recorded.",
+    "outbound": "Outbound",
+    "return": "Return",
+    "profile": "Travel profile",
+    "profileDescription": "Keep the contact details and language used for your travel experience.",
+    "displayName": "Display name",
+    "phone": "Phone",
+    "preferredLanguage": "Preferred language",
+    "saveProfile": "Save profile",
+    "profileSaved": "Your profile was saved.",
+    "backTrips": "Back to my trips",
+    "backSearch": "Back to flight search",
+    "payment": "Payment",
+    "paymentStates": {
+      "unpaid": "Not paid",
+      "checkout_pending": "Payment pending",
+      "paid": "Paid",
+      "failed": "Payment failed"
+    },
+    "payTest": "Continue to secure payment",
+    "working": "Please wait…",
+    "checkIn": "Check in",
+    "checkInPageTitle": "Check in for your trip",
+    "checkInPageDescription": "Select a paid itinerary leg to check in. Online check-in opens 48 hours before departure and closes 60 minutes before.",
+    "checkInPageHint": "Choose an eligible itinerary below. Complete payment first if the booking is still unpaid.",
+    "checkinSuccess": "Check-in complete · Seat {{seat}} · Reference {{reference}}",
+    "boardingPass": "Seat {{seat}} · Boarding reference {{reference}}",
+    "flightStatus": "Flight status",
+    "statusDescription": "Find departure and arrival information for your flight.",
+    "flightNumber": "Flight number",
+    "date": "Flight date",
+    "searchStatus": "Check status",
+    "demoData": "LATEST FLIGHT UPDATE",
+    "source": "Source",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "terminal": "Terminal",
+    "gate": "Gate",
+    "delayMinutes": "Delay (minutes)",
+    "lastUpdated": "Record updated",
+    "errors": {
+      "auth_required": "Sign in to continue.",
+      "flight_leg_required": "Choose a flight leg.",
+      "invalid_flight_leg": "Choose a valid flight leg.",
+      "booking_not_found": "We could not find this booking.",
+      "payment_required": "Complete payment before checking in.",
+      "booking_not_eligible": "This booking is not eligible for check-in.",
+      "checkin_window_closed": "Online check-in opens 48 hours before departure and closes 60 minutes before.",
+      "flight_leg_not_found": "This booking has no return flight.",
+      "flight_not_checkin_eligible": "This flight is no longer eligible for check-in.",
+      "checkin_failed": "Check-in could not be completed.",
+      "booking_load_failed": "Booking could not be loaded.",
+      "booking_not_payable": "Payment for this booking is unavailable.",
+      "payment_verifying": "Payment is being verified. Refresh your trips shortly.",
+      "checkout_unavailable": "Payment checkout is temporarily unavailable.",
+      "stripe_not_configured": "Payment is temporarily unavailable. Please try again later.",
+      "profile_invalid": "Enter a valid name, phone, and language.",
+      "profile_load_failed": "Profile could not be loaded.",
+      "profile_save_failed": "Profile could not be saved.",
+      "invalid_status_query": "Enter a valid flight number and date.",
+      "status_unavailable": "Flight status is temporarily unavailable.",
+      "status_not_found": "No flight status was found for that flight and date."
+    },
+    "flightStates": {
+      "scheduled": "Scheduled",
+      "active": "In flight",
+      "landed": "Landed",
+      "cancelled": "Cancelled",
+      "incident": "Incident",
+      "diverted": "Diverted"
+    }
   },
   "errorMessages": {
     "networkError": "Network Error. Please check your internet connection.",
     "unauthorized": "Unauthorized. Please log in again."
   },
   "flightSearch": {
-    "hero": { "eyebrow": "A more considered journey", "title": "The world is closer than you think.", "description": "Explore your next journey with clarity, comfort and a little inspiration.", "demoStatus": "Fictional demo flights · no ticketing or payment" },
-    "notFound": { "title": "We couldn't find that page.", "description": "Return to the flight search to continue.", "home": "Back to flight search" },
-    "alert": { "text": "Travel updates and important information for your journey", "viewAll": "View all" },
-    "nav": { "bookManage": "Book & Manage", "whereFly": "Where we fly", "prepareTravel": "Prepare to travel", "experience": "Air India experience", "signIn": "Sign in", "signOut": "Sign out", "language": "Language", "checkingSession": "Checking…" },
-    "booking": { "title": "Search Air India flights", "servicesLabel": "Travel services", "searchFlights": "Search flights", "manageBooking": "Manage booking", "checkIn": "Check-in", "flightStatus": "Flight status", "comingSoon": "Coming soon", "studentOffer": "Student fares available", "publicSearchNote": "Flight search is available without signing in. Sign in with Google for account features.", "saving": "Saving demo booking…", "saveDemo": "Save demo booking", "signInToSave": "Sign in to book", "signInRequired": "Sign in to continue with this demo booking. Your selected flights will be kept.", "saveFailed": "We couldn't save this demo booking. Please search again and retry.", "saved": "Demo booking saved · reference {reference}", "demoOnly": "Demo booking only. This does not purchase a ticket or charge a payment method.", "myTrips": "My trips", "tripsLoadFailed": "We couldn't load your trips. Sign in and try again.", "loadingTrips": "Loading your trips…", "noTrips": "You don't have any saved demo bookings yet.", "demoBooking": "Demo booking", "demoNoTicket": "This record is not a ticket and has not been paid.", "backToSearch": "Back to flight search" },
-    "trip": { "label": "Trip type", "roundTrip": "Round Trip", "oneWay": "One Way" },
-    "fields": { "origin": "From", "destination": "To", "depart": "Depart", "return": "Return", "passengers": "Passengers", "adult": "Adult", "adults": "Adults", "class": "Class", "economy": "Economy", "premiumEconomy": "Premium Economy", "business": "Business", "first": "First" },
-    "airports": { "DEL": "Delhi", "BOM": "Mumbai", "BLR": "Bengaluru", "MAA": "Chennai", "HYD": "Hyderabad" },
-    "actions": { "swapAirports": "Swap origin and destination", "search": "Search flights", "searching": "Searching…" },
-    "validation": { "originRequired": "Choose a departure city", "destinationRequired": "Choose a destination", "differentAirport": "Choose a different destination", "departureRequired": "Choose a departure date", "returnRequired": "Choose a return date", "returnAfterDeparture": "Return date must be on or after departure" },
-    "errors": { "searchFailed": "Flight search failed. Please try again.", "signInFailed": "Google sign-in could not be started.", "signOutFailed": "We couldn't sign you out. Please try again." },
-    "results": { "eyebrow": "YOUR JOURNEY", "demoBadge": "DEMO RESULTS · NOT LIVE", "notice": "Air India · Demo schedule", "mockNotice": "Database-backed demo inventory only. Schedules, seat availability, and fares are not live or ticketable.", "demoSource": "Demo offer", "perAdult": "per passenger", "duration": "Duration", "searchSummary": "{passengers} passenger(s) · {cabinClass}", "outbound": "Choose an outbound flight", "return": "Choose a return flight", "noFlights": "No available flights match this part of your trip.", "estimatedTotal": "Demo fare estimate for all passengers: {total}", "bookableSeats": "Up to {count} bookable seats per offer · demo" },
-    "footer": { "demo": "Air India Assistant · Technical exercise demo", "mock": "Flight results are sample data, not live inventory." },
-    "auth": { "brand": "AIR INDIA", "welcome": "Welcome aboard", "createAccount": "Create your account", "signInDescription": "Sign in to continue your journey.", "signUpDescription": "Sign up with Google to create your account.", "signUp": "Sign up", "continueGoogle": "Continue with Google", "connecting": "Connecting to Google…", "terms": "By continuing, you agree to the applicable terms and privacy notice.", "missingConfig": "Supabase is not configured. Add the project URL and publishable key to .env.local.", "close": "Close sign-in dialog", "accountAccess": "Account access" }
+    "hero": {
+      "eyebrow": "A more considered journey",
+      "title": "The world is closer than you think.",
+      "description": "Explore your next journey with clarity, comfort and a little inspiration.",
+      "demoStatus": "Your next journey begins here."
+    },
+    "notFound": {
+      "title": "We couldn't find that page.",
+      "description": "Return to the flight search to continue.",
+      "home": "Back to flight search"
+    },
+    "nav": {
+      "bookManage": "Book & Manage",
+      "whereFly": "Where we fly",
+      "prepareTravel": "Prepare to travel",
+      "experience": "Travel experience",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "language": "Language",
+      "english": "English",
+      "spanish": "Español",
+      "checkingSession": "Checking…",
+      "faqs": "FAQs",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "booking": {
+      "title": "Search Veyra flights",
+      "servicesLabel": "Travel services",
+      "searchFlights": "Search flights",
+      "manageBooking": "Manage booking",
+      "checkIn": "Check-in",
+      "flightStatus": "Flight status",
+      "comingSoon": "Coming soon",
+      "studentOffer": "Student fares available",
+      "publicSearchNote": "Flight search is available without signing in. Sign in with Google for account features.",
+      "saving": "Saving your booking…",
+      "saveDemo": "Book this flight",
+      "signInToSave": "Sign in to book",
+      "signInRequired": "Sign in to continue with this booking. Your selected flights will be kept.",
+      "saveFailed": "We couldn't save your booking. Please search again and retry.",
+      "saved": "Itinerary saved · reference {{reference}}",
+      "demoOnly": "Review your itinerary and manage each part of your journey.",
+      "myTrips": "My trips",
+      "myTripsDescription": "Manage your bookings, payments, and travel options in one place.",
+      "tripsLoadFailed": "We couldn't load your trips. Sign in and try again.",
+      "loadingTrips": "Loading your trips…",
+      "noTrips": "You don't have any bookings yet.",
+      "demoBooking": "Flight booking",
+      "demoNoTicket": "Your itinerary and journey options are shown below.",
+      "backToSearch": "Back to flight search"
+    },
+    "trip": {
+      "label": "Trip type",
+      "roundTrip": "Round Trip",
+      "oneWay": "One Way"
+    },
+    "fields": {
+      "origin": "From",
+      "destination": "To",
+      "depart": "Depart",
+      "return": "Return",
+      "passengers": "Passengers",
+      "adult": "Adult",
+      "adults": "Adults",
+      "class": "Class",
+      "economy": "Economy",
+      "premiumEconomy": "Premium Economy",
+      "business": "Business",
+      "first": "First"
+    },
+    "airports": {
+      "DEL": "Delhi",
+      "BOM": "Mumbai",
+      "BLR": "Bengaluru",
+      "MAA": "Chennai",
+      "HYD": "Hyderabad"
+    },
+    "actions": {
+      "swapAirports": "Swap origin and destination",
+      "search": "Search flights",
+      "searching": "Searching…"
+    },
+    "validation": {
+      "originRequired": "Choose a departure city",
+      "destinationRequired": "Choose a destination",
+      "differentAirport": "Choose a different destination",
+      "departureRequired": "Choose a departure date",
+      "returnRequired": "Choose a return date",
+      "returnAfterDeparture": "Return date must be on or after departure"
+    },
+    "errors": {
+      "searchFailed": "Flight search failed. Please try again.",
+      "signInFailed": "Google sign-in could not be started.",
+      "signOutFailed": "We couldn't sign you out. Please try again."
+    },
+    "results": {
+      "eyebrow": "YOUR JOURNEY",
+      "demoBadge": "FLIGHT OPTIONS",
+      "notice": "Veyra · Scheduled service",
+      "mockNotice": "Choose an itinerary to review its times and fare before continuing.",
+      "demoSource": "Veyra flight",
+      "perAdult": "per passenger",
+      "duration": "Duration",
+      "searchSummary": "{{passengers}} {{passengerLabel}} · {{cabinClass}}",
+      "outbound": "Choose an outbound flight",
+      "return": "Choose a return flight",
+      "noFlights": "No available flights match this part of your trip.",
+      "estimatedTotal": "Total for all passengers: {{total}}"
+    },
+    "footer": {
+      "demo": "Veyra",
+      "mock": "Explore your flights and plan your next journey."
+    },
+    "auth": {
+      "brand": "Veyra",
+      "welcome": "Welcome aboard",
+      "createAccount": "Create your account",
+      "signInDescription": "Sign in to continue your journey.",
+      "signUpDescription": "Sign up with Google to create your account.",
+      "signUp": "Sign up",
+      "continueGoogle": "Continue with Google",
+      "connecting": "Connecting to Google…",
+      "terms": "By continuing, you agree to the applicable terms and privacy notice.",
+      "missingConfig": "Supabase is not configured. Add the project URL and publishable key to .env.local.",
+      "close": "Close sign-in dialog",
+      "accountAccess": "Account access"
+    }
+  },
+  "faqs": {
+    "eyebrow": "TRAVEL KNOWLEDGE",
+    "title": "Frequently asked questions",
+    "description": "Find practical information for planning and managing your journey.",
+    "allTopics": "All topics",
+    "search": "Search topics",
+    "searchPlaceholder": "Search a topic…",
+    "topicCount": "{{count}} topics",
+    "learnMore": "Explore topic",
+    "disclaimer": "This local guide brings the collected travel information together by topic. Fare, eligibility, health, and operational details can change; the source notes are kept with the local knowledge records for future updates.",
+    "categories": {
+      "booking": {
+        "title": "Booking",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "checkin": {
+        "title": "Check-in",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "baggage": {
+        "title": "Baggage",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "reaccommodation": {
+        "title": "Self-service re-accommodation",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "loyalty": {
+        "title": "Loyalty",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "notifications": {
+        "title": "Journey notifications",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "insurance": {
+        "title": "Travel insurance",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "cargo": {
+        "title": "Cargo",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "health": {
+        "title": "Health and medical assistance",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "children": {
+        "title": "Travelling with children",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "pets": {
+        "title": "Travelling with pets",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "payments": {
+        "title": "Payment, refund and cancellation",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "integration": {
+        "title": "Air India–Vistara integration",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "rail": {
+        "title": "Rail and Fly",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "app": {
+        "title": "Mobile app",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "account": {
+        "title": "Registered customer",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "wifi": {
+        "title": "Inflight Wi-Fi",
+        "description": "Browse practical answers and guidance for this part of your journey."
+      },
+      "baggage-guidelines": {
+        "title": "Baggage guidelines",
+        "description": "Cabin and checked baggage, restricted items, special luggage, lost bags, tracking, and baggage calculators."
+      },
+      "customer-support": {
+        "title": "FAQ and help",
+        "description": "Find the right help topic, customer-support channel, request process, or lost-item contact."
+      },
+      "flight-status-info": {
+        "title": "Flight status information",
+        "description": "Learn which search details the airline status service accepts and its date range."
+      },
+      "online-checkin-info": {
+        "title": "Online check-in information",
+        "description": "Review the check-in window, boarding documents, baggage drop, and service limitations."
+      }
+    },
+    "searchQuestions": "Search questions",
+    "searchQuestionsPlaceholder": "Search within this topic…",
+    "selectSection": "Choose a section",
+    "allSections": "All sections",
+    "noQuestions": "No questions match your search.",
+    "articleOverview": "Topic overview",
+    "articleSections": "In this article",
+    "openLocalStatus": "Open the local flight-status lookup",
+    "articleQuestions": "Questions and answers"
   }
 }

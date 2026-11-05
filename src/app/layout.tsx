@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import AppProviders from "@/src/components/providers/AppProviders";
+import { TravelAppShell } from "@/src/components/layout/TravelAppShell";
 
 export const metadata: Metadata = {
-  title: "Air India Assistant",
-  description: "A conversational assistant for Air India travel questions.",
+  title: "Veyra",
+  description: "Find flights and explore practical travel guides.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -14,8 +20,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body>
-        <AppProviders>{children}</AppProviders>
+      <body className="bg-airline-canvas">
+        <AppProviders><TravelAppShell>{children}</TravelAppShell></AppProviders>
       </body>
     </html>
   );

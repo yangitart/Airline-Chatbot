@@ -5,7 +5,7 @@ export function createSupabaseTripOperationsDataSource(supabase: SupabaseClient)
   return {
     getOwnedCheckoutBooking: async (bookingId: string, userId: string) => {
       const { data, error } = await supabase.from("bookings")
-        .select("id,booking_reference,user_id,total_fare_minor,currency,payment_status,stripe_checkout_session_id,is_demo")
+        .select("id,booking_reference,user_id,total_fare_minor,currency,status,payment_status,stripe_checkout_session_id,is_demo")
         .eq("id", bookingId).eq("user_id", userId).maybeSingle();
       if (error) throw error;
       return data;

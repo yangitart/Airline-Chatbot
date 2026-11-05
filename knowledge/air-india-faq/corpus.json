@@ -1,0 +1,658 @@
+{
+  "dataset": "air-india-travel-faq",
+  "language": "en-IN",
+  "collectedAt": "2026-11-04",
+  "publisher": "Air India",
+  "collectionType": "editorial summaries of public FAQ, travel-information, help, and journey-service pages",
+  "usage": "Research notes for the local FAQ experience and future RAG source review. These summaries are not a substitute for current fare, safety, eligibility, or operational rules.",
+  "documents": [
+    {
+      "id": "booking",
+      "title": "Booking",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/booking.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "How to Book",
+        "Passenger Detail",
+        "Special Bookings",
+        "Fares",
+        "Payment & Security",
+        "Booking Confirmation",
+        "Change Your Booking",
+        "Before You Travel",
+        "EU/UK 261 Flight Compensation Claim",
+        "Travel Certificate",
+        "eVoucher"
+      ],
+      "summary": "Covers ways to book and the online booking journey, passenger-name and passenger-count questions, group and corporate travel, concessionary and fare-family topics, payments, confirmation recovery, itinerary changes and cancellations, travel certificates, and vouchers. The page includes route- and fare-dependent rules. Treat amounts, deadlines, eligibility, and name-document instructions as volatile and verify them against a current official rule before answering.",
+      "qaSummaries": [
+        {
+          "question": "How do I book online?",
+          "answer": "Choose a route, dates, passenger count and flight, then enter passenger details and review the fare conditions before payment."
+        },
+        {
+          "question": "Can I change or cancel a booking?",
+          "answer": "Options depend on ticket rules, route, booking channel and timing. Check the fare conditions and manage the booking through its original seller."
+        },
+        {
+          "question": "What if I cannot find my confirmation?",
+          "answer": "Check the booking email and spam folder, then retrieve the itinerary through the booking channel or ask its support team."
+        },
+        {
+          "question": "How should I enter passenger names?",
+          "answer": "Use the name shown on the travel document. For unusual name formats or corrections, contact the airline before travel."
+        }
+      ]
+    },
+    {
+      "id": "checkin",
+      "title": "Check-in",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/check-in.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Online check-in",
+        "Airport check-in",
+        "Boarding pass",
+        "Other issues"
+      ],
+      "summary": "Explains online check-in through the website or app, the booking reference and passenger surname needed to retrieve a trip, seat and boarding-pass steps, airport-counter check-in, eligibility exceptions, and common troubleshooting. The reviewed page states a check-in window from 48 hours until 60 minutes before departure, with some airport-specific exceptions. Reconfirm time windows and special-assistance eligibility before using them as an answer.",
+      "qaSummaries": [
+        {
+          "question": "When can I check in online?",
+          "answer": "The pages reviewed say check-in opens 48 hours before departure. They give different closing cutoffs, so check the current trip instructions before relying on a deadline."
+        },
+        {
+          "question": "What do I need to check in?",
+          "answer": "Have the booking reference and passenger surname ready. International trips can also require passport details."
+        },
+        {
+          "question": "Will online check-in issue a boarding pass?",
+          "answer": "Domestic trips may receive a printable boarding card. Some international trips receive a confirmation slip for document checks at the airport."
+        },
+        {
+          "question": "What if I cannot retrieve my trip?",
+          "answer": "Check the booking reference and surname against the ticket. If the trip remains unavailable, use the airport counter and contact the booking provider."
+        }
+      ]
+    },
+    {
+      "id": "baggage",
+      "title": "Baggage",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/baggage.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Baggage Allowance",
+        "From Check-in to Claims",
+        "Baggage on Connecting Flights",
+        "Baggage Policy for Infants/Children",
+        "Excess Baggage",
+        "Issues with Baggage",
+        "Limits and Restrictions",
+        "Special Items"
+      ],
+      "summary": "Covers cabin and checked-baggage allowance, dimensions and weight, excess-baggage charges, connecting itineraries, infants and children, special items, restricted articles, baggage tracing, and claims. Allowance varies by itinerary, fare family, cabin, and loyalty status; the page points travelers to booking-specific baggage tools. Do not answer with a universal allowance or quote a fee without the trip details and a current source check.",
+      "qaSummaries": [
+        {
+          "question": "How much baggage can I take?",
+          "answer": "Allowance depends on route, cabin, fare and loyalty status. Check the e-ticket or trip-specific baggage calculator."
+        },
+        {
+          "question": "What can I take in the cabin?",
+          "answer": "The guide lists a maximum size of 55 × 40 × 20 cm. Weight varies by cabin. Check the allowance for the selected itinerary."
+        },
+        {
+          "question": "How do I travel with special or restricted items?",
+          "answer": "Rules depend on the item and route. Review the restricted-items guidance before packing sports equipment, instruments, batteries or other unusual items."
+        },
+        {
+          "question": "What should I do about lost or damaged baggage?",
+          "answer": "Report it to airline staff at the airport and keep the baggage tag and travel documents for tracking or a claim."
+        }
+      ]
+    },
+    {
+      "id": "reaccommodation",
+      "title": "Self-Service Re-accommodation",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/self-service-reaccommodation.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Self-Service Re-accommodation"
+      ],
+      "summary": "Describes rebooking after an eligible disruption, who may use the service, how travelers retrieve disrupted and replacement itinerary details, when an invitation may arrive, whether the process has a fee, and whether a replacement can be changed again. Eligibility depends on ticket, operating carrier, booking contact details, party size, seat availability, and disruption timing. Verify the latest conditions for the specific booking.",
+      "qaSummaries": [
+        {
+          "question": "Who can use self-service re-accommodation?",
+          "answer": "Eligibility depends on the ticket, booking contact details, operating airline, party size, disruption timing and replacement-seat availability."
+        },
+        {
+          "question": "Does re-accommodation have a fee?",
+          "answer": "The page describes eligible self-service rebooking as free. Confirm that the specific booking qualifies before accepting a new itinerary."
+        }
+      ]
+    },
+    {
+      "id": "loyalty",
+      "title": "Maharaja Club (Loyalty)",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/maharaja-club/faqs.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Programme Overview",
+        "Eligibility and How to Join",
+        "Enrolment for Minors",
+        "Account & ID",
+        "Programme Tiers",
+        "Earn Points",
+        "Claim Missing Points and Buy Points",
+        "Redeem Points",
+        "Cabin Upgrade Vouchers",
+        "Welcome Kits",
+        "Complimentary Ticket Vouchers",
+        "Cash + Points",
+        "Award-flight Cancellations and Refunds",
+        "Star Alliance Benefits",
+        "Family Pool",
+        "Post-Merger",
+        "Data Protection & Consent Management"
+      ],
+      "summary": "Covers programme enrollment, account access, member and minor accounts, tier qualification and benefits, earning and claiming points, redemption, vouchers, family pooling, partner benefits, and account-data questions. It also contains merger-related legacy guidance. Point values, tier thresholds, partner rules, and dated merger statements can change; use current programme terms and the traveler's account context before answering.",
+      "qaSummaries": [
+        {
+          "question": "How do I earn and use Maharaja Club points?",
+          "answer": "Eligible flights and partners can earn points. The programme also covers tiers, reward flights, upgrades and vouchers. Current terms define eligibility."
+        },
+        {
+          "question": "How do I manage my membership?",
+          "answer": "The membership guide covers registration, account access, profile updates, missing points and family pooling. Use account support for personal record changes."
+        }
+      ]
+    },
+    {
+      "id": "notifications",
+      "title": "Journey Notifications",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/journey-notifications.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "General Queries",
+        "Troubleshooting"
+      ],
+      "summary": "Describes journey alerts such as booking, check-in, baggage, gate, disruption, and post-travel updates; delivery channels; contact details needed for delivery; and troubleshooting when a travel agent made the booking or a message was not received. It advises keeping the booking email and phone current. Channel availability and notification schedules should be rechecked as service behavior may change.",
+      "qaSummaries": [
+        {
+          "question": "Which journey notifications may I receive?",
+          "answer": "Updates can cover booking, check-in, baggage, gate changes, disruptions and post-travel feedback. Delivery depends on the contact details and available channels."
+        },
+        {
+          "question": "What if an agent made my booking?",
+          "answer": "Ask the agent to add your current email and phone number. If updates are missing, verify the contact details attached to the booking."
+        }
+      ]
+    },
+    {
+      "id": "insurance",
+      "title": "Travel Insurance",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/book/add-ons/travel-insurance.html",
+      "sourceType": "product-information-with-linked-faqs",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Eligibility and benefits",
+        "Coverage and medical treatment",
+        "Claims and customer support",
+        "Policy details and changes",
+        "Policy documents and terms"
+      ],
+      "summary": "This index topic leads to a travel-insurance product page and linked question pages rather than one FAQ article. The page presents insurance as a partner product and summarizes possible cover areas such as medical events, travel disruption, baggage problems, and cancellation, subject to the purchased policy. Eligibility shown on the page is limited by residence and trip origin. Coverage, exclusions, claims, and eligibility must come from the actual policy wording, not a general FAQ summary.",
+      "qaSummaries": [
+        {
+          "question": "What does the travel insurance cover?",
+          "answer": "The product page describes possible protection for medical events, baggage issues and travel disruption. The purchased policy defines actual coverage and exclusions."
+        },
+        {
+          "question": "How do I check eligibility or make a claim?",
+          "answer": "Use the policy documents and insurer’s claim instructions. Eligibility and claim requirements depend on the policy and trip."
+        }
+      ]
+    },
+    {
+      "id": "cargo",
+      "title": "Cargo",
+      "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions.html",
+      "sourceType": "separate-cargo-faq-site",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Booking",
+        "Tracking",
+        "Agent Registration",
+        "Cargo Handling, Process, and Facilities",
+        "Network",
+        "Claims and Refunds",
+        "Express Shipping",
+        "Pharma",
+        "Fresh",
+        "Mail",
+        "Courier",
+        "Dangerous Goods",
+        "Live Animals",
+        "Valuables",
+        "Vulnerables",
+        "Unaccompanied Baggage",
+        "Pets",
+        "Human Remains"
+      ],
+      "summary": "Cargo has a separate FAQ and service taxonomy for booking, tracking, agent onboarding, handling and facilities, network coverage, claims, product-specific requirements, and personal cargo. Cargo questions should be routed separately from passenger baggage and passenger-ticket policies. The source also presents cargo contact information and product categories; operational terms and contact details require periodic verification.",
+      "qaSummaries": [
+        {
+          "question": "How do I book or track cargo?",
+          "answer": "Cargo uses separate booking, tracking and handling processes. Choose the relevant cargo service and shipment details."
+        },
+        {
+          "question": "Where do I ask about cargo claims or restricted goods?",
+          "answer": "Use cargo support for claims, refunds, dangerous goods, live animals and other shipment-specific requirements."
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Health and Medical Assistance",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/health-and-medical-assistance.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Medical Clearance and Paperwork",
+        "Wheelchairs",
+        "Bringing Medical Supplies On Board",
+        "Inflight Health & Wellness"
+      ],
+      "summary": "Covers medical clearance and forms, mobility and wheelchair requests, oxygen and medical equipment, travel after illness or surgery, special meals, service animals, and general in-flight health topics. The source describes advance requests and medical review for some services. Because this topic can affect a traveler's health and boarding eligibility, answers should be limited to sourced process guidance and direct users to the airline and a qualified clinician for case-specific decisions.",
+      "qaSummaries": [
+        {
+          "question": "When may medical clearance be needed?",
+          "answer": "The guidance identifies recent illness or surgery, uncertain fitness to fly, oxygen and medical equipment as cases that may need advance review."
+        },
+        {
+          "question": "How do I request wheelchair assistance?",
+          "answer": "Request assistance in advance and submit any required medical information. Airline approval and arrangements depend on the traveler’s needs and itinerary."
+        }
+      ]
+    },
+    {
+      "id": "children",
+      "title": "Travelling with Children",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/travelling-with-infants-and-children.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Infant",
+        "Accompanied Minors",
+        "Unaccompanied Minors",
+        "Young Passengers"
+      ],
+      "summary": "Addresses infant age and travel documents, adult-to-infant accompaniment, bassinets and child equipment, children travelling with guardians, and services for accompanied or unaccompanied minors and young passengers. Rules depend on age, route, documentation, and the service requested. Confirm the current policy and destination-government requirements before advising on a specific child itinerary.",
+      "qaSummaries": [
+        {
+          "question": "What should I prepare when travelling with an infant?",
+          "answer": "Check age eligibility, travel documents, accompanying-adult rules and destination requirements for the itinerary."
+        },
+        {
+          "question": "Can a child travel alone?",
+          "answer": "Age limits and unaccompanied-minor service rules vary. Confirm eligibility and arrangements with the airline before booking."
+        }
+      ]
+    },
+    {
+      "id": "pets",
+      "title": "Travelling with Pets",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/pet-travel.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Rules for Carriage of Pets"
+      ],
+      "summary": "Covers pet eligibility, cabin versus hold or cargo transport, carrier and weight requirements, booking lead time, required paperwork, destination-specific restrictions, and charges. The reviewed page distinguishes domestic cats and dogs and describes weight thresholds, but routes, aircraft, country rules, approvals, and prices can differ. Treat every pet request as itinerary-specific and verify before giving a definitive answer.",
+      "qaSummaries": [
+        {
+          "question": "Can my pet travel in the cabin?",
+          "answer": "Acceptance depends on route, aircraft, animal type, carrier and combined weight, documents, and advance approval."
+        },
+        {
+          "question": "What documents and charges apply?",
+          "answer": "Requirements and charges vary by destination and transport method. Confirm the current airline and government rules for every flight sector."
+        }
+      ]
+    },
+    {
+      "id": "payments",
+      "title": "Payment, Refund, and Cancellation",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/payment-refund-cancellations.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Refund",
+        "Cancellations",
+        "Rescheduling",
+        "Self-Service Re-accommodation",
+        "Payment"
+      ],
+      "summary": "Covers how to request refunds, cancelled and missed flights, refund calculations, cancellation and rescheduling, payment methods and failures, and disruption-related re-accommodation. Outcomes depend on fare conditions, route, ticketing channel, timing, and payment status. Avoid promising a refund or fixed processing time; use the booking channel and current ticket rules.",
+      "qaSummaries": [
+        {
+          "question": "How do I request a refund?",
+          "answer": "Refund eligibility and amount depend on fare terms, route, timing and where the ticket was purchased. Start through the original booking channel."
+        },
+        {
+          "question": "What if a flight is cancelled or missed?",
+          "answer": "Refund or rebooking options depend on the cause, fare and timing. Review the disruption notice and ticket conditions before taking action."
+        }
+      ]
+    },
+    {
+      "id": "integration",
+      "title": "Air India–Vistara Integration",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/vistara-air-india-merger-faqs.html",
+      "sourceType": "historical-merger-information",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Booking",
+        "Loyalty"
+      ],
+      "summary": "The page explains the Vistara transition, treatment of existing bookings and flight numbers, support channels, special assistance, loyalty-account migration, points and vouchers, and partner arrangements. Much of its content is tied to dates around the 2024 integration and may now be stale or superseded. Do not use this article for current operational guidance without checking the present-day booking or Maharaja Club rules.",
+      "qaSummaries": [
+        {
+          "question": "Does the Vistara integration page describe current rules?",
+          "answer": "It contains historical information about transferred bookings, loyalty accounts and vouchers. Some material refers to past transition dates and may be outdated."
+        },
+        {
+          "question": "How should I verify a current booking?",
+          "answer": "Use the current itinerary and applicable loyalty terms. Check the latest booking-specific information before acting on old transition guidance."
+        }
+      ]
+    },
+    {
+      "id": "rail",
+      "title": "Rail and Fly",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/rail-and-fly.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Rail and Fly"
+      ],
+      "summary": "Covers combined air-and-rail reservations, train check-in and station selection, seat services, baggage, and changes or cancellations. At review time, the page stated that the Deutsche Bahn Rail & Fly service was temporarily suspended; this is a highly time-sensitive operational notice. Surface suspension status only with a fresh source check, and keep rail-provider rules distinct from flight rules.",
+      "qaSummaries": [
+        {
+          "question": "What is Rail and Fly?",
+          "answer": "It combines an air itinerary with an eligible rail segment. Check-in, seats and baggage may follow separate rail and airline processes."
+        },
+        {
+          "question": "Is Rail and Fly available now?",
+          "answer": "The reviewed source said the Deutsche Bahn service was temporarily suspended. Availability may change, so verify it during booking."
+        }
+      ]
+    },
+    {
+      "id": "app",
+      "title": "Mobile App",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/mobile-app.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "App installation and access",
+        "Bookings and trip management",
+        "Check-in and travel services",
+        "Payments and refunds",
+        "Troubleshooting"
+      ],
+      "summary": "The app FAQ concerns installation, sign-in, booking and managing trips, check-in, travel services, payment or refund flows, and resolving common app problems. App features and supported operating-system versions change frequently. This topic outline should be expanded from a current page review before it is used as a customer-support answer source.",
+      "qaSummaries": [
+        {
+          "question": "What can I do in the airline app?",
+          "answer": "The app information describes booking, trip management, check-in and other journey services. Available functions depend on the current app version."
+        },
+        {
+          "question": "What if a payment or booking in the app is unclear?",
+          "answer": "Check the booking status before trying again. Keep any reference details and contact the original booking channel if the result is uncertain."
+        }
+      ]
+    },
+    {
+      "id": "account",
+      "title": "Registered Customer",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/registered-customer.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Registration",
+        "Account access",
+        "Profile and benefits",
+        "Troubleshooting"
+      ],
+      "summary": "This topic is about registered-customer enrollment, account access, profile details, and account benefits. The index describes help for signing up and making use of an account. The specific login, verification, and benefit rules were not fully extracted in this research pass, so this record is a scope outline and must not be treated as a complete answer corpus.",
+      "qaSummaries": [
+        {
+          "question": "How do I register or sign in?",
+          "answer": "The registered-customer section covers account enrollment, access, profile information and membership benefits. Follow the current verification steps."
+        },
+        {
+          "question": "What if I cannot access my account?",
+          "answer": "Use the account recovery or support process. Do not share passwords or one-time codes with anyone."
+        }
+      ]
+    },
+    {
+      "id": "wifi",
+      "title": "Inflight Wi-Fi",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/frequently-asked-questions/inflight-wi-fi.html",
+      "sourceType": "faq",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Availability and purchase",
+        "Login, connection and devices",
+        "Account verification and personal details",
+        "Payments and billing",
+        "Usage rules and restrictions",
+        "Maharaja Club benefits",
+        "Performance and connectivity",
+        "Privacy, security and compliance",
+        "System requirements"
+      ],
+      "summary": "Covers which flights may have Wi-Fi, onboard purchasing and login, supported devices, plan and billing questions, connectivity problems, usage restrictions, loyalty benefits, performance, privacy, and system requirements. Service availability can change by aircraft and route, while plans and loyalty entitlements can change over time. Verify flight-specific availability and current plan terms.",
+      "qaSummaries": [
+        {
+          "question": "How do I know if my flight has Wi-Fi?",
+          "answer": "Availability varies by aircraft and route and can change. Check flight-specific information before departure."
+        },
+        {
+          "question": "How do I connect to onboard Wi-Fi?",
+          "answer": "Follow the onboard portal instructions, verify the booking details requested and choose an available plan. Plan terms and prices can change."
+        }
+      ]
+    },
+    {
+      "id": "baggage-guidelines",
+      "title": "Baggage Guidelines",
+      "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines.html",
+      "requestedUrl": "https://www.airindia.com/in/en/travel-information/baggage.html",
+      "sourceType": "travel-information",
+      "sourceStatus": "canonical-url-used-requested-path-returned-404",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Cabin or Carry-on Baggage",
+        "Checked Baggage",
+        "Restricted Items and Baggage Advisory",
+        "Excess Baggage",
+        "Special Baggage",
+        "Lost or Damaged Baggage",
+        "Track Your Bags",
+        "Baggage Policy for International Airports",
+        "Baggage Calculator",
+        "Personal Cargo"
+      ],
+      "summary": "A packing and baggage guide covering cabin-bag pieces and weight, checked allowance for domestic, international, codeshare and interline itineraries, prohibited/restricted items, excess fees, special baggage, lost or damaged bags, tracking, airport-specific acceptance rules, and an itinerary-aware baggage calculator. The page directs unaccompanied baggage, pets as cargo, and human remains to cargo services. Exact allowances and fees depend on route, cabin and fare; keep values out of static answers unless they are freshly verified.",
+      "details": [
+        {
+          "section": "Cabin or Carry-on Baggage",
+          "answer": "Air India lists a cabin bag size of 55 × 40 × 20 cm. The weight limit is 7 kg in Economy and Premium Economy, and 10 kg in Business and First. A small personal item must fit under the seat.",
+          "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines/cabin-baggage.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "Checked Baggage",
+          "answer": "Look for the allowance on your e-ticket. Air India publishes different allowances by route, fare and cabin. On a codeshare or a journey with more than one airline, check which carrier’s rules apply to your ticket.",
+          "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines/checked-baggage-allowance.html",
+          "reviewedAt": "2026-11-04"
+        }
+      ],
+      "qaSummaries": [
+        {
+          "question": "How do I check my exact baggage allowance?",
+          "answer": "Allowance varies by itinerary, cabin and fare. Check the e-ticket or use the trip-specific baggage calculator."
+        },
+        {
+          "question": "What topics does the baggage guide cover?",
+          "answer": "It organizes cabin and checked baggage, restricted items, excess and special baggage, damaged or missing bags, tracking and airport-specific acceptance guidance."
+        }
+      ]
+    },
+    {
+      "id": "customer-support",
+      "title": "FAQ and Help",
+      "sourceUrl": "https://www.airindia.com/in/en/contact-us.html",
+      "requestedUrl": "https://www.airindia.com/in/en/help.html",
+      "sourceType": "help-and-contact",
+      "sourceStatus": "current-contact-page-used-requested-path-not-accessible",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Frequently Asked Questions",
+        "Ask AI.g",
+        "WhatsApp Assistance",
+        "Submit a Help Request",
+        "India Customer Care",
+        "International Customer Care",
+        "Global Contact Centres",
+        "Worldwide Offices",
+        "Lost Items"
+      ],
+      "summary": "The current help/contact hub links the major FAQ topics, offers AI.g and WhatsApp assistance, accepts travel questions or concerns through a help-request flow, and lists India/international customer-care channels, global contact centres, offices and lost-item contacts. Contact options and phone numbers are changeable; the local guide should route users by help need and avoid embedding phone numbers or implying that it can submit a request.",
+      "details": [
+        {
+          "section": "Submit a Help Request",
+          "answer": "For a specific trip problem or complaint, Air India provides a customer support request form. This guide cannot file a request on your behalf.",
+          "sourceUrl": "https://www.airindia.com/in/en/contact-us.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "Lost Items",
+          "answer": "For belongings left behind, Air India lists separate lost-item contacts. For a missing checked bag, use the baggage reporting process instead.",
+          "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines.html",
+          "reviewedAt": "2026-11-04"
+        }
+      ],
+      "qaSummaries": [
+        {
+          "question": "How do I contact customer support?",
+          "answer": "The help hub groups FAQs, care channels, global contact centres and a request form. Choose the channel that matches the issue and have booking details ready."
+        },
+        {
+          "question": "Where do I report lost property?",
+          "answer": "Use the lost-item contact process. Missing checked baggage follows the separate baggage reporting and tracking process."
+        }
+      ]
+    },
+    {
+      "id": "flight-status-info",
+      "title": "Flight Status Information",
+      "sourceUrl": "https://www.airindia.com/in/en/manage/flight-status.html",
+      "sourceType": "manage-service-information",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Search by Flight Number",
+        "Search by Booking Reference (PNR)",
+        "Search by Route",
+        "Supported Date Window"
+      ],
+      "summary": "The official status page describes looking up departure and arrival status by flight number, booking reference, or route. At review time its stated search window was two days before through two days after the current date. This describes the airline page; this project currently has a separate local lookup over seeded demo snapshots, which is not connected to Air India live status.",
+      "details": [
+        {
+          "section": "Search by Flight Number",
+          "answer": "Enter your flight number and travel date to check departure and arrival updates. Air India also offers searches by booking reference or route.",
+          "sourceUrl": "https://www.airindia.com/in/en/manage/flight-status.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "Supported Date Window",
+          "answer": "Air India’s status page covers two days before through two days after today. The lookup in this project only searches sample records.",
+          "sourceUrl": "https://www.airindia.com/in/en/manage/flight-status.html",
+          "reviewedAt": "2026-11-04"
+        }
+      ],
+      "qaSummaries": [
+        {
+          "question": "What details can I use to search flight status?",
+          "answer": "The status page supports searches by flight number, booking reference or route."
+        },
+        {
+          "question": "What dates can I search?",
+          "answer": "The official page describes a window from two days before through two days after today. The Veyra lookup uses local sample data, not live airline updates."
+        }
+      ]
+    },
+    {
+      "id": "online-checkin-info",
+      "title": "Online Check-in Information",
+      "sourceUrl": "https://www.airindia.com/content/air-india/in/en/manage/web-checkin.html",
+      "requestedUrl": "https://www.airindia.com/in/en/manage/web-check-in.html",
+      "sourceType": "manage-service-information",
+      "sourceStatus": "canonical-url-used-requested-path-returned-404",
+      "reviewedAt": "2026-11-04",
+      "sections": [
+        "Web Check-in Window",
+        "Baggage Drop",
+        "Domestic Boarding Card",
+        "International Confirmation Slip",
+        "Codeshare Eligibility",
+        "City Check-in"
+      ],
+      "summary": "The dedicated online check-in page describes check-in opening 48 hours before departure, separate domestic and international closing cutoffs, baggage-drop counters, domestic printable boarding cards, international confirmation slips that require airport document verification, codeshare exclusions, and a city check-in service. Air India pages give differing cutoffs: the dedicated page/search result says international check-in closes two hours before and domestic one hour before, while the FAQ has a general 60-minute statement. Keep this conflict explicit and do not give one universal cutoff until the source is reconciled.",
+      "details": [
+        {
+          "section": "Web Check-in Window",
+          "answer": "Air India’s dedicated page lists opening 48 hours before departure, with closing times of one hour for domestic and two hours for international flights. Its FAQ also contains a general 60-minute statement, so confirm the deadline for your trip.",
+          "sourceUrl": "https://www.airindia.com/content/air-india/in/en/manage/web-checkin.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "Domestic Boarding Card",
+          "answer": "For eligible domestic trips, online check-in can issue a printable boarding pass. If you have checked baggage, allow time to drop it at the airport.",
+          "sourceUrl": "https://www.airindia.com/content/air-india/in/en/manage/web-checkin.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "International Confirmation Slip",
+          "answer": "If online check-in issues a confirmation slip, take it to the airport counter for document verification and collection of your boarding pass.",
+          "sourceUrl": "https://www.airindia.com/content/air-india/in/en/manage/web-checkin.html",
+          "reviewedAt": "2026-11-04"
+        },
+        {
+          "section": "Codeshare Eligibility",
+          "answer": "Air India’s dedicated page says its web check-in service is unavailable for codeshare flights. Confirm the process with the operating airline.",
+          "sourceUrl": "https://www.airindia.com/content/air-india/in/en/manage/web-checkin.html",
+          "reviewedAt": "2026-11-04"
+        }
+      ],
+      "qaSummaries": [
+        {
+          "question": "What does online check-in provide?",
+          "answer": "The page covers the check-in window, baggage drop, domestic boarding cards, international confirmation slips, codeshare limits and city check-in."
+        },
+        {
+          "question": "What should I do with an international confirmation slip?",
+          "answer": "Take it to the airport counter for document verification and collection of the boarding pass. A confirmation slip itself is not a boarding pass."
+        }
+      ]
+    }
+  ]
+}

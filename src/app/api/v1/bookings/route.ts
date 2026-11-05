@@ -41,7 +41,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return NextResponse.json({ detail: "Sign in before saving a demo booking." }, { status: 401 });
+  if (authError || !user) return NextResponse.json({ detail: "Sign in before saving your booking." }, { status: 401 });
 
   let body: { flight_instance_id?: unknown; return_flight_instance_id?: unknown; cabin_class?: unknown; passenger_count?: unknown; expected_outbound_fare_minor?: unknown; expected_return_fare_minor?: unknown; idempotency_key?: unknown };
   try {
@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ detail: "The fare changed. Review the current offer before booking." }, { status: 409 });
     }
     if (error.includes("flight_unavailable")) {
-      return NextResponse.json({ detail: "That demo flight is no longer available." }, { status: 404 });
+      return NextResponse.json({ detail: "That flight is no longer available." }, { status: 404 });
     }
-    return NextResponse.json({ detail: "The demo booking could not be saved." }, { status: 500 });
+    return NextResponse.json({ detail: "The booking could not be saved." }, { status: 500 });
   }
 
   return NextResponse.json(serializeBooking(result.right), { status: 201 });

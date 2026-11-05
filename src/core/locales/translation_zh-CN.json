@@ -1,0 +1,396 @@
+{
+  "travelPages": {
+    "carouselPrevious": "上一条航线",
+    "carouselNext": "下一条航线",
+    "carouselPause": "暂停轮播",
+    "carouselPlay": "继续轮播",
+    "eyebrow": "让旅程更从容",
+    "searchFlights": "搜索航班",
+    "whereTitle": "我们的航线",
+    "whereDescription": "探索航线网络中的目的地，规划适合您的旅程。",
+    "routeEyebrow": "目的地",
+    "featuredRoutes": "寻找下一段旅程",
+    "airportCount": "{{count}} 个目的地",
+    "routeCardLabel": "热门航线",
+    "from": "出发地",
+    "to": "目的地",
+    "searchRoute": "查看此航线",
+    "routeNote": "选择出行日期，查看可选航班和票价。",
+    "officialRouteMap": "查看航线网络",
+    "prepareTitle": "出行准备",
+    "prepareDescription": "查找旅程各阶段所需的信息和服务。",
+    "resourcesEyebrow": "出行资源",
+    "resourcesTitle": "所需信息，一站获取",
+    "resources": {
+      "baggage": {
+        "title": "行李指南",
+        "description": "出发前了解随身、托运、特殊及受限行李规定。",
+        "action": "查看行李指南"
+      },
+      "faqs": {
+        "title": "常见问题",
+        "description": "查找有关预订、出行和服务的常见问题解答。",
+        "action": "浏览常见问题"
+      },
+      "checkin": {
+        "title": "在线值机",
+        "description": "查看适用于您行程的值机方式和相关信息。",
+        "action": "查看值机信息"
+      },
+      "flightStatus": {
+        "title": "航班动态",
+        "description": "根据航班号和日期查询出发与到达信息。",
+        "action": "查询航班动态"
+      },
+      "help": {
+        "title": "常见问题与帮助",
+        "description": "按主题查看客服和联系渠道。",
+        "action": "查看帮助"
+      }
+    },
+    "officialInfoNote": "请查看已保存的行程和本地旅行指南，了解行程详情。",
+    "experienceTitle": "旅行体验",
+    "experienceDescription": "了解机场服务、机上舒适设施以及航线网络使用的机型。",
+    "experienceEyebrow": "旅程体验",
+    "experienceAreasHeading": "从机场到天空",
+    "experienceAreas": {
+      "airport": {
+        "title": "机场服务",
+        "description": "了解值机、机场设施和地面服务。"
+      },
+      "inAir": {
+        "title": "机上体验",
+        "description": "了解客舱、机上服务和舒适出行选择。"
+      },
+      "fleet": {
+        "title": "机队",
+        "description": "了解航线网络运营的机型。"
+      },
+      "transformation": {
+        "title": "体验升级",
+        "description": "了解旅客体验的更新。"
+      }
+    },
+    "visitAirIndia": "查看旅行信息",
+    "footer": "安心规划您的旅程。"
+  },
+  "tripOperations": {
+    "genericError": "出现问题，请重试。",
+    "paymentVerificationPending": "Stripe 正在验证付款，可能需要几秒钟。",
+    "paymentVerified": "付款已确认。",
+    "paymentFailed": "Stripe 未能完成付款。",
+    "checkoutExpired": "结账会话已过期。请重新搜索并选择其他行程。",
+    "paymentStillPending": "付款仍在处理中，请稍后刷新行程。",
+    "paymentCancelled": "结账已取消，未记录付款。",
+    "outbound": "去程",
+    "return": "返程",
+    "profile": "旅行资料",
+    "profileDescription": "保存旅行所需的联系方式和首选语言。",
+    "displayName": "显示名称",
+    "phone": "电话",
+    "preferredLanguage": "首选语言",
+    "saveProfile": "保存资料",
+    "profileSaved": "资料已保存。",
+    "backTrips": "返回我的行程",
+    "backSearch": "返回航班搜索",
+    "payment": "付款",
+    "paymentStates": {
+      "unpaid": "未付款",
+      "checkout_pending": "付款处理中",
+      "paid": "已付款",
+      "failed": "付款失败"
+    },
+    "payTest": "继续安全付款",
+    "working": "请稍候…",
+    "checkIn": "办理值机",
+    "checkInPageTitle": "为您的行程办理值机",
+    "checkInPageDescription": "选择已付款的航段办理值机。在线值机于起飞前 48 小时开放，并在起飞前 60 分钟关闭。",
+    "checkInPageHint": "请在下方选择符合条件的航段。如果预订尚未付款，请先完成付款。",
+    "checkinSuccess": "值机已完成 · 座位 {{seat}} · 参考号 {{reference}}",
+    "boardingPass": "座位 {{seat}} · 登机参考号 {{reference}}",
+    "flightStatus": "航班动态",
+    "statusDescription": "查看航班的出发和到达信息。",
+    "flightNumber": "航班号",
+    "date": "航班日期",
+    "searchStatus": "查询动态",
+    "demoData": "航班最新动态",
+    "source": "来源",
+    "departure": "出发",
+    "arrival": "到达",
+    "terminal": "航站楼",
+    "gate": "登机口",
+    "delayMinutes": "延误（分钟）",
+    "lastUpdated": "更新时间",
+    "errors": {
+      "auth_required": "请登录后继续。",
+      "flight_leg_required": "请选择一个航段。",
+      "invalid_flight_leg": "请选择有效的航段。",
+      "booking_not_found": "找不到此预订。",
+      "payment_required": "请先完成付款再办理值机。",
+      "booking_not_eligible": "此预订暂不符合值机条件。",
+      "checkin_window_closed": "在线值机于起飞前 48 小时开放，并在起飞前 60 分钟关闭。",
+      "flight_leg_not_found": "此预订没有返程航班。",
+      "flight_not_checkin_eligible": "此航班目前无法办理值机。",
+      "checkin_failed": "无法完成值机。",
+      "booking_load_failed": "无法加载预订。",
+      "booking_not_payable": "此预订目前无法付款。",
+      "payment_verifying": "正在验证付款，请稍后刷新行程。",
+      "checkout_unavailable": "付款服务暂时不可用。",
+      "stripe_not_configured": "付款服务暂时不可用，请稍后重试。",
+      "profile_invalid": "请输入有效的姓名、电话和语言。",
+      "profile_load_failed": "无法加载资料。",
+      "profile_save_failed": "无法保存资料。",
+      "invalid_status_query": "请输入有效的航班号和日期。",
+      "status_unavailable": "航班动态暂时不可用。",
+      "status_not_found": "未找到该航班和日期的动态。"
+    },
+    "flightStates": {
+      "scheduled": "计划中",
+      "active": "飞行中",
+      "landed": "已降落",
+      "cancelled": "已取消",
+      "incident": "异常",
+      "diverted": "备降"
+    }
+  },
+  "errorMessages": {
+    "networkError": "网络错误，请检查您的网络连接。",
+    "unauthorized": "未获授权，请重新登录。"
+  },
+  "flightSearch": {
+    "hero": {
+      "eyebrow": "更从容的旅程",
+      "title": "世界比想象中更近。",
+      "description": "清晰、舒适又充满灵感地规划下一段旅程。",
+      "demoStatus": "下一段旅程，从这里开始。"
+    },
+    "notFound": {
+      "title": "找不到此页面。",
+      "description": "返回航班搜索并继续。",
+      "home": "返回航班搜索"
+    },
+    "nav": {
+      "bookManage": "预订与管理",
+      "whereFly": "我们的航线",
+      "prepareTravel": "出行准备",
+      "experience": "旅行体验",
+      "signIn": "登录",
+      "signOut": "退出登录",
+      "language": "语言",
+      "english": "English",
+      "spanish": "Español",
+      "checkingSession": "正在检查登录状态…",
+      "faqs": "常见问题",
+      "openMenu": "打开菜单",
+      "closeMenu": "关闭菜单"
+    },
+    "booking": {
+      "title": "搜索 Veyra 航班",
+      "servicesLabel": "旅行服务",
+      "searchFlights": "搜索航班",
+      "manageBooking": "管理预订",
+      "checkIn": "值机",
+      "flightStatus": "航班动态",
+      "comingSoon": "即将推出",
+      "studentOffer": "学生票价可选",
+      "publicSearchNote": "无需登录即可搜索航班。使用 Google 登录以访问账户功能。",
+      "saving": "正在保存预订…",
+      "saveDemo": "预订此航班",
+      "signInToSave": "登录后预订",
+      "signInRequired": "请登录以继续预订。您选择的航班会保留。",
+      "saveFailed": "无法保存预订，请重新搜索后再试。",
+      "saved": "行程已保存 · 参考号 {{reference}}",
+      "demoOnly": "查看行程并管理旅程的每个环节。",
+      "myTrips": "我的行程",
+      "myTripsDescription": "在一处管理您的预订、付款和旅行选项。",
+      "tripsLoadFailed": "无法加载行程。请登录后重试。",
+      "loadingTrips": "正在加载行程…",
+      "noTrips": "您目前没有预订。",
+      "demoBooking": "航班预订",
+      "demoNoTicket": "行程和可用选项如下。",
+      "backToSearch": "返回航班搜索"
+    },
+    "trip": {
+      "label": "行程类型",
+      "roundTrip": "往返",
+      "oneWay": "单程"
+    },
+    "fields": {
+      "origin": "出发地",
+      "destination": "目的地",
+      "depart": "出发",
+      "return": "返程",
+      "passengers": "乘客",
+      "adult": "成人",
+      "adults": "成人",
+      "class": "舱位",
+      "economy": "经济舱",
+      "premiumEconomy": "超级经济舱",
+      "business": "商务舱",
+      "first": "头等舱"
+    },
+    "airports": {
+      "DEL": "德里",
+      "BOM": "孟买",
+      "BLR": "班加罗尔",
+      "MAA": "金奈",
+      "HYD": "海得拉巴"
+    },
+    "actions": {
+      "swapAirports": "交换出发地和目的地",
+      "search": "搜索航班",
+      "searching": "正在搜索…"
+    },
+    "validation": {
+      "originRequired": "请选择出发城市",
+      "destinationRequired": "请选择目的地",
+      "differentAirport": "请选择不同的目的地",
+      "departureRequired": "请选择出发日期",
+      "returnRequired": "请选择返程日期",
+      "returnAfterDeparture": "返程日期必须晚于出发日期"
+    },
+    "errors": {
+      "searchFailed": "航班搜索失败，请重试。",
+      "signInFailed": "无法启动 Google 登录。",
+      "signOutFailed": "无法退出登录，请重试。"
+    },
+    "results": {
+      "eyebrow": "您的旅程",
+      "demoBadge": "航班选项",
+      "notice": "Veyra · 计划航班",
+      "mockNotice": "选择行程后查看时间和票价，再继续操作。",
+      "demoSource": "Veyra 航班",
+      "perAdult": "每位乘客",
+      "duration": "时长",
+      "searchSummary": "{{passengers}}{{passengerLabel}} · {{cabinClass}}",
+      "outbound": "选择去程航班",
+      "return": "选择返程航班",
+      "noFlights": "此行程没有可用航班。",
+      "estimatedTotal": "所有乘客总价：{{total}}"
+    },
+    "footer": {
+      "demo": "Veyra",
+      "mock": "探索航班，规划您的下一段旅程。"
+    },
+    "auth": {
+      "brand": "Veyra",
+      "welcome": "欢迎登机",
+      "createAccount": "创建账户",
+      "signInDescription": "登录以继续您的旅程。",
+      "signUpDescription": "使用 Google 注册并创建账户。",
+      "signUp": "注册",
+      "continueGoogle": "使用 Google 继续",
+      "connecting": "正在连接 Google…",
+      "terms": "继续即表示您同意适用的条款和隐私声明。",
+      "missingConfig": "尚未配置 Supabase。请在 .env.local 中添加项目 URL 和公开密钥。",
+      "close": "关闭登录窗口",
+      "accountAccess": "账户访问"
+    }
+  },
+  "faqs": {
+    "eyebrow": "旅行信息",
+    "title": "常见问题",
+    "description": "查找规划和管理行程所需的实用信息。",
+    "allTopics": "所有主题",
+    "search": "搜索主题",
+    "searchPlaceholder": "搜索主题…",
+    "topicCount": "{{count}} 个主题",
+    "learnMore": "查看主题",
+    "disclaimer": "本地指南按主题汇总旅行信息。票价、资格、健康建议和运营信息可能变化；来源记录保存在本地知识库中，便于后续更新。",
+    "categories": {
+      "booking": {
+        "title": "预订",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "checkin": {
+        "title": "办理登机",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "baggage": {
+        "title": "行李",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "reaccommodation": {
+        "title": "自助改签",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "loyalty": {
+        "title": "会员计划",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "notifications": {
+        "title": "行程通知",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "insurance": {
+        "title": "旅行保险",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "cargo": {
+        "title": "货运",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "health": {
+        "title": "健康与医疗协助",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "children": {
+        "title": "携儿童出行",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "pets": {
+        "title": "携宠物出行",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "payments": {
+        "title": "付款、退款与取消",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "integration": {
+        "title": "印度航空与维斯塔拉整合",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "rail": {
+        "title": "铁路与航空联运",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "app": {
+        "title": "手机应用",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "account": {
+        "title": "注册客户",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "wifi": {
+        "title": "机上 Wi-Fi",
+        "description": "查看此行程环节的实用解答与指南。"
+      },
+      "baggage-guidelines": {
+        "title": "行李指南",
+        "description": "了解客舱和托运行李、限制物品、特殊行李、行李遗失及追踪。"
+      },
+      "customer-support": {
+        "title": "常见问题与帮助",
+        "description": "查找帮助主题、客服渠道、请求流程或失物联系信息。"
+      },
+      "flight-status-info": {
+        "title": "航班状态信息",
+        "description": "了解航空公司状态服务接受的查询信息及日期范围。"
+      },
+      "online-checkin-info": {
+        "title": "在线办理登机信息",
+        "description": "查看办理时限、登机文件、行李托运及服务限制。"
+      }
+    },
+    "searchQuestions": "搜索问题",
+    "searchQuestionsPlaceholder": "在此主题中搜索…",
+    "selectSection": "选择栏目",
+    "allSections": "所有栏目",
+    "noQuestions": "没有符合搜索条件的问题。",
+    "articleOverview": "主题概览",
+    "articleSections": "本文内容",
+    "openLocalStatus": "打开本地航班状态查询",
+    "articleQuestions": "常见问答"
+  }
+}

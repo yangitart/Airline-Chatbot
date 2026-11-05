@@ -14,10 +14,10 @@ export const GoogleAuthenticationDataSourceImpl = (
   signIn: async () => {
     const supabase = createSupabaseClient();
     const callbackUrl = new URL(APP_ROUTES.GOOGLE_AUTH_CALLBACK, window.location.origin);
-    callbackUrl.searchParams.set("next", APP_ROUTES.HOME);
+    callbackUrl.searchParams.set("next", APP_ROUTES.HOME + "?signedIn=1");
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: callbackUrl.toString() },
+      options: { redirectTo: callbackUrl.toString(), skipBrowserRedirect: true },
     });
     if (error) throw error;
     if (!data.url) throw new Error("Supabase did not return a Google OAuth URL.");

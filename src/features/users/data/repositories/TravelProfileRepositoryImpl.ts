@@ -1,10 +1,11 @@
 import { left, right } from "fp-ts/Either";
 import type { TravelProfileRepository } from "../../domain/repositories/TravelProfileRepository";
 import type { TravelProfile } from "../../domain/models/TravelProfile";
+import type { SupportedLanguage } from "@/src/core/locales/supportedLanguages";
 import type { createSupabaseTravelProfileDataSource } from "../data_sources/SupabaseTravelProfileDataSource";
 
 type DataSource = ReturnType<typeof createSupabaseTravelProfileDataSource>;
-type ProfileRow = { display_name: string; phone: string; preferred_language: "en" | "es"; updated_at: string };
+type ProfileRow = { display_name: string; phone: string; preferred_language: SupportedLanguage; updated_at: string };
 const mapProfile = (row: ProfileRow): TravelProfile => ({ displayName: row.display_name, phone: row.phone, preferredLanguage: row.preferred_language, updatedAt: row.updated_at });
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : "profile_operation_failed";
 

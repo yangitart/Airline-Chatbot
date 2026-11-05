@@ -13,7 +13,7 @@ Finish the current flight journey so a traveler can review a saved booking, pay 
 - Profile view and editing of basic contact/display fields under Supabase RLS.
 - Demo check-in for each eligible paid itinerary leg, returning a clearly labeled demo pass reference and seat.
 - Flight-status lookup from stored AviationStack-shaped demo status records.
-- Better booking detail, payment state, profile, check-in, and status UI in English and Spanish.
+- Better booking detail, payment state, profile, check-in, and status UI in the six supported locales: English, Spanish, Hindi, French, Brazilian Portuguese, and Simplified Chinese.
 
 ## Out of scope
 
@@ -29,7 +29,7 @@ Finish the current flight journey so a traveler can review a saved booking, pay 
 - [ ] Eligible demo bookings can be checked in once and receive a demo seat/boarding-pass reference; ineligible/expired trips receive a clear explanation.
 - [ ] Flight status search returns the stored demo record and labels its source/status as demo.
 - [ ] My Trips exposes itinerary, fare, payment state, check-in state, and the available action for each record.
-- [ ] English/Spanish, keyboard operation, loading/errors, and responsive layouts work across these flows.
+- [ ] All six supported locales, keyboard operation, loading/errors, and responsive layouts work across these flows.
 - [ ] Migration, local test-mode payment/webhook, RLS, and production build checks pass.
 
 ## Setup and open conditions

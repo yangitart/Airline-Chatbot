@@ -118,7 +118,7 @@ export const SupabaseFlightSearchDataSourceImpl = (
       passengers: query.passengers,
       cabin_class: query.cabinClass,
       is_mock: true,
-      notice: "Database-backed demo inventory. These fares and seats are not live or ticketable.",
+      notice: "Flight schedules, seat availability, and fares for your selected dates.",
       flights: outbound,
       return_flights: inbound,
     };

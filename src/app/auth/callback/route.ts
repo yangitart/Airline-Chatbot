@@ -5,7 +5,13 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const requestedNext = requestUrl.searchParams.get("next") ?? "/";
-  const next = requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/";
+  let next = new URL("/", requestUrl.origin);
+  if (requestedNext.startsWith("/")) {
+    try {
+      const destination = new URL(requestedNext, requestUrl.origin);
+      if (destination.origin === requestUrl.origin) next = destination;
+    } catch { /* Keep the home page as the fallback. */ }
+  }
 
   if (!code) {
     return NextResponse.redirect(new URL("/?authError=missing_code", requestUrl.origin));
@@ -17,5 +23,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?authError=oauth_exchange_failed", requestUrl.origin));
   }
 
-  return NextResponse.redirect(new URL(next, requestUrl.origin));
+  return NextResponse.redirect(next);
 }

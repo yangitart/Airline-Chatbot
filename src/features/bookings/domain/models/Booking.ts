@@ -46,5 +46,4 @@ export type Booking = {
   flightOrderPayload: unknown;
   createdAt: string;
 };
-import type { AmadeusFlightOrderModel } from "../../data/models/AmadeusFlightOrderModel";
 

@@ -1,6 +1,6 @@
 import { heroui } from "@heroui/theme";
 
-export default {
+const tailwindConfig = {
   content: [
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
     './src/app/**/*.tsx',
@@ -10,18 +10,51 @@ export default {
   theme: {
     extend: {
       colors: {
-        textGray: '#5A607F', 
-        textGrayTitle: '#3A3F63',
-        greenFigma: '#008060',
-        grayTable: '#0A2759',
-        grayDuineCode: '#757575',
-        grayActionButton: '#677788',
-        traceabilityPending: '#FCF2E7',
-        traceabilityPendingHover: '#F9E6D0',
+        airline: {
+          canvas: '#f4f2ee',
+          paper: '#fffefa',
+          ink: '#162536',
+          night: '#17283b',
+          forest: '#183d37',
+          'forest-soft': '#e8f0ec',
+          garnet: '#86233d',
+          gold: '#c4a466',
+          line: '#e8e0d3',
+          muted: '#68756e',
+        },
       },
       fontFamily: {
         roboto: ['Roboto', 'sans-serif'],
         rubik: ['Rubik', 'sans-serif'],
+      },
+      keyframes: {
+        'soft-rise': {
+          '0%': { opacity: '0', transform: 'translateY(18px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'gentle-float': {
+          '0%, 100%': { transform: 'translateY(0) rotate(-4deg)' },
+          '50%': { transform: 'translateY(-9px) rotate(-1deg)' },
+        },
+        'flight-trace': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(18px, -10px)' },
+        },
+        'soft-glow': {
+          '0%, 100%': { opacity: '.45', transform: 'scale(.96)' },
+          '50%': { opacity: '.8', transform: 'scale(1.04)' },
+        },
+        'skeleton-shimmer': {
+          '0%': { backgroundPosition: '100% 0' },
+          '100%': { backgroundPosition: '-100% 0' },
+        },
+      },
+      animation: {
+        'soft-rise': 'soft-rise 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both',
+        'gentle-float': 'gentle-float 6s ease-in-out infinite',
+        'flight-trace': 'flight-trace 7s ease-in-out infinite',
+        'soft-glow': 'soft-glow 5s ease-in-out infinite',
+        'skeleton-shimmer': 'skeleton-shimmer 1.6s linear infinite',
       },
       margin: {
         '30': '7.50rem',
@@ -90,4 +123,6 @@ export default {
     }),
   ],
 };
+
+export default tailwindConfig;
 

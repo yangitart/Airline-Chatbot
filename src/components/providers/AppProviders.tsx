@@ -6,16 +6,18 @@ import { I18nextProvider, useTranslation } from "react-i18next";
 import "@/src/globals.css";
 import { Toaster } from "react-hot-toast";
 import translateSystem from "@/src/core/locales/i18next";
+import { isSupportedLanguage } from "@/src/core/locales/supportedLanguages";
 
 function LanguageSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem("airline-language");
-    if ((savedLanguage === "en" || savedLanguage === "es") && savedLanguage !== i18n.resolvedLanguage) {
+    if (isSupportedLanguage(savedLanguage) && savedLanguage !== i18n.resolvedLanguage) {
       void i18n.changeLanguage(savedLanguage);
     }
     document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language;
-  }, [i18n.language, i18n.resolvedLanguage]);
+    document.documentElement.dir = "ltr";
+  }, [i18n, i18n.language, i18n.resolvedLanguage]);
   return null;
 }
 

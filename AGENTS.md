@@ -5,7 +5,8 @@
 - Current code includes Google authentication, public search of Supabase flight rows, demo bookings, Stripe test-mode Checkout wiring, owner-scoped profiles, demo check-in, and stored demo flight status lookup.
 - Demo inventory stores Amadeus-shaped `flight-offer` JSON, demo orders store `flight-order` JSON, and demo operational snapshots use AviationStack-style nested flight data, alongside normalized columns for querying and transactions.
 - Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. Stripe integration uses test keys and a verified webhook; it records a demo payment and never issues a ticket. Demo check-in produces a sample seat/reference, not an airline boarding pass.
-- Chat, policy ingestion, embeddings, and RAG are future work outside the active 002/003 specs. Do not start that implementation or enable vector storage without a new reviewed feature spec and approved sources.
+- Chat, policy ingestion, embeddings, and RAG are future work outside active specs 002–004. Do not start that implementation or enable vector storage without a new reviewed feature spec and approved sources.
+- A local research summary of Air India FAQ and travel-service topics lives in `knowledge/air-india-faq/corpus.json`; UI-safe summaries live in `src/features/faqs/data/faqSummaries.json`. The summaries are not a complete or validated Q&A corpus and must not be treated as RAG-ready policy answers. Keep source URLs internal; the FAQ experience should render local content without sending travelers to external pages.
 
 ## Repository architecture
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.
@@ -22,6 +23,7 @@
 - Keep app/page.tsx and other route files thin; compose a feature view from the route.
 - Feature-specific views, components, stores, and hooks live under features/<feature>/ui. For example, flight search belongs in features/flights/ui.
 - Shared navigation/forms/design primitives belong in src/components only when multiple features can reuse them.
+- The root travel shell owns the persistent navigation, session state, sign-in dialog, and section transitions. Travel views supply their own content through the shared section layout.
 
 ### Formik and shared components
 - New forms use Formik. Create reusable Formik field adapters in src/components/forms with Formik hooks/context, labels, validation states, and accessible errors.
@@ -32,7 +34,7 @@
 
 ### Internationalization
 - Use the existing i18next/react-i18next setup in src/core/locales; do not hard-code user-visible copy in feature views/components.
-- Add matching translation keys to translation_en.json and translation_es.json. Keep keys grouped by feature and avoid reusing keys whose meanings differ.
+- Add matching translation keys to every supported locale resource (`en`, `es`, `hi`, `fr`, `pt-BR`, `zh-CN`). Keep keys grouped by feature and avoid reusing keys whose meanings differ.
 - Language selection goes through i18n.changeLanguage and persists the selected supported locale. Format dates/numbers using the active locale.
 
 ### Core API and Supabase

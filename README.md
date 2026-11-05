@@ -38,6 +38,13 @@ The migration creates new app tables and policies; it does not drop `auth.users`
 - `/my-trips` — authenticated user's saved demo bookings.
 - `/profile` — authenticated travel profile fields.
 - `/flight-status` — public lookup against stored demo status snapshots.
+- `/where-we-fly` — explore available route pairs and open the flight search with a route selected.
+- `/prepare-to-travel` — quick links to baggage, FAQ, web check-in, and flight-status information.
+- `/experience` — browse Air India airport, onboard, fleet, and transformation information.
+- `/faqs` and `/faqs/{category}` — browse a searchable FAQ index and local topic summaries without leaving the app.
+- `/where-we-fly` — browse selected routes and prefill flight search.
+- `/prepare-to-travel` — quick links to official travel information and flight status.
+- `/experience` — links to the official Air India experience sections.
 - `GET /api/v1/flights/search` — reads matching flight and cabin inventory rows.
 - `POST /api/v1/bookings` — creates an authenticated demo booking with an idempotency key.
 - `POST /api/v1/bookings/{id}/checkout` — starts a test-mode Stripe Checkout Session for an owned demo booking.
@@ -54,4 +61,6 @@ The migration creates new app tables and policies; it does not drop `auth.users`
 - `npm run build` — production build.
 - `npm run test` — Vitest suite.
 
-See `specs/roadmap.md` for upcoming booking, trip management, journey operations, grounded assistance, and later visual work.
+See `specs/roadmap.md` for the current operations slice, the active visual polish work, and later product phases.
+
+The local FAQ research summaries and internal source metadata are stored in `knowledge/air-india-faq/corpus.json`. UI-safe summaries are kept in `src/features/faqs/data/faqSummaries.json`. This is a topic-level research collection, not a complete or validated RAG question-and-answer corpus.

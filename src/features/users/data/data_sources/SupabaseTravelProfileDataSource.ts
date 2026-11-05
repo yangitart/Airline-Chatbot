@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupportedLanguage } from "@/src/core/locales/supportedLanguages";
 
 export function createSupabaseTravelProfileDataSource(supabase: SupabaseClient) {
   const fields = "display_name,phone,preferred_language,updated_at";
@@ -17,7 +18,7 @@ export function createSupabaseTravelProfileDataSource(supabase: SupabaseClient) 
       if (error) throw error;
       return data;
     },
-    save: async (userId: string, profile: { display_name: string; phone: string; preferred_language: "en" | "es" }) => {
+    save: async (userId: string, profile: { display_name: string; phone: string; preferred_language: SupportedLanguage }) => {
       const { data, error } = await supabase.from("profiles").upsert({ user_id: userId, ...profile }, { onConflict: "user_id" }).select(fields).single();
       if (error) throw error;
       return data;

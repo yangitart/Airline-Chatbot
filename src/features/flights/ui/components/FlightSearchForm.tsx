@@ -10,6 +10,7 @@ import { FormikRadioGroup } from "@/src/components/forms/FormikRadioGroup";
 import { FormikSelect } from "@/src/components/forms/FormikSelect";
 import { FormikSubmitButton } from "@/src/components/forms/FormikSubmitButton";
 import { FlightSearchQuery } from "../../domain/models/FlightSearch";
+import { DEMO_AIRPORT_CODES, type DemoAirportCode } from "../../domain/models/DemoRoutes";
 
 type FlightSearchValues = {
   tripType: "round-trip" | "one-way";
@@ -21,7 +22,7 @@ type FlightSearchValues = {
   cabinClass: string;
 };
 
-function localDate(daysFromToday = 0) {
+export function localDate(daysFromToday = 0) {
   const date = new Date();
   date.setDate(date.getDate() + daysFromToday);
   const year = date.getFullYear();
@@ -32,8 +33,14 @@ function localDate(daysFromToday = 0) {
 
 export function FlightSearchForm({
   onSearch,
+  initialOrigin,
+  initialDestination,
+  featuredDate,
 }: {
   onSearch: (query: FlightSearchQuery) => Promise<void>;
+  initialOrigin?: DemoAirportCode;
+  initialDestination?: DemoAirportCode;
+  featuredDate?: string;
 }) {
   const { t } = useTranslation();
   const validationSchema = useMemo(() => Yup.object({
@@ -58,16 +65,16 @@ export function FlightSearchForm({
     cabinClass: Yup.string().required(),
   }), [t]);
 
-  const airports = ["DEL", "BOM", "BLR", "MAA", "HYD"].map((code) => ({
+  const airports = DEMO_AIRPORT_CODES.map((code) => ({
     value: code,
     label: `${t(`flightSearch.airports.${code}`)} (${code})`,
   }));
 
   const initialValues: FlightSearchValues = {
-    tripType: "round-trip",
-    origin: "DEL",
-    destination: "BOM",
-    departureDate: localDate(1),
+    tripType: featuredDate ? "one-way" : "round-trip",
+    origin: initialOrigin ?? "DEL",
+    destination: initialDestination ?? "BOM",
+    departureDate: featuredDate ?? localDate(1),
     returnDate: localDate(4),
     passengers: "1",
     cabinClass: "economy",
@@ -88,7 +95,7 @@ export function FlightSearchForm({
       })}
     >
       {(form) => (
-        <Form>
+        <Form className="animate-soft-rise motion-reduce:animate-none">
           <div className="mb-4 mt-5 flex items-center justify-between gap-4">
             <FormikRadioGroup
               name="tripType"
@@ -99,11 +106,11 @@ export function FlightSearchForm({
               ]}
             />
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
-            <div className="grid min-w-0 grid-cols-1 items-center gap-2 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:col-span-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid min-w-0 grid-cols-1 items-center gap-2 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               <FormikSelect name="origin" label={t("flightSearch.fields.origin")} options={airports} inputClassName="truncate" />
               <button
-                className="mx-auto grid h-9 w-9 rotate-90 place-items-center rounded-full border border-[#d7e1dd] bg-white text-[#315a50] shadow-sm transition hover:border-[#8ca9a0] hover:bg-[#f0f6f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#173e38] sm:rotate-0"
+                className="mx-auto grid h-9 w-9 rotate-90 place-items-center rounded-full border border-airline-line bg-airline-paper text-airline-forest shadow-sm transition-all duration-500 hover:rotate-[180deg] hover:border-airline-gold hover:bg-airline-forest-soft hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet motion-reduce:transform-none motion-reduce:transition-none sm:rotate-0"
                 type="button"
                 aria-label={t("flightSearch.actions.swapAirports")}
                 onClick={() => {
@@ -116,20 +123,18 @@ export function FlightSearchForm({
               </button>
               <FormikSelect name="destination" label={t("flightSearch.fields.destination")} options={airports} inputClassName="truncate" />
             </div>
-            <FormikDateInput name="departureDate" label={t("flightSearch.fields.depart")} min={localDate()} required className="lg:col-span-2" />
+            <FormikDateInput name="departureDate" label={t("flightSearch.fields.depart")} min={localDate()} required />
             {form.values.tripType === "round-trip" && (
-              <FormikDateInput name="returnDate" label={t("flightSearch.fields.return")} min={form.values.departureDate} required className="lg:col-span-2" />
+              <FormikDateInput name="returnDate" label={t("flightSearch.fields.return")} min={form.values.departureDate} required />
             )}
             <FormikSelect
               name="passengers"
               label={t("flightSearch.fields.passengers")}
-              className="lg:col-span-2"
               options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => ({ value: String(count), label: `${count} ${t(count === 1 ? "flightSearch.fields.adult" : "flightSearch.fields.adults")}` }))}
             />
             <FormikSelect
               name="cabinClass"
               label={t("flightSearch.fields.class")}
-              className="lg:col-span-2"
               options={[
                 { value: "economy", label: t("flightSearch.fields.economy") },
                 { value: "premium-economy", label: t("flightSearch.fields.premiumEconomy") },

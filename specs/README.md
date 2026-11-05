@@ -25,4 +25,5 @@ See [roadmap.md](roadmap.md) for the proposed service stages and their provider/
 1. `001-google-auth-flight-search` — implemented as the initial UI/auth slice.
 2. `002-database-flight-booking` — local booking flow and hosted search verified; hosted authenticated booking confirmation remains before closing the spec.
 3. `003-travel-operations-and-checkout` — implementation in progress: schema migrations 001–006 are applied locally and on AIRLINE; local RLS/check-in/expiry paths, flight status, localized UI, and production build are verified. Stripe end-to-end payment/webhook validation remains.
-4. Additional trip management and partner services; create a reviewed feature spec when that work is selected.
+4. `004-visual-design` — implementation in progress: unify and animate the existing traveler sections with a responsive visual system.
+5. Additional trip management and partner services; create a reviewed feature spec when that work is selected.

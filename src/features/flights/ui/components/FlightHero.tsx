@@ -1,19 +1,100 @@
-import { useTranslation } from "react-i18next";
+"use client";
 
-export function FlightHero() {
-  const { t } = useTranslation();
+import { useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { DemoAirportCode } from "../../domain/models/DemoRoutes";
+
+export type FeaturedFlight = {
+  origin: DemoAirportCode;
+  destination: DemoAirportCode;
+  date: string;
+  number: string;
+};
+
+export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
+  flights: FeaturedFlight[];
+  selectedDestination?: string;
+  onSelectRoute: (flight: FeaturedFlight) => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const [viewport, carousel] = useEmblaCarousel({ loop: true, breakpoints: { "(prefers-reduced-motion: reduce)": { duration: 0 } } });
+  const [playing, setPlaying] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [index, setIndex] = useState(0);
+  const country = new Intl.DisplayNames(i18n.resolvedLanguage ?? "en", { type: "region" }).of("IN");
+  const destination = flights[index]?.destination;
+  const destinationPhoto = destination === "BOM"
+    ? { image: "/images/mumbai-gateway.jpg", city: "Mumbai", author: "Deepak Kumar Singh", file: "Gateway_Of_India,_Mumbai,_India.jpg", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/" }
+    : destination === "DEL"
+      ? { image: "/images/delhi-india-gate.jpg", city: "New Delhi", author: "Kamalkant0411", file: "Delhi,_India_Gate.jpg", license: "CC0", licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/" }
+      : { image: "/images/airport-terminal-hero.png", city: null, author: null, file: null, license: null, licenseUrl: null };
+
+  useEffect(() => {
+    setPlaying(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  useEffect(() => {
+    if (!carousel) return;
+    const sync = () => setIndex(carousel.selectedScrollSnap());
+    sync();
+    carousel.on("select", sync).on("reInit", sync);
+    return () => { carousel.off("select", sync).off("reInit", sync); };
+  }, [carousel]);
+
+  useEffect(() => {
+    const selectedIndex = flights.findIndex((flight) => flight.destination === selectedDestination);
+    if (selectedIndex >= 0) carousel?.scrollTo(selectedIndex);
+  }, [carousel, flights, selectedDestination]);
+
+  useEffect(() => {
+    if (!carousel || !playing || hovered || flights.length < 2) return;
+    const timer = window.setInterval(() => carousel.scrollNext(), 6500);
+    return () => window.clearInterval(timer);
+  }, [carousel, flights.length, hovered, playing]);
+
+  const control = "grid h-11 w-11 place-items-center rounded-full border border-white/35 text-white hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold";
 
   return (
-    <section className="relative z-10 flex flex-1 items-center text-white" aria-labelledby="hero-title">
-      <div className="relative mx-auto w-[min(92%,1440px)] py-8 lg:py-4">
-        <div className="relative z-10 max-w-xl">
-          <p className="mb-4 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[.24em] text-[#e6c993]"><span className="h-px w-8 bg-[#e6c993]" />{t("flightSearch.hero.eyebrow")}</p>
-          <h1 id="hero-title" className="text-[clamp(2.3rem,4vw,4.2rem)] font-medium leading-[1.04] tracking-[-.04em]">{t("flightSearch.hero.title")}</h1>
-          <p className="mt-4 max-w-md text-sm leading-7 text-white/80 md:text-base">{t("flightSearch.hero.description")}</p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[11px] font-medium text-white/85 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#e6c993]" />{t("flightSearch.hero.demoStatus")}
-          </div>
+    <section aria-labelledby="hero-title" className="relative isolate flex min-w-0 flex-col justify-end overflow-hidden rounded-[28px] bg-airline-night text-white"
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      onFocusCapture={(event) => { if (event.target.matches(":focus-visible")) setPlaying(false); }}>
+      <Image key={destinationPhoto.image} src={destinationPhoto.image} alt="" fill sizes="(min-width: 1024px) 45vw, 100vw" className="-z-20 object-cover" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101d2b] via-[#101d2b]/80 to-[#101d2b]/20" aria-hidden="true" />
+      <div className="flex min-h-[310px] flex-col justify-end p-4 sm:p-8 lg:min-h-[530px]">
+        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+          <Image src="/flags/in.svg" alt="" width={24} height={16} className="rounded-sm" />
+          <span>{country}</span>
         </div>
+        <h1 id="hero-title" className="mb-4 font-serif text-2xl sm:text-3xl">{t("travelPages.featuredRoutes")}</h1>
+        {flights.length === 0 ? <p className="text-sm text-white/90">{t("travelPages.routeNote")}</p> : (
+          <>
+            <div ref={viewport} className="overflow-hidden rounded-2xl" aria-live={playing ? "off" : "polite"}>
+              <div className="flex touch-pan-y">
+                {flights.map((flight, position) => (
+                  <article key={flight.origin + flight.destination + flight.number} aria-hidden={position !== index} className="min-w-0 flex-[0_0_100%] rounded-2xl border border-white/25 bg-airline-night/80 p-4 sm:p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <div><p className="font-serif text-3xl text-airline-gold">{flight.origin}</p><p className="text-xs text-white/90 sm:text-sm">{t("flightSearch.airports." + flight.origin)}</p></div>
+                      <span className="flex-1 border-t border-dashed border-white/40" aria-hidden="true" />
+                      <div className="text-right"><p className="font-serif text-3xl text-airline-gold">{flight.destination}</p><p className="text-xs text-white/90 sm:text-sm">{t("flightSearch.airports." + flight.destination)}</p></div>
+                    </div>
+                    <button type="button" tabIndex={position === index ? 0 : -1} onClick={() => onSelectRoute(flight)} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">{t("travelPages.searchRoute")}</button>
+                  </article>
+                ))}
+              </div>
+            </div>
+            {flights.length > 1 && <div className="mt-3 flex items-center justify-end gap-2">
+              <button type="button" className={control} aria-label={t("travelPages.carouselPrevious")} onClick={() => { setPlaying(false); carousel?.scrollPrev(); }}><ChevronLeft size={18} aria-hidden="true" /></button>
+              <span className="px-1 text-xs tabular-nums">{index + 1} / {flights.length}</span>
+              <button type="button" className={control} aria-label={t("travelPages.carouselNext")} onClick={() => { setPlaying(false); carousel?.scrollNext(); }}><ChevronRight size={18} aria-hidden="true" /></button>
+              <button type="button" className={control} aria-label={t(playing ? "travelPages.carouselPause" : "travelPages.carouselPlay")} onClick={() => setPlaying(!playing)}>{playing ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}</button>
+            </div>}
+
+          </>
+        )}
+        {destinationPhoto.city && <p className="mt-3 text-xs text-white/85">{destinationPhoto.city} · <a className="underline underline-offset-2" href={`https://commons.wikimedia.org/wiki/File:${destinationPhoto.file}`}>{destinationPhoto.author}</a> · <a className="underline underline-offset-2" href={destinationPhoto.licenseUrl ?? undefined}>{destinationPhoto.license}</a></p>}
       </div>
     </section>
   );

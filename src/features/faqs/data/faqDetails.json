@@ -1,0 +1,27 @@
+{
+  "baggage-guidelines": {
+    "Cabin or Carry-on Baggage": "Air India lists a cabin bag size of 55 × 40 × 20 cm. The weight limit is 7 kg in Economy and Premium Economy, and 10 kg in Business and First. A small personal item must fit under the seat.",
+    "Checked Baggage": "Look for the allowance on your e-ticket. Air India publishes different allowances by route, fare and cabin. On a codeshare or a journey with more than one airline, check which carrier’s rules apply to your ticket."
+  },
+  "customer-support": {
+    "Submit a Help Request": "For a specific trip problem or complaint, Air India provides a customer support request form. This guide cannot file a request on your behalf.",
+    "Lost Items": "For belongings left behind, Air India lists separate lost-item contacts. For a missing checked bag, use the baggage reporting process instead."
+  },
+  "flight-status-info": {
+    "Search by Flight Number": "Enter your flight number and travel date to check departure and arrival updates. Air India also offers searches by booking reference or route.",
+    "Supported Date Window": "Air India’s status page covers two days before through two days after today. The lookup in this project only searches sample records."
+  },
+  "online-checkin-info": {
+    "Web Check-in Window": "Air India’s dedicated page lists opening 48 hours before departure, with closing times of one hour for domestic and two hours for international flights. Its FAQ also contains a general 60-minute statement, so confirm the deadline for your trip.",
+    "Domestic Boarding Card": "For eligible domestic trips, online check-in can issue a printable boarding pass. If you have checked baggage, allow time to drop it at the airport.",
+    "International Confirmation Slip": "If online check-in issues a confirmation slip, take it to the airport counter for document verification and collection of your boarding pass.",
+    "Codeshare Eligibility": "Air India’s dedicated page says its web check-in service is unavailable for codeshare flights. Confirm the process with the operating airline."
+  },
+  "baggage": {
+    "Baggage Allowance": "Air India lists a cabin bag size of 55 × 40 × 20 cm. The weight limit is 7 kg in Economy and Premium Economy, and 10 kg in Business and First. A small personal item must fit under the seat. Look for the allowance on your e-ticket. Air India publishes different allowances by route, fare and cabin. On a codeshare or a journey with more than one airline, check which carrier’s rules apply to your ticket."
+  },
+  "checkin": {
+    "Online check-in": "Air India’s dedicated page lists opening 48 hours before departure, with closing times of one hour for domestic and two hours for international flights. Its FAQ also contains a general 60-minute statement, so confirm the deadline for your trip.",
+    "Boarding pass": "If online check-in issues a confirmation slip, take it to the airport counter for document verification and collection of your boarding pass."
+  }
+}

@@ -1,8 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useFormik } from "formik";
+import { FormikProvider, useFormik } from "formik";
 import { useTranslation } from "react-i18next";
+import { LoaderCircle } from "lucide-react";
+import { FormikDateInput } from "@/src/components/forms/FormikDateInput";
+import { FormikTextInput } from "@/src/components/forms/FormikTextInput";
+import { TravelSectionLayout } from "@/src/components/layout/TravelSectionLayout";
 
 type Result = { flight_number: string; flight_date: string; status: string; source: string; is_demo: boolean; updated_at: string; schedule: { origin_code: string; destination_code: string; departure_at: string; arrival_at: string }; payload: { departure?: { delay?: number | null; gate?: string | null; terminal?: string | null; timezone?: string }; arrival?: { delay?: number | null; gate?: string | null; terminal?: string | null; timezone?: string } } };
 export default function FlightStatusView() {
@@ -21,20 +25,22 @@ export default function FlightStatusView() {
       } catch (cause) { setError(cause instanceof Error ? cause.message : t("tripOperations.genericError")); }
     },
   });
-  return <main className="min-h-screen bg-[#f4f2ee] px-4 py-10 text-[#162536]"><section className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl sm:p-9">
-    <Link href="/" className="text-sm font-semibold text-[#86233d]">← {t("tripOperations.backSearch")}</Link><h1 className="mt-6 text-3xl font-semibold">{t("tripOperations.flightStatus")}</h1><p className="mt-2 text-sm text-slate-500">{t("tripOperations.statusDescription")}</p>
-    <form onSubmit={formik.handleSubmit} className="mt-6 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-      <label className="grid gap-2 text-sm font-medium">{t("tripOperations.flightNumber")}<input name="flight" required value={formik.values.flight} onChange={formik.handleChange} placeholder="AI 101" className="rounded-xl border border-slate-300 px-4 py-3" /></label>
-      <label className="grid gap-2 text-sm font-medium">{t("tripOperations.date")}<input name="date" required type="date" value={formik.values.date} onChange={formik.handleChange} className="rounded-xl border border-slate-300 px-4 py-3" /></label>
-      <button disabled={formik.isSubmitting} className="rounded-full bg-[#183d37] px-6 py-3 font-semibold text-white disabled:opacity-50">{formik.isSubmitting ? t("tripOperations.working") : t("tripOperations.searchStatus")}</button>
+  return <FormikProvider value={formik}><TravelSectionLayout eyebrow={t("travelPages.eyebrow")} title={t("tripOperations.flightStatus")} description={t("tripOperations.statusDescription")}>
+    <div className="mx-auto w-[min(100%,900px)]">
+    <Link href="/#search" className="mb-4 inline-flex text-sm font-semibold text-airline-garnet underline decoration-transparent underline-offset-4 transition hover:decoration-current">← {t("tripOperations.backSearch")}</Link>
+    <form onSubmit={formik.handleSubmit} className="grid gap-4 rounded-[24px] border border-airline-line bg-airline-paper p-4 shadow-[0_10px_28px_rgb(23_40_59_/_6%)] sm:grid-cols-[1fr_1fr_auto] sm:items-end sm:p-5">
+      <FormikTextInput name="flight" label={t("tripOperations.flightNumber")} required placeholder="AI 101" autoComplete="off" />
+      <FormikDateInput name="date" label={t("tripOperations.date")} required />
+      <button disabled={formik.isSubmitting} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-airline-forest px-6 py-3 font-semibold text-white shadow-[0_6px_16px_rgb(24_61_55_/_15%)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#24564d] hover:shadow-[0_10px_20px_rgb(24_61_55_/_22%)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold disabled:opacity-50 motion-reduce:transform-none">{formik.isSubmitting ? <LoaderCircle size={17} aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}{formik.isSubmitting ? t("tripOperations.working") : t("tripOperations.searchStatus")}</button>
     </form>
-    {error && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</p>}
-    {result && <article className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-[#86233d]">{result.flight_number}</p><h2 className="mt-1 text-2xl font-semibold capitalize">{t(`tripOperations.flightStates.${result.status}`, { defaultValue: result.status })}</h2></div><span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-900">{t("tripOperations.demoData")}</span></div>
-      <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
-        {[{ label: t("tripOperations.departure"), code: result.schedule.origin_code, time: result.schedule.departure_at, detail: result.payload.departure }, { label: t("tripOperations.arrival"), code: result.schedule.destination_code, time: result.schedule.arrival_at, detail: result.payload.arrival }].map((stop) => <section key={stop.label} className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{stop.label}</p><p className="mt-1 text-2xl font-semibold">{stop.code}</p><p className="mt-1 text-sm text-slate-600">{new Intl.DateTimeFormat(i18n.resolvedLanguage, { dateStyle: "medium", timeStyle: "short", ...(stop.detail?.timezone ? { timeZone: stop.detail.timezone } : {}) }).format(new Date(stop.time))}</p><p className="mt-3 text-xs text-slate-500">{t("tripOperations.terminal")}: {stop.detail?.terminal ?? "—"} · {t("tripOperations.gate")}: {stop.detail?.gate ?? "—"}</p><p className="mt-1 text-xs text-slate-500">{t("tripOperations.delayMinutes")}: {stop.detail?.delay ?? 0}</p></section>)}
+    {error && <p role="alert" className="mt-5 animate-soft-rise rounded-2xl border border-[#f1d4cd] bg-[#fff8f6] p-4 text-sm text-red-700 motion-reduce:animate-none">{error}</p>}
+    {result && <article className="mt-6 animate-soft-rise overflow-hidden rounded-[24px] border border-airline-line bg-airline-paper shadow-[0_12px_32px_rgb(23_40_59_/_6%)] motion-reduce:animate-none">
+      <div className="flex animate-soft-rise flex-wrap items-center justify-between gap-3 border-b border-airline-line p-5 motion-reduce:animate-none"><div><p className="text-xs font-semibold uppercase tracking-wider text-airline-garnet">{result.flight_number}</p><h2 className="mt-1 text-2xl font-semibold capitalize text-airline-ink">{t(`tripOperations.flightStates.${result.status}`, { defaultValue: result.status })}</h2></div><span className="rounded-full border border-airline-gold/30 bg-airline-gold/10 px-3 py-1.5 text-xs font-bold text-[#6c5428]">{t("tripOperations.demoData")}</span></div>
+      <div className="grid gap-3 bg-airline-canvas/60 p-4 sm:grid-cols-2 sm:p-5">
+        {[{ label: t("tripOperations.departure"), code: result.schedule.origin_code, time: result.schedule.departure_at, detail: result.payload.departure }, { label: t("tripOperations.arrival"), code: result.schedule.destination_code, time: result.schedule.arrival_at, detail: result.payload.arrival }].map((stop, index) => <section key={stop.label} style={{ animationDelay: `${index * 90}ms` }} className="animate-soft-rise rounded-2xl border border-airline-line bg-airline-paper p-4 shadow-[0_6px_20px_rgb(23_40_59_/_4%)] motion-reduce:animate-none sm:p-5"><p className="text-xs font-semibold uppercase tracking-wider text-airline-muted">{stop.label}</p><p className="mt-1 text-2xl font-semibold text-airline-night">{stop.code}</p><p className="mt-1 text-sm text-airline-muted">{new Intl.DateTimeFormat(i18n.resolvedLanguage, { dateStyle: "medium", timeStyle: "short", ...(stop.detail?.timezone ? { timeZone: stop.detail.timezone } : {}) }).format(new Date(stop.time))}</p><p className="mt-3 text-xs text-airline-muted">{t("tripOperations.terminal")}: {stop.detail?.terminal ?? "—"} · {t("tripOperations.gate")}: {stop.detail?.gate ?? "—"}</p><p className="mt-1 text-xs text-airline-muted">{t("tripOperations.delayMinutes")}: {stop.detail?.delay ?? 0}</p></section>)}
       </div>
-      <div className="px-5 pb-5"><p className="text-xs text-slate-500">{new Intl.DateTimeFormat(i18n.resolvedLanguage, { dateStyle: "long" }).format(new Date(`${result.flight_date}T12:00:00`))} · {t("tripOperations.source")}: {result.source}</p><p className="mt-1 text-xs text-slate-500">{t("tripOperations.lastUpdated")}: {new Date(result.updated_at).toLocaleString(i18n.resolvedLanguage)}</p></div>
+      <div className="px-5 pb-5"><p className="text-xs text-airline-muted">{t("tripOperations.date")}: {new Intl.DateTimeFormat(i18n.resolvedLanguage, { dateStyle: "long" }).format(new Date(`${result.flight_date}T12:00:00`))}</p><p className="mt-1 text-xs text-airline-muted">{t("tripOperations.lastUpdated")}: {new Date(result.updated_at).toLocaleString(i18n.resolvedLanguage)}</p></div>
     </article>}
-  </section></main>;
+    </div>
+  </TravelSectionLayout></FormikProvider>;
 }
