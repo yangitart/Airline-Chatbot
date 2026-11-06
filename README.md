@@ -2,6 +2,8 @@
 
 Next.js App Router application using Supabase Auth and Postgres. The current slice provides Google sign-in, database-backed flight search, demo bookings and trip history, Stripe test-mode checkout wiring, profile editing, demo check-in, and stored flight-status lookup.
 
+I originally planned Railway + FastAPI, but I ran out of Railway credits, so I rebuilt the slice on Supabase + Next.js to keep auth, database, and server routes in one managed stack. RAG is still incomplete, and the chatbot cannot be tested end to end because the OpenAI API key is out of credits.
+
 The travel assistant streams OpenAI responses in the selected site language and saves account-scoped chat history in Supabase. Search and trip actions use existing services and require explicit traveler confirmation. FAQ retrieval is paused while the chat operations are completed and verified.
 
 ## Current flight data and booking limits
