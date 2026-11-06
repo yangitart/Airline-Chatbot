@@ -1,7 +1,7 @@
 # Product roadmap
 
 **Status:** Proposed capability sequence; individual future features still require their own reviewed specs.  
-**Last updated:** 2026-11-04
+**Last updated:** 2026-11-06
 
 This roadmap grows the current landing page into a travel service. It is a sequencing guide, not a claim that Air India APIs or live operational data are available. Every screen must distinguish seeded/demo records from information confirmed by an authorized source.
 
@@ -52,17 +52,17 @@ See `001-google-auth-flight-search` for implementation evidence.
 
 - Persist owner-scoped conversation history in Supabase with RLS and user controls to reopen/delete conversations.
 - Keep the 21 original Veyra FAQ articles in local English and Spanish catalogs.
-- Use OpenAI generation and safe flight-search/confirmed Stripe test-checkout actions by reusing existing services. Keep other provider adapters inactive.
+- Use Gemini generation by default, with Groq and OpenAI selectable through server configuration, and safe flight-search/confirmed Stripe test-checkout actions by reusing existing services.
 - Connect the chat to saved trips, booking and payment status, checkout for eligible existing bookings, demo check-in by leg, and stored flight status.
 - Live airline inventory, status, and ticket issuance depend on airline integrations. Changes, cancellations, and refunds require booking use cases before they can be offered in chat.
 
 ## Stage 5 — Veyra PDF and FAQ retrieval
 
-The implementation is prepared; complete the local/hosted setup after reviewing the authored content.
+The Gemini embedding and hybrid Supabase retrieval code is prepared. The hosted FAQ tables are currently missing (`PGRST205`); apply migrations and publish the reviewed corpus before enabling retrieval.
 
-- Keep PDFs as human review copies and index the canonical Veyra JSON into a versioned Supabase `pgvector` corpus with category and question provenance.
+- Keep PDFs as human review copies and index the canonical Veyra JSON with `gemini-embedding-001` into a versioned Supabase `pgvector` corpus with category and question provenance.
 - Combine vector and keyword search, cite local FAQ articles, and abstain when evidence is missing, stale, or conflicting.
-- Publish only after migration, dry-run and content review; evaluate retrieval before enabling the `FAQ_RAG_ENABLED` flag.
+- The publisher validates the hosted schema before making embedding requests or writes. Run a dry run and review the corpus before publication; evaluate retrieval before setting `CHAT_FAQ_RAG_ENABLED=true`.
 
 The Air India extraction is archived research material and is not a Veyra policy source.
 

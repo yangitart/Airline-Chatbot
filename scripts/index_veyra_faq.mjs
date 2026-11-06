@@ -3,7 +3,12 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { embedFaqText, faqEmbeddingDimensions, faqEmbeddingModel } from "../src/features/chatbot/data/providers/localFaqEmbeddings.mjs";
+import {
+  embedFaqText,
+  faqEmbeddingDimensions,
+  faqEmbeddingModel,
+  FaqEmbeddingError,
+} from "../src/features/chatbot/data/providers/geminiFaqEmbeddings.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const catalogDir = path.join(root, "src", "features", "faqs", "data");
@@ -79,36 +84,34 @@ const chunkCounts = {
 };
 
 console.log(`Validated Veyra FAQ catalog: ${documents.length} documents, ${chunks.length} Q&A chunks (${chunkCounts.en} EN, ${chunkCounts.es} ES).`);
-console.log(`FAQ vectors: ${faqEmbeddingModel} (${faqEmbeddingDimensions} dimensions).`);
-
-const embeddedChunks = chunks.map((chunk) => {
-  const embedding = embedFaqText(chunk.content);
-  if (!embedding.some((value) => value !== 0)) throw new Error(`FAQ entry has no searchable words: ${chunk.document_id}`);
-  return { ...chunk, embedding };
-});
-console.log(`Generated ${embeddedChunks.length} FAQ vectors locally.`);
+console.log(`FAQ embeddings: ${faqEmbeddingModel} (${faqEmbeddingDimensions} dimensions).`);
 
 if (isDryRun) {
-  console.log("Dry run only. No API calls or Supabase writes were made.");
+  console.log("Dry run only. No embedding API calls or Supabase writes were made.");
 } else {
   try {
-    await publishCatalog(documents, embeddedChunks);
+    await publishCatalog(documents, chunks);
   } catch (error) {
     console.error(error instanceof Error ? error.message : "FAQ publication failed.");
     process.exitCode = 1;
   }
 }
 
-async function publishCatalog(documents, embeddedChunks) {
+async function publishCatalog(documents, chunks) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!supabaseUrl || !supabaseSecretKey) {
     throw new Error("Publishing needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or the legacy SUPABASE_SERVICE_ROLE_KEY) in the local environment.");
   }
+  if (!apiKey) throw new Error("FAQ publishing needs GEMINI_API_KEY in the local environment.");
 
   const admin = createClient(supabaseUrl, supabaseSecretKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  await assertFaqSchemaReady(admin, supabaseUrl);
+  const embeddedChunks = await embedChunks(chunks, apiKey);
 
   const { data: version, error: versionError } = await admin.from("faq_corpus_versions")
     .insert({
@@ -119,13 +122,6 @@ async function publishCatalog(documents, embeddedChunks) {
     })
     .select("id")
     .single();
-  if (versionError?.code === "PGRST205" || versionError?.code === "PGRST204") {
-    const host = new URL(supabaseUrl).hostname;
-    const command = ["localhost", "127.0.0.1", "[::1]"].includes(host)
-      ? "npx supabase db push"
-      : "npx supabase db push --remote";
-    throw new Error(`FAQ schema is unavailable on ${host} (${versionError.code}). Apply the FAQ migrations to this project with ${command}, then run npm run faq:index:publish again.`);
-  }
   if (versionError || !version?.id) {
     throw new Error(`Could not create a staging FAQ version: ${versionError?.code || "database_error"}`);
   }
@@ -142,4 +138,74 @@ async function publishCatalog(documents, embeddedChunks) {
   }
 
   console.log(`Published Veyra FAQ corpus ${version.id}; the previous published version was superseded atomically.`);
+}
+
+async function assertFaqSchemaReady(admin, supabaseUrl) {
+  const missingSchemaError = (error) => {
+    const host = new URL(supabaseUrl).hostname;
+    const command = ["localhost", "127.0.0.1", "[::1]"].includes(host)
+      ? "npx supabase db push"
+      : "npx supabase db push --dry-run --remote, then npx supabase db push --remote";
+    return new Error(`FAQ schema is unavailable on ${host} (${error.code || "database_error"}). Review and apply migrations 202611040003, 202611050001, and 202611050002 with ${command}, then retry publication.`);
+  };
+
+  const { data: publishedVersion, error: versionError } = await admin.from("faq_corpus_versions")
+    .select("id,status,embedding_model,expected_documents,expected_chunks")
+    .eq("status", "published")
+    .maybeSingle();
+  if (versionError) throw missingSchemaError(versionError);
+
+  const preflightVector = `[1,${new Array(faqEmbeddingDimensions - 1).fill(0).join(",")}]`;
+  const { error: retrievalError } = await admin.rpc("match_faq_evidence", {
+    p_query: "faq schema preflight",
+    p_query_embedding: preflightVector,
+    p_embedding_model: publishedVersion?.embedding_model ?? faqEmbeddingModel,
+    p_match_count: 1,
+    p_language: "en",
+  });
+  if (retrievalError) throw missingSchemaError(retrievalError);
+}
+
+async function embedChunks(chunks, apiKey) {
+  const embedded = [];
+  let nextRequestAt = 0;
+
+  for (const [index, chunk] of chunks.entries()) {
+    let lastError;
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const waitMs = Math.max(0, nextRequestAt - Date.now());
+      if (waitMs) await new Promise((resolve) => setTimeout(resolve, waitMs));
+      nextRequestAt = Date.now() + 650;
+
+      try {
+        const embedding = await embedFaqText(chunk.content, {
+          apiKey,
+          taskType: "RETRIEVAL_DOCUMENT",
+          title: chunk.section_title,
+        });
+        embedded.push({ ...chunk, embedding });
+        lastError = undefined;
+        break;
+      } catch (error) {
+        lastError = error;
+        const retryable = error instanceof FaqEmbeddingError
+          && (error.status === 0 || error.status === 408 || error.status === 429 || error.status >= 500);
+        if (!retryable || attempt === 3) break;
+        const backoff = error.retryAfterMs ?? Math.min(8_000, 1_000 * (2 ** attempt));
+        console.warn(`Gemini embedding retry ${attempt + 1}/3 for FAQ chunk ${index + 1}/${chunks.length} after ${backoff} ms.`);
+        await new Promise((resolve) => setTimeout(resolve, backoff));
+      }
+    }
+
+    if (lastError) {
+      const status = lastError instanceof FaqEmbeddingError ? lastError.status : "unknown";
+      const code = lastError instanceof FaqEmbeddingError ? lastError.code : "embedding_error";
+      throw new Error(`Gemini embedding failed for ${chunk.document_id} chunk ${chunk.chunk_index} (HTTP ${status}; ${code}).`);
+    }
+    if ((index + 1) % 20 === 0 || index + 1 === chunks.length) {
+      console.log(`Generated ${index + 1}/${chunks.length} FAQ embeddings.`);
+    }
+  }
+
+  return embedded;
 }

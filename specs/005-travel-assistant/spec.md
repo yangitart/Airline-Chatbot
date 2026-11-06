@@ -1,7 +1,7 @@
 # Feature specification: Veyra travel assistant
 
 **Status:** In progress  
-**Last updated:** 2026-11-05
+**Last updated:** 2026-11-06
 
 ## Problem
 Travelers need original Veyra guidance, flight search and trip actions in one chat. Public airline research must not be mistaken for Veyra policy.
@@ -12,7 +12,8 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - As a traveler, I want to confirm an itinerary before Veyra creates its booking and test checkout.
 - As a traveler, I want to manage my trips from chat, including finding an existing booking, checking its payment state, resuming an eligible checkout, and checking in for an eligible leg.
 - As a traveler, I want the assistant and site text to follow my selected language.
-- As a maintainer, I want the active assistant to use OpenAI while keeping other provider adapters available for a later change.
+- As a traveler, I want policy answers grounded in the local Veyra FAQ catalog with links to the relevant in-app article.
+- As a maintainer, I want to select the chat model provider through server configuration without changing chat or trip-operation logic.
 
 ## Scope
 ### In scope
@@ -22,11 +23,11 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - Read-only flight search through the existing flights feature.
 - Booking and Stripe test checkout after offer selection, fare review and explicit confirmation.
 - Chat access to the existing booking list and details, payment status and checkout for an eligible saved booking, demo check-in by leg, and stored flight status.
-- Server-side OpenAI generation, flight search and saved trip operations.
+- Server-side Gemini generation by default, with Groq and OpenAI adapters selectable by configuration, plus flight search and saved trip operations.
+- Versioned hybrid FAQ retrieval from the English and Spanish Veyra catalogs using Gemini text embeddings and Supabase pgvector.
 
 ### Out of scope for this slice
 - Importing Air India research as Veyra policy.
-- FAQ embeddings, pgvector retrieval and RAG until chat operations are verified.
 - Live inventory, ticket issuance, and live flight operations. Changes, cancellations, and refunds join the chat once Veyra has server use cases for them.
 
 ## Functional requirements
@@ -40,11 +41,12 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - **FR-008:** Booking and checkout require a selected itinerary and separate confirmation in the interface.
 - **FR-009:** Payment and booking states come from existing endpoints and webhook processing.
 - **FR-010:** Provider secrets and account history stay server side and owner scoped.
-- **FR-011:** The active model provider is OpenAI; alternate provider adapters are not required in configuration.
+- **FR-011:** The active model provider defaults to Gemini and can be switched to Groq or OpenAI through server-only configuration without changing chat orchestration.
 - **FR-014:** The assistant lists and opens the signed-in traveler’s bookings and displays the stored itinerary, reference, booking and payment states, and check-in status for each leg.
 - **FR-015:** The traveler can start or resume an eligible booking’s Stripe test checkout and confirm demo check-in for a specific eligible leg from the chat panel. The server validates ownership and eligibility and returns the outcome for the panel to display.
 - **FR-016:** The assistant looks up flight status using Veyra’s stored flight records and identifies them as demo data.
 - **FR-017:** Booking and trip actions work independently of FAQ retrieval and reuse the same server use cases as the booking and trip screens. Before an action changes a booking or starts payment, the panel shows what will happen and requires explicit confirmation.
+- **FR-018:** When `CHAT_FAQ_RAG_ENABLED` is true, retrieve only published `authored_faq` content for English or Spanish, combine semantic and keyword ranking, cite only retrieved passages, and abstain from policy claims when no useful evidence is returned.
 
 ## Non-functional requirements
 - RLS limits each conversation and its messages to its owner.
@@ -63,14 +65,16 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - [x] FAQ search covers the question and its answer text.
 - [x] The Veyra FAQ view does not link to external airline pages.
 - [x] The selected UI language is sent with each chat request.
-- [x] OpenAI is the only active provider. The chat composition skips FAQ retrieval.
-- [ ] Supabase migrations, OpenAI key, corpus publication and chat flow are verified end to end.
+- [x] Gemini is the default provider; Groq and OpenAI adapters are selectable. RAG is disabled by default and available behind `CHAT_FAQ_RAG_ENABLED` after corpus publication.
+- [x] Gemini FAQ embeddings use `RETRIEVAL_DOCUMENT` and `RETRIEVAL_QUERY` with the same model and 1,536-dimensional normalized vectors. The indexer checks the schema before embedding or writing.
+- [ ] Supabase migrations, a provider API key, and chat flow are verified end to end.
+- [ ] Apply the FAQ migrations, publish the bilingual corpus, enable `CHAT_FAQ_RAG_ENABLED`, and verify retrieval, citations, language filtering, and abstention.
 - [ ] Flight selection and test checkout confirmation are reviewed in the application.
 - [ ] From chat, a traveler can find their own booking, see its current payment state, and resume an eligible checkout. A different account cannot access or act on that booking.
 - [ ] From chat, a traveler can confirm check-in for the selected eligible leg, see the resulting demo pass reference, and look up stored flight status.
 
 ## RAG rollout
-The application uses the JSON catalog as canonical source. Resume PDF review, local indexing and pgvector retrieval after the OpenAI chat and trip operations are verified.
+The JSON catalog is canonical. PDFs are review copies; the production index is a versioned Supabase pgvector corpus generated from the original FAQ JSON.
 
 ## Risks
 - The extra locales display English FAQ articles until their content is translated.

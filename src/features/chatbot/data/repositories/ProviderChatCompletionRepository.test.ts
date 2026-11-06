@@ -3,6 +3,7 @@ import type { ChatActionResult } from "../../domain/models/ChatAction";
 import type { ChatTool } from "../../domain/models/ChatTool";
 import { readChatAction } from "../mappers/readChatAction";
 import type { ChatModelProvider } from "../providers/ChatModelProvider";
+import type { FaqRetriever } from "../../domain/repositories/FaqRetriever";
 import { ProviderChatCompletionRepository } from "./ProviderChatCompletionRepository";
 
 const bookingResult: ChatActionResult = { type: "booking_results", data: [{ id: "booking-id", reference: "AI-AB12CD34EF" }] };
@@ -50,4 +51,27 @@ it("reads legacy cards and preserves valid members of a saved group", () => {
   const savedGroup = { type: "action_group", data: [bookingResult, { type: "flight_status_result", data: {} }, statusResult] };
   expect(readChatAction(savedGroup)).toEqual({ type: "action_group", data: [bookingResult, statusResult] });
   expect(readChatAction({ type: "booking_results", data: [null] })).toBeUndefined();
+});
+
+it("continues normal chat when FAQ retrieval fails", async () => {
+  vi.spyOn(console, "warn").mockImplementation(() => undefined);
+  const stream = vi.fn<ChatModelProvider["stream"]>().mockImplementation(async function* () {
+    yield { type: "delta", content: "I can help with your travel question." };
+  });
+  const faqRetriever: FaqRetriever = {
+    search: vi.fn().mockRejectedValue(new Error("faq index unavailable")),
+  };
+  const repository = new ProviderChatCompletionRepository(
+    { stream, complete: vi.fn() },
+    [],
+    faqRetriever,
+  );
+
+  const response = await repository.complete([{ role: "user", content: "Can you help me plan my packing?" }], "en");
+
+  expect(response.content).toBe("I can help with your travel question.");
+  expect(response.sources).toEqual([]);
+  expect(stream.mock.calls[0][2]).toBe("");
+  expect(faqRetriever.search).toHaveBeenCalledWith("Can you help me plan my packing?", "en", undefined);
+  expect(console.warn).toHaveBeenCalledWith("[chat]", { operation: "retrieve_faq", code: "faq_unavailable" });
 });

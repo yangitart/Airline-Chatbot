@@ -2,9 +2,9 @@
 
 Next.js App Router application using Supabase Auth and Postgres. The current slice provides Google sign-in, database-backed flight search, demo bookings and trip history, Stripe test-mode checkout wiring, profile editing, demo check-in, and stored flight-status lookup.
 
-I originally planned Railway + FastAPI, but I ran out of Railway credits, so I rebuilt the slice on Supabase + Next.js to keep auth, database, and server routes in one managed stack. RAG is still incomplete, and the chatbot cannot be tested end to end because the OpenAI API key is out of credits.
+I originally planned Railway + FastAPI, but I ran out of Railway credits, so I rebuilt the slice on Supabase + Next.js to keep auth, database, and server routes in one managed stack. Gemini is the default chat provider. Veyra FAQ RAG uses Gemini text embeddings and Supabase pgvector, and remains disabled until its migrations and corpus are installed.
 
-The travel assistant streams OpenAI responses in the selected site language and saves account-scoped chat history in Supabase. Search and trip actions use existing services and require explicit traveler confirmation. FAQ retrieval is paused while the chat operations are completed and verified.
+The travel assistant streams model responses in the selected site language and saves account-scoped chat history in Supabase. Search and trip actions use existing services and require explicit traveler confirmation. When RAG is enabled, FAQ evidence comes only from the bilingual, locally authored Veyra catalog; archived airline research is never used as answer evidence.
 
 ## Current flight data and booking limits
 
@@ -30,11 +30,11 @@ The updated seed adds round trips between Delhi and London Heathrow and between 
 
 ## Travel assistant setup
 
-Configure `OPENAI_API_KEY` for chat responses and optionally set `OPENAI_CHAT_MODEL`. Use `SUPABASE_SECRET_KEY` or the existing `SUPABASE_SERVICE_ROLE_KEY` for server administration.
+Configure `CHAT_AI_PROVIDER=gemini` and `GEMINI_API_KEY` for chat responses. The default model is `gemini-3.5-flash`; override it with `GEMINI_CHAT_MODEL` if needed. The same server-only Gemini key generates FAQ embeddings with `gemini-embedding-001` at 1,536 dimensions. The server composition also supports `groq` (`GROQ_API_KEY`, optional `GROQ_CHAT_MODEL`) and `openai` (`OPENAI_API_KEY`, optional `OPENAI_CHAT_MODEL`) for generation. Use `SUPABASE_SECRET_KEY` or the existing `SUPABASE_SERVICE_ROLE_KEY` for server administration.
 
-Apply the chat history migration with `npx supabase db push --remote --dry-run`, review pending migrations, then apply with `npx supabase db push --remote`. The FAQ index schema can remain for a later RAG phase.
+Apply the chat and FAQ migrations with `npx supabase db push --dry-run --remote`, review the pending migrations, then apply them with `npx supabase db push --remote`. Run `npm run faq:index:dry-run` to validate the canonical FAQ catalog, then `npm run faq:index:publish` to generate Gemini embeddings and publish a versioned corpus. Publishing checks that the required FAQ tables and retrieval RPC are present before making embedding requests or writing data. Set `CHAT_FAQ_RAG_ENABLED=true` locally and in Vercel only after publication; it defaults to `false`.
 
-The original Veyra FAQ catalogs live in `src/features/faqs/data/veyra-faq.en.json` and `src/features/faqs/data/veyra-faq.es.json`. The catalog stays available in the site, while FAQ retrieval remains disconnected from the active chat until that phase resumes.
+The original Veyra FAQ catalogs live in `src/features/faqs/data/veyra-faq.en.json` and `src/features/faqs/data/veyra-faq.es.json`. Those JSON files are the sole source for site FAQs and the RAG index; generated PDFs are review copies only.
 
 For demo Checkout, add `STRIPE_SECRET_KEY` (`sk_test_...`), `STRIPE_WEBHOOK_SECRET` (`whsec_...`), and server-only `SUPABASE_SECRET_KEY` to the local environment. Forward Stripe test events to `/api/v1/stripe/webhook` with Stripe CLI. Configure these values in Vercel only when deploying the demo. Do not use a live Stripe key.
 

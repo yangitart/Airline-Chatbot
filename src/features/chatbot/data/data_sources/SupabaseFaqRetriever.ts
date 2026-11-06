@@ -3,8 +3,10 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FaqChunk } from "../../domain/models/FaqChunk";
 import type { FaqRetriever } from "../../domain/repositories/FaqRetriever";
-import { embedFaqText, faqEmbeddingModel } from "../providers/localFaqEmbeddings.mjs";
+import { embedFaqText, faqEmbeddingModel, toFaqVectorLiteral } from "../providers/geminiFaqEmbeddings.mjs";
 import { ChatError } from "../../domain/models/ChatError";
+
+const MINIMUM_FAQ_SIMILARITY = 0.52;
 
 type FaqMatchRow = {
   document_id: string;
@@ -17,19 +19,22 @@ type FaqMatchRow = {
 };
 
 export class SupabaseFaqRetriever implements FaqRetriever {
-  constructor(private readonly supabase: SupabaseClient) {}
+  constructor(private readonly supabase: SupabaseClient, private readonly apiKey: string) {}
 
   async search(query: string, language: string, signal?: AbortSignal): Promise<FaqChunk[]> {
     let data: unknown;
     try {
       signal?.throwIfAborted();
-      const embedding = embedFaqText(query);
-      if (!embedding.some((value) => value !== 0)) return [];
       const timeout = AbortSignal.timeout(10_000);
       const querySignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
+      const embedding = await embedFaqText(query, {
+        apiKey: this.apiKey,
+        taskType: "RETRIEVAL_QUERY",
+        signal: querySignal,
+      });
       const result = await this.supabase.rpc("match_faq_evidence", {
         p_query: query,
-        p_query_embedding: `[${embedding.join(",")}]`,
+        p_query_embedding: toFaqVectorLiteral(embedding),
         p_embedding_model: faqEmbeddingModel,
         p_match_count: 6,
         p_language: language === "es" ? "es" : "en",
@@ -41,7 +46,7 @@ export class SupabaseFaqRetriever implements FaqRetriever {
       throw new ChatError("faq_unavailable", error);
     }
     if (!Array.isArray(data)) throw new ChatError("faq_unavailable");
-    return (data as FaqMatchRow[]).map((row) => ({
+    return (data as FaqMatchRow[]).filter((row) => row.similarity >= MINIMUM_FAQ_SIMILARITY).map((row) => ({
       documentId: row.document_id,
       title: row.title,
       sourceCategory: row.source_category,
