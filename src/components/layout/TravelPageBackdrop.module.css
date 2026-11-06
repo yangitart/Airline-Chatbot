@@ -4,7 +4,6 @@
   z-index: -10;
   overflow: hidden;
   pointer-events: none;
-  background-color: #f6f3ec;
 }
 
 .backdrop[data-muted="true"] {

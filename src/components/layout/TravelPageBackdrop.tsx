@@ -11,7 +11,7 @@ const palettes = {
 
 export function TravelPageBackdrop({ tab, muted }: { tab?: TravelTab; muted: boolean }) {
   return (
-    <div aria-hidden="true" data-muted={muted} className={styles.backdrop}>
+    <div aria-hidden="true" data-muted={muted} className={`${styles.backdrop} bg-airline-canvas`}>
       <div className={styles.wash}>
         {Object.entries(palettes).map(([key, [cool, warm]]) => (
           <div key={key} className={styles.palette} data-active={tab === key}
@@ -28,7 +28,7 @@ export function TravelPageBackdrop({ tab, muted }: { tab?: TravelTab; muted: boo
           <path d="M-180 628C150 765 340 494 712 585s555 142 908-10" strokeOpacity=".2" vectorEffect="non-scaling-stroke" />
         </g>
       </svg>
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#f6f3ec] to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-airline-canvas to-transparent" />
     </div>
   );
 }

@@ -4,7 +4,9 @@ values
   ('BOM', 'VABB', 'Chhatrapati Shivaji Maharaj International Airport', 'Mumbai', 'India', 'Asia/Kolkata'),
   ('BLR', 'VOBL', 'Kempegowda International Airport', 'Bengaluru', 'India', 'Asia/Kolkata'),
   ('MAA', 'VOMM', 'Chennai International Airport', 'Chennai', 'India', 'Asia/Kolkata'),
-  ('HYD', 'VOHS', 'Rajiv Gandhi International Airport', 'Hyderabad', 'India', 'Asia/Kolkata')
+  ('HYD', 'VOHS', 'Rajiv Gandhi International Airport', 'Hyderabad', 'India', 'Asia/Kolkata'),
+  ('LHR', 'EGLL', 'Heathrow Airport', 'London', 'United Kingdom', 'Europe/London'),
+  ('SIN', 'WSSS', 'Singapore Changi Airport', 'Singapore', 'Singapore', 'Asia/Singapore')
 on conflict (code) do update set
   icao = excluded.icao,
   name = excluded.name,
@@ -38,14 +40,19 @@ with routes(flight_number, origin_code, destination_code, departure_time, durati
     ('AI 709', 'DEL', 'HYD', time '20:25', 135, 545000),
     ('AI 801', 'HYD', 'DEL', time '07:20', 130, 515000),
     ('AI 805', 'HYD', 'DEL', time '14:35', 135, 495000),
-    ('AI 809', 'HYD', 'DEL', time '20:45', 135, 535000)
+    ('AI 809', 'HYD', 'DEL', time '20:45', 135, 535000),
+    ('AI 901', 'DEL', 'LHR', time '10:30', 565, 4295000),
+    ('AI 902', 'LHR', 'DEL', time '20:25', 510, 4295000),
+    ('AI 951', 'DEL', 'SIN', time '09:15', 350, 1895000),
+    ('AI 952', 'SIN', 'DEL', time '18:40', 345, 1895000)
 ), scheduled as (
   select
     r.*,
     departure_day::date as departure_date,
-    (departure_day::date + r.departure_time) at time zone 'Asia/Kolkata' as departure_at,
-    ((departure_day::date + r.departure_time) + make_interval(mins => r.duration_minutes)) at time zone 'Asia/Kolkata' as arrival_at
+    (departure_day::date + r.departure_time) at time zone origin.time_zone as departure_at,
+    ((departure_day::date + r.departure_time) at time zone origin.time_zone) + make_interval(mins => r.duration_minutes) as arrival_at
   from routes r
+  join public.airports origin on origin.code = r.origin_code
   cross join generate_series(current_date::timestamp, (current_date + 21)::timestamp, interval '1 day') as days(departure_day)
 )
 insert into public.flight_instances (
@@ -75,6 +82,8 @@ with source as (
     end as amadeus_cabin,
     round(
       (case
+        when 'LHR' in (f.origin_code, f.destination_code) then 4295000
+        when 'SIN' in (f.origin_code, f.destination_code) then 1895000
         when f.origin_code in ('DEL', 'BOM') and f.destination_code in ('DEL', 'BOM') then 455000
         when f.origin_code in ('DEL', 'BLR') or f.destination_code in ('DEL', 'BLR') then 605000
         when f.origin_code in ('DEL', 'MAA') or f.destination_code in ('DEL', 'MAA') then 565000
@@ -110,7 +119,7 @@ with source as (
           'arrival', jsonb_build_object('iataCode', s.destination_code, 'at', s.arrival_at),
           'carrierCode', 'AI',
           'number', split_part(s.flight_number, ' ', 2),
-          'aircraft', jsonb_build_object('code', '320'),
+          'aircraft', jsonb_build_object('code', case when s.duration_minutes >= 300 then '789' else '320' end),
           'duration', 'PT' || floor(s.duration_minutes / 60)::integer::text || 'H' || (s.duration_minutes % 60)::text || 'M',
           'numberOfStops', 0
         ))
@@ -205,7 +214,7 @@ select
       'icao', 'AIC' || split_part(f.flight_number, ' ', 2),
       'codeshared', null
     ),
-    'aircraft', jsonb_build_object('registration', null, 'iata', '320', 'icao', 'A320', 'icao24', null),
+    'aircraft', jsonb_build_object('registration', null, 'iata', case when f.duration_minutes >= 300 then '789' else '320' end, 'icao', case when f.duration_minutes >= 300 then 'B789' else 'A320' end, 'icao24', null),
     'live', null,
     'isDemo', true
   )

@@ -1,0 +1,632 @@
+{
+  "booking": {
+    "title": "Reservas",
+    "overview": "Planea un viaje de ida o de ida y vuelta y revisa las fechas, la cabina y el total antes de guardar el itinerario.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Buscar un vuelo",
+        "entries": [
+          {
+            "question": "¿Puedo buscar sin una cuenta?",
+            "answer": "Sí. Elige la ruta, las fechas y la cabina en la sección de reservas. Inicia sesión con Google cuando quieras guardar el itinerario."
+          },
+          {
+            "question": "¿Cómo selecciono un viaje de ida y vuelta?",
+            "answer": "Elige un vuelo de ida y otro de regreso. Comprueba las dos fechas y el total de todos los pasajeros antes de continuar."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Revisar una reserva",
+        "entries": [
+          {
+            "question": "¿Dónde encuentro el localizador?",
+            "answer": "Abre Mis viajes con la cuenta con la que guardaste el itinerario. El localizador aparece junto a los datos del vuelo y el estado del pago."
+          }
+        ]
+      }
+    ]
+  },
+  "checkin": {
+    "title": "Facturación",
+    "overview": "Consulta Mis viajes para saber si ya puedes hacer el check-in de cada tramo.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Requisitos",
+        "entries": [
+          {
+            "question": "¿Cuándo puedo hacer el check-in?",
+            "answer": "Para los viajes elegibles de Veyra, el check-in en línea abre 48 horas antes de la salida y cierra 60 minutos antes. El plazo se calcula por tramo."
+          },
+          {
+            "question": "¿Por qué no está disponible el check-in?",
+            "answer": "Revisa la hora de salida, el estado del pago y el tramo en Mis viajes. Si todavía no abrió el plazo, espera a que empiece o consulta las indicaciones de aeropuerto de ese itinerario."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Viajes de regreso",
+        "entries": [
+          {
+            "question": "¿El check-in de ida sirve también para el regreso?",
+            "answer": "Cada tramo tiene su propio estado y plazo. Abre el tramo de regreso cuando se habilite su check-in."
+          }
+        ]
+      }
+    ]
+  },
+  "baggage": {
+    "title": "Equipaje",
+    "overview": "Planea por separado la maleta que llevas contigo y la que entregas en el aeropuerto.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Preparar la maleta",
+        "entries": [
+          {
+            "question": "¿Qué debería llevar en el bolso personal?",
+            "answer": "Lleva contigo los documentos, la medicación que necesites durante el viaje, las llaves y los objetos de valor. Procura poder sacarlos sin deshacer la maleta en la puerta."
+          },
+          {
+            "question": "¿Cómo sé si mi tarifa incluye una maleta facturada?",
+            "answer": "Revisa el equipaje incluido en tu itinerario y tarifa antes de empacar. Los límites y extras pueden variar por tramo, así que comprueba también el regreso."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "En la recogida de equipaje",
+        "entries": [
+          {
+            "question": "¿Qué hago si mi maleta no aparece en la cinta?",
+            "answer": "Comprueba la cinta de tu vuelo y la zona de equipaje especial. Si sigue sin aparecer, solicita ayuda en el mostrador de equipaje antes de salir y conserva el resguardo."
+          }
+        ]
+      }
+    ]
+  },
+  "reaccommodation": {
+    "title": "Cambios e incidencias del vuelo",
+    "overview": "Consulta el estado del vuelo y ten a mano el localizador si cambia tu viaje.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Cambios de horario",
+        "entries": [
+          {
+            "question": "¿Qué compruebo si cambia el horario?",
+            "answer": "Compara la nueva hora, fecha y aeropuerto con el itinerario guardado. Revisa tus conexiones y el traslado al aeropuerto antes de cambiar otros planes."
+          },
+          {
+            "question": "¿Dónde consulto el estado de un vuelo?",
+            "answer": "Abre Estado del vuelo y usa el número y la fecha de salida. Si la consulta no devuelve un resultado, revisa el itinerario más reciente o la información del aeropuerto."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Alternativas",
+        "entries": [
+          {
+            "question": "¿Puedo cambiar de vuelo desde Mis viajes?",
+            "answer": "Mis viajes muestra el itinerario y las acciones disponibles. Si no aparece la opción de cambio, revisa las condiciones de la tarifa y consulta con quien emitió la reserva antes de crear otra."
+          }
+        ]
+      }
+    ]
+  },
+  "loyalty": {
+    "title": "Fidelidad",
+    "overview": "Conserva los localizadores para poder comprobar los beneficios asociados a una tarifa o promoción.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Beneficios de viaje",
+        "entries": [
+          {
+            "question": "¿La cuenta de Veyra muestra un saldo de puntos?",
+            "answer": "Por ahora, la cuenta de Veyra muestra tus viajes y datos de perfil. Esta versión no incluye saldo ni canje de puntos."
+          },
+          {
+            "question": "¿Cómo compruebo un beneficio promocional?",
+            "answer": "Lee las condiciones de la oferta y confirma que el beneficio esté indicado antes de pagar. Guarda el resumen de la tarifa y el localizador."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Uso de la cuenta",
+        "entries": [
+          {
+            "question": "¿Iniciar sesión cambia el precio de la búsqueda?",
+            "answer": "Iniciar sesión te permite guardar y gestionar el itinerario. Toma como referencia el precio que se muestra al revisar el vuelo."
+          }
+        ]
+      }
+    ]
+  },
+  "notifications": {
+    "title": "Avisos del viaje",
+    "overview": "Confirma los datos más recientes en tu itinerario y en Estado del vuelo antes de salir hacia el aeropuerto.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Consultar avisos",
+        "entries": [
+          {
+            "question": "¿Dónde reviso un cambio de hora o puerta?",
+            "answer": "Busca el número y la fecha en Estado del vuelo. En el aeropuerto, confirma la puerta y el embarque en las pantallas de la terminal."
+          },
+          {
+            "question": "¿Qué hago si no me llega un correo?",
+            "answer": "Revisa la bandeja de entrada y la carpeta de spam de la cuenta usada para reservar. También puedes iniciar sesión y abrir Mis viajes para ver el itinerario y su estado de pago."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Datos de contacto",
+        "entries": [
+          {
+            "question": "¿Qué datos conviene tener a mano?",
+            "answer": "Guarda el número de vuelo, la fecha de salida y el localizador en un lugar accesible. Te ayudan a distinguir entre itinerarios similares."
+          }
+        ]
+      }
+    ]
+  },
+  "insurance": {
+    "title": "Seguro de viaje",
+    "overview": "Revisa el seguro por separado de la tarifa del vuelo y guarda los datos de la aseguradora junto a tus documentos.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Antes de contratar",
+        "entries": [
+          {
+            "question": "¿El pago incluye un seguro de viaje?",
+            "answer": "El pago de Veyra se prepara para el itinerario seleccionado. Si necesitas un seguro, contrátalo por separado y comprueba qué fechas y destinos cubre."
+          },
+          {
+            "question": "¿Qué debería comparar en una póliza?",
+            "answer": "Revisa los eventos cubiertos, las exclusiones, las fechas de cobertura y los documentos que exige la aseguradora para presentar una reclamación."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Si necesitas reclamar",
+        "entries": [
+          {
+            "question": "¿Qué guardo si una incidencia afecta mi viaje?",
+            "answer": "Guarda el localizador, los avisos de la incidencia y los comprobantes correspondientes. Pregunta a tu aseguradora cómo y cuándo debes enviarlos."
+          }
+        ]
+      }
+    ]
+  },
+  "cargo": {
+    "title": "Carga aérea",
+    "overview": "La carga y los envíos no acompañados se gestionan por separado de un itinerario de pasajeros.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Preparar un envío",
+        "entries": [
+          {
+            "question": "¿Puedo añadir carga al reservar un vuelo de pasajeros?",
+            "answer": "La reserva de pasajeros es para itinerarios y no admite envíos de carga. Gestiona el envío directamente con un operador de carga."
+          },
+          {
+            "question": "¿Qué datos preparo para pedir una cotización de carga?",
+            "answer": "Ten a mano el origen, destino, número de bultos, dimensiones, peso y contenido. Consulta al operador cómo embalar y si acepta artículos especiales."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Seguimiento",
+        "entries": [
+          {
+            "question": "¿Puedo seguir un envío en Estado del vuelo?",
+            "answer": "Estado del vuelo consulta vuelos de pasajeros. Usa la referencia del envío y el canal de seguimiento del operador de carga."
+          }
+        ]
+      }
+    ]
+  },
+  "health": {
+    "title": "Salud y asistencia",
+    "overview": "Planifica la asistencia antes de salir y consulta los requisitos con la aerolínea que opera tu vuelo.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Asistencia en el aeropuerto",
+        "entries": [
+          {
+            "question": "¿Qué información doy si necesito ayuda en el aeropuerto?",
+            "answer": "Describe la ayuda que necesitas para la facturación, seguridad, embarque o conexión. Ten a mano la ruta y el localizador para que la aerolínea pueda confirmar la asistencia."
+          },
+          {
+            "question": "¿Qué hago si viajo con un dispositivo de movilidad eléctrico?",
+            "answer": "Ten disponibles las medidas, el peso, el tipo de batería y las instrucciones del fabricante. Consulta a la aerolínea qué autorización o preparación requiere antes de ir al aeropuerto."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Documentación médica",
+        "entries": [
+          {
+            "question": "¿Debo compartir informes médicos con el asistente?",
+            "answer": "Usa el canal seguro indicado por la aerolínea si te solicita documentos médicos. Evita compartir informes y recetas privadas en el chat."
+          }
+        ]
+      }
+    ]
+  },
+  "children": {
+    "title": "Viajar con niños",
+    "overview": "Prepara los asientos, documentos y artículos de cada niño antes de ir al aeropuerto.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Preparar el viaje",
+        "entries": [
+          {
+            "question": "¿Cómo sé si un niño necesita asiento propio?",
+            "answer": "Indica a la aerolínea la edad del niño en la fecha del viaje. Confirma la tarifa, las opciones de asiento y los documentos antes de pagar."
+          },
+          {
+            "question": "¿Cómo podemos sentarnos juntos?",
+            "answer": "Revisa los asientos al planear el itinerario. Si no encuentras plazas adecuadas, consulta a la aerolínea antes del check-in. Las solicitudes dependen de la disponibilidad."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "En el aeropuerto",
+        "entries": [
+          {
+            "question": "¿Llevo el cochecito hasta la puerta?",
+            "answer": "Pregunta dónde debes entregarlo y recogerlo. Guarda lo indispensable para el niño en otro bolso por si tienes que entregar el cochecito al facturar."
+          }
+        ]
+      }
+    ]
+  },
+  "pets": {
+    "title": "Viajar con mascotas",
+    "overview": "Confirma la disponibilidad, la forma de transporte y las reglas del destino antes de reservar con tu mascota.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Solicitar autorización",
+        "entries": [
+          {
+            "question": "¿Puedo añadir una mascota en el pago?",
+            "answer": "El pago de Veyra corresponde al itinerario de pasajeros. Confirma el transporte de la mascota con la aerolínea antes de reservar, incluido cualquier límite de animales en el vuelo."
+          },
+          {
+            "question": "¿Qué pregunto sobre el transportín?",
+            "answer": "Indica el tipo y tamaño de la mascota, las medidas del transportín y el peso total. Pregunta si puede viajar en cabina o requiere otro tipo de transporte."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Documentos de viaje",
+        "entries": [
+          {
+            "question": "¿Dónde confirmo las reglas del destino?",
+            "answer": "Consulta los requisitos de las autoridades del destino y confirma los documentos con la aerolínea. Incluye también los países donde hagas escala."
+          }
+        ]
+      }
+    ]
+  },
+  "payments": {
+    "title": "Pagos, reembolsos y cancelación",
+    "overview": "Usa Mis viajes para revisar el itinerario y confirmar si quedó registrado el pago.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Estado del pago",
+        "entries": [
+          {
+            "question": "¿Cómo pago un itinerario guardado?",
+            "answer": "Abre el viaje y selecciona la opción de pago. Revisa el importe y completa el pago en la página de checkout."
+          },
+          {
+            "question": "¿Qué hago si el pago sigue pendiente?",
+            "answer": "Actualiza Mis viajes para consultar el estado más reciente. Si ya completaste el pago, confirma el resultado antes de iniciar otro."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Reembolsos y cancelaciones",
+        "entries": [
+          {
+            "question": "¿Puedo cancelar o pedir un reembolso en Veyra?",
+            "answer": "Esta versión de Mis viajes no tramita cancelaciones ni reembolsos. Revisa las condiciones de la tarifa y consulta las opciones con quien emitió la reserva."
+          }
+        ]
+      }
+    ]
+  },
+  "integration": {
+    "title": "Conexiones y vuelos de otras aerolíneas",
+    "overview": "Comprueba quién opera cada vuelo y si tus conexiones forman parte del mismo itinerario.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Aerolínea operadora",
+        "entries": [
+          {
+            "question": "¿Qué diferencia hay entre quien vende y quien opera el vuelo?",
+            "answer": "Quien vende emite la reserva. La aerolínea operadora realiza el vuelo y puede confirmar la facturación, el equipaje y la asistencia de ese tramo."
+          },
+          {
+            "question": "¿Qué compruebo al hacer una conexión?",
+            "answer": "Compara los aeropuertos de llegada y salida, las terminales y el tiempo entre vuelos. Deja margen para seguridad, migración o recogida de equipaje si corresponde."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Billetes por separado",
+        "entries": [
+          {
+            "question": "¿Mi equipaje se transfiere automáticamente entre reservas separadas?",
+            "answer": "Confírmalo en el primer mostrador. Si tienes reservas separadas, quizá debas recoger tu equipaje y facturarlo de nuevo."
+          }
+        ]
+      }
+    ]
+  },
+  "rail": {
+    "title": "Tren y transporte terrestre",
+    "overview": "Planea el traslado por tierra con tiempo suficiente para llegar al aeropuerto o salir de él.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Planear el traslado",
+        "entries": [
+          {
+            "question": "¿Puedo añadir un tren a mi itinerario de Veyra?",
+            "answer": "La búsqueda de vuelos de Veyra no vende billetes de tren. Reserva el tramo de tren por separado y compara los horarios antes de pagar."
+          },
+          {
+            "question": "¿Cuánto margen dejo entre un tren y un vuelo?",
+            "answer": "Ten en cuenta el trayecto de la estación a la terminal, la facturación y el control de seguridad. Si son reservas separadas, deja margen por si una se retrasa."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Documentos de viaje",
+        "entries": [
+          {
+            "question": "¿Qué referencia uso para cambiar el tren?",
+            "answer": "Usa la referencia que te dio el operador ferroviario. El localizador de Veyra corresponde al itinerario del vuelo."
+          }
+        ]
+      }
+    ]
+  },
+  "app": {
+    "title": "Acceso desde el móvil",
+    "overview": "Usa Veyra en el navegador del móvil para buscar vuelos y abrir tus viajes.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Empezar",
+        "entries": [
+          {
+            "question": "¿Tengo que instalar una aplicación de Veyra?",
+            "answer": "Puedes usar Veyra desde el navegador del móvil. Inicia sesión con la misma cuenta de Google para encontrar tus viajes guardados."
+          },
+          {
+            "question": "¿Puedo cambiar el idioma desde el móvil?",
+            "answer": "Abre el selector de idioma en la cabecera y elige uno. La interfaz y el asistente de Veyra usan el idioma elegido cuando está disponible."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "En el aeropuerto",
+        "entries": [
+          {
+            "question": "¿Qué hago si me quedo sin conexión?",
+            "answer": "Guarda el número de vuelo, la hora y el localizador en un lugar accesible sin conexión. Las actualizaciones requieren internet."
+          }
+        ]
+      }
+    ]
+  },
+  "account": {
+    "title": "Tu cuenta de Veyra",
+    "overview": "Inicia sesión para guardar viajes y abrir los itinerarios y conversaciones vinculados a tu cuenta.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Iniciar sesión",
+        "entries": [
+          {
+            "question": "¿Cómo creo mi cuenta o accedo a ella?",
+            "answer": "Elige Iniciar sesión y continúa con Google. Usa la misma cuenta de Google para volver a los viajes guardados."
+          },
+          {
+            "question": "¿Por qué no aparece un viaje después de iniciar sesión?",
+            "answer": "Comprueba si entraste con otra cuenta de Google o saliste antes de guardar el itinerario. Mis viajes muestra los datos de la cuenta actual."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Privacidad",
+        "entries": [
+          {
+            "question": "¿Cómo borro una conversación guardada?",
+            "answer": "Abre el historial del asistente, localiza la conversación y selecciona Eliminar. Confirma cuando te lo pida."
+          }
+        ]
+      }
+    ]
+  },
+  "wifi": {
+    "title": "Conexión a bordo",
+    "overview": "Prepárate para viajar sin internet durante parte del trayecto y confirma los servicios de tu vuelo.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Preparar la conexión",
+        "entries": [
+          {
+            "question": "¿Puedo dar por hecho que mi vuelo tiene wifi?",
+            "answer": "Confirma con la aerolínea si hay wifi. Puede variar según el avión y el resultado de búsqueda no confirma la conexión a bordo."
+          },
+          {
+            "question": "¿Qué descargo antes del vuelo?",
+            "answer": "Descarga los datos del viaje, el entretenimiento y lo necesario para trabajar antes de embarcar. Lleva a mano el cargador y el adaptador que uses."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Durante el vuelo",
+        "entries": [
+          {
+            "question": "¿Cómo sé qué red debo usar?",
+            "answer": "Sigue el nombre de red y las indicaciones de la tripulación o del portal a bordo. Revisa el precio antes de seleccionar un plan."
+          }
+        ]
+      }
+    ]
+  },
+  "baggage-guidelines": {
+    "title": "Guía de equipaje",
+    "overview": "Comprueba las medidas, el peso y los artículos especiales de cada tramo antes de salir hacia el aeropuerto.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Equipaje de mano y facturado",
+        "entries": [
+          {
+            "question": "¿Cómo mido una maleta de mano?",
+            "answer": "Mide el exterior de la maleta llena, incluidas ruedas, asas y bolsillos. Compárala con el límite de tu vuelo y comprueba el peso por separado."
+          },
+          {
+            "question": "¿Cómo preparo una maleta facturada?",
+            "answer": "Coloca una etiqueta de identificación y guarda el resguardo cuando la entregues. Saca lo que necesitarás durante el vuelo antes de llegar al mostrador."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Artículos especiales y restringidos",
+        "entries": [
+          {
+            "question": "¿Dónde confirmo si puedo llevar baterías o equipo deportivo?",
+            "answer": "Consulta a la aerolínea antes de empacar. Indica el tipo, el tamaño y, cuando corresponda, la capacidad de la batería. Confirma si se permite en cabina, en bodega o en ninguna."
+          }
+        ]
+      }
+    ]
+  },
+  "customer-support": {
+    "title": "Ayuda y soporte",
+    "overview": "Usa el asistente o la página del viaje para encontrar el siguiente paso sin compartir datos sensibles.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Pedir ayuda",
+        "entries": [
+          {
+            "question": "¿Qué puedo preguntarle al asistente de Veyra?",
+            "answer": "Pídele ayuda para buscar vuelos, usar Mis viajes o entender el sitio. Si tienes un problema con una reserva o un pago, consulta el estado y las opciones en la página del viaje."
+          },
+          {
+            "question": "¿Qué datos ayudan a explicar un problema?",
+            "answer": "Indica la página, la acción que intentaste y la hora aproximada. Evita compartir números de tarjeta, contraseñas y documentos de identidad."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "En el aeropuerto",
+        "entries": [
+          {
+            "question": "¿Quién puede ayudar con un objeto olvidado en el aeropuerto?",
+            "answer": "Contacta con objetos perdidos del aeropuerto. Si quedó a bordo, ten listos el número de vuelo, la fecha y el asiento para consultar con la aerolínea."
+          }
+        ]
+      }
+    ]
+  },
+  "flight-status-info": {
+    "title": "Guía de estado de vuelos",
+    "overview": "Busca por número y fecha para ver el registro más reciente disponible en Veyra.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Encontrar un vuelo",
+        "entries": [
+          {
+            "question": "¿Qué introduzco en Estado del vuelo?",
+            "answer": "Escribe el número de vuelo que aparece en el itinerario y su fecha de salida programada. Para un viaje de ida y vuelta, usa los datos del tramo que quieras consultar."
+          },
+          {
+            "question": "¿Qué significa que no aparezca un estado?",
+            "answer": "Comprueba que el número y la fecha coincidan con el itinerario. Si no hay resultado, Veyra no tiene un registro para esa consulta. Eso no indica una cancelación."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Interpretar las novedades",
+        "entries": [
+          {
+            "question": "¿Dónde confirmo la puerta o terminal?",
+            "answer": "Consulta las pantallas actuales del aeropuerto o pregunta al personal antes de ir a la puerta. Veyra muestra registros guardados de los vuelos disponibles en la plataforma."
+          }
+        ]
+      }
+    ]
+  },
+  "online-checkin-info": {
+    "title": "Guía de check-in en línea",
+    "overview": "Abre el tramo correcto en Mis viajes y comprueba si ya se abrió su plazo de check-in.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Antes del check-in",
+        "entries": [
+          {
+            "question": "¿Dónde empiezo el check-in en línea?",
+            "answer": "Inicia sesión, abre Mis viajes y selecciona el tramo de ida o de regreso. Elige Check-in cuando aparezca esa opción."
+          },
+          {
+            "question": "¿Cuál es el plazo de check-in en línea en Veyra?",
+            "answer": "El check-in en línea abre 48 horas antes de la salida programada de un tramo elegible y cierra 60 minutos antes. El pago debe estar registrado."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "En la terminal",
+        "entries": [
+          {
+            "question": "¿Qué compruebo antes de ir a la puerta?",
+            "answer": "Confirma la terminal y las indicaciones de embarque del itinerario. Si vas a facturar equipaje o deben revisar tus documentos, deja tiempo para pasar por el mostrador antes de seguridad."
+          }
+        ]
+      }
+    ]
+  }
+}

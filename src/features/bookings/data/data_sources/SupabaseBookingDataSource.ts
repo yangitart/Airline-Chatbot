@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateDemoBookingCommand } from "../../domain/models/Booking";
+import { parseBookingLookup } from "../../domain/models/BookingReference";
 import type { BookingDataSource } from "./BookingDataSource";
 import type { BookingModel } from "../models/BookingModel";
 
@@ -31,10 +32,12 @@ export const SupabaseBookingDataSourceImpl = (supabase: SupabaseClient): Booking
     return (data ?? []) as unknown as BookingModel[];
   },
   getMyBooking: async (id) => {
+    const lookup = parseBookingLookup(id);
+    if (!lookup) return null;
     const { data, error } = await supabase
       .from("bookings")
       .select("id,booking_reference,flight_instance_id,return_flight_instance_id,cabin_class,passenger_count,total_fare_minor,currency,status,payment_status,is_demo,itinerary_snapshot,flight_order_payload,created_at,demo_checkins(flight_leg,checked_in_at,demo_seat,demo_boarding_pass_reference)")
-      .eq("id", id)
+      .eq(lookup.column, lookup.value)
       .maybeSingle();
     if (error) throw error;
     return (data ?? null) as unknown as BookingModel | null;

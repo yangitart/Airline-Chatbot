@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { isLeft, type Either } from "fp-ts/Either";
 import toast from "react-hot-toast";
@@ -9,26 +9,14 @@ import type { IUseCase } from "@/src/core/interfaces/IUseCase";
 import type { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
 import { GoogleAuthenticationSymbols } from "@/src/features/authentication/ioc/GoogleAuthenticationSymbols";
 import { GoogleAuthModal } from "@/src/features/authentication/ui/components/GoogleAuthModal";
+import { TravelAssistantWidget } from "@/src/features/chatbot/ui/components/TravelAssistantWidget";
 import { FlightsHeader, getTravelTab, travelNavItems } from "@/src/features/flights/ui/components/FlightsHeader";
 import { injector } from "@/src/ioc/utils/injector";
 import { TravelPageBackdrop } from "./TravelPageBackdrop";
+import { TravelShellContext } from "./TravelShellContext";
 import styles from "./TravelAppShell.module.css";
 
 type AuthUseCase<T> = IUseCase<void, Promise<Either<string, T>>>;
-type ShellContext = {
-  user: GoogleUser | null;
-  authLoading: boolean;
-  openSignIn: (beforeRedirect?: () => void) => void;
-  registerSearchAction: (action: () => void) => () => void;
-};
-const TravelShellContext = createContext<ShellContext | null>(null);
-
-export function useTravelShell() {
-  const shell = useContext(TravelShellContext);
-  if (!shell) throw new Error("useTravelShell requires TravelAppShell");
-  return shell;
-}
-
 export function TravelAppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -102,6 +90,7 @@ export function TravelAppShell({ children }: { children: ReactNode }) {
         <div className="overflow-x-clip">
           <div key={pathname} className={styles.routeView}>{children}</div>
         </div>
+        <TravelAssistantWidget key={user?.id ?? "guest"} />
         {modalOpen && <GoogleAuthModal onClose={closeSignIn} onRedirect={prepareRedirect} />}
       </div>
     </TravelShellContext.Provider>

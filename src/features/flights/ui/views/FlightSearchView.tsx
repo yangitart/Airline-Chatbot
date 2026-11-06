@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { IUseCase } from "@/src/core/interfaces/IUseCase";
 import { injector } from "@/src/ioc/utils/injector";
-import { useTravelShell } from "@/src/components/layout/TravelAppShell";
+import { useTravelShell } from "@/src/components/layout/TravelShellContext";
 import type { Booking, CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
 import { BookingSymbols } from "@/src/features/bookings/ioc/BookingSymbols";
 import { FlightSearchQuery, FlightSearchResult } from "../../domain/models/FlightSearch";
@@ -20,6 +20,10 @@ import { DEMO_AIRPORT_CODES, DEMO_ROUTE_PAIRS, type DemoAirportCode } from "../.
 type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
 type CreateBookingUseCase = IUseCase<CreateDemoBookingCommand, Promise<import("fp-ts/Either").Either<string, Booking>>>;
 type RoutePrefill = { origin: DemoAirportCode; destination: DemoAirportCode; date?: string };
+
+const featuredRoutes = DEMO_ROUTE_PAIRS.filter(({ destination }, index) =>
+  DEMO_ROUTE_PAIRS.findIndex((route) => route.destination === destination) === index,
+);
 
 export default function FlightSearchView() {
   const { t } = useTranslation();
@@ -36,7 +40,7 @@ export default function FlightSearchView() {
   useEffect(() => {
     let active = true;
     const departureDate = localDate(1);
-    void Promise.allSettled(DEMO_ROUTE_PAIRS.map(async (route) => {
+    void Promise.allSettled(featuredRoutes.map(async (route) => {
       const result = await searchUseCase.execute({ ...route, departureDate, passengers: 1, cabinClass: "economy" });
       if (isLeft(result)) return null;
       const flight = result.right.flights.find((option) => option.number_of_bookable_seats > 0);

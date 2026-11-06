@@ -23,5 +23,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ bo
     return NextResponse.json({ detail: "Check-in could not be completed.", error_code: "checkin_failed" }, { status: 500 });
   }
   const data = result.right;
-  return NextResponse.json({ checked_in: true, flight_leg: body.flight_leg, demo_seat: data.demo_seat, boarding_pass_reference: data.demo_boarding_pass_reference, is_demo: true });
+  return NextResponse.json({
+    checked_in: true,
+    flight_leg: body.flight_leg,
+    demo_seat: data.demo_seat,
+    boarding_pass_reference: data.demo_boarding_pass_reference,
+    checked_in_at: data.checked_in_at,
+    is_demo: true,
+  });
 }

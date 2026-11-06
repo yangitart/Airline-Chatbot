@@ -1,4 +1,89 @@
 {
+  "chatbot": {
+    "authUnavailable": "El servicio de inicio de sesión no está disponible en este momento. Inténtalo de nuevo.",
+    "conversationMissing": "Esta conversación ya no está disponible. Puedes iniciar una nueva.",
+    "faqUnavailable": "Las guías de viaje no están disponibles en este momento. Inténtalo de nuevo.",
+    "rateLimited": "El asistente está ocupado. Inténtalo de nuevo en un momento.",
+    "connectionInterrupted": "Se interrumpió la conexión. Puedes volver a enviar tu mensaje.",
+    "messageTooLong": "Tu mensaje es demasiado largo. Acórtalo e inténtalo de nuevo.",
+    "title": "Asistente Veyra",
+    "subtitle": "Ayuda para tu viaje, estés donde estés",
+    "online": "Aquí para ayudarte",
+    "close": "Cerrar asistente",
+    "minimize": "Minimizar asistente",
+    "greeting": "Hola, soy Veyra.",
+    "welcome": "¿Cómo puedo facilitarte el viaje hoy?",
+    "quickTopics": "¿En qué puedo ayudarte?",
+    "newBooking": "Buscar un vuelo",
+    "manageBooking": "Gestionar un viaje",
+    "checkIn": "Información de check-in",
+    "baggage": "Información de equipaje",
+    "flightStatus": "Estado del vuelo",
+    "tripActions": {
+      "allTrips": "Ver todos los viajes",
+      "openBooking": "Abrir reserva {{reference}}",
+      "notCheckedIn": "Check-in pendiente",
+      "confirmPayment": "¿Abrir el pago de prueba en Stripe por {{total}} para la reserva {{reference}}?",
+      "confirmCheckIn": "¿Confirmas el check-in del tramo {{leg}} de la reserva {{reference}}?",
+      "confirm": "Confirmar",
+      "demoFlightRecord": "Registro de vuelo de prueba",
+      "bookingStates": {
+        "demo_saved": "Guardada",
+        "pending_payment": "Pendiente de pago",
+        "confirmed": "Confirmada",
+        "failed": "Fallida",
+        "expired": "Vencida",
+        "cancelled": "Cancelada",
+        "checked_in": "Con check-in"
+      }
+    },
+    "topicPrompts": {
+      "newBooking": "¿Me ayudas a buscar un vuelo?",
+      "manageBooking": "Muéstrame mis reservas guardadas.",
+      "checkIn": "Ayúdame a hacer el check-in de mi viaje.",
+      "baggage": "¿Qué información sobre equipaje debo revisar antes de viajar?",
+      "flightStatus": "Ayúdame a consultar el estado de un vuelo."
+    },
+    "suggestionTitle": "Algunas ideas para empezar",
+    "suggestions": ["¿Qué debo preparar antes del viaje?", "¿Cómo puedo consultar el estado de mi vuelo?", "Ayúdame a buscar un vuelo"],
+    "placeholder": "Escribe tu pregunta…",
+    "send": "Enviar mensaje",
+    "sending": "Veyra está pensando…",
+    "you": "Tú",
+    "assistant": "Veyra",
+    "signInTitle": "Inicia sesión para guardar tus conversaciones",
+    "signInDescription": "Podrás volver a abrir tus chats guardados cuando regreses.",
+    "signInAction": "Iniciar sesión",
+    "privacyNote": "Los mensajes se envían al proveedor de IA seleccionado y se guardan en tu cuenta. No compartas datos de pago ni información sensible.",
+    "error": "No pude conectar con el asistente. Inténtalo de nuevo.",
+    "timeout": "La respuesta tardó demasiado. Inténtalo otra vez.",
+    "authRequired": "Inicia sesión antes de enviar un mensaje.",
+    "launcher": "Abrir el asistente Veyra",
+    "clearChat": "Empezar una conversación nueva",
+    "newConversation": "Nuevo chat",
+    "historyTitle": "Tus conversaciones",
+    "historyLoading": "Cargando tus conversaciones…",
+    "historyEmpty": "Tus conversaciones guardadas aparecerán aquí.",
+    "historyError": "El historial no está disponible ahora. Inténtalo de nuevo.",
+    "deleteConversation": "Eliminar conversación: {{title}}",
+    "confirmDelete": "¿Eliminar esta conversación y sus mensajes? No se puede deshacer.",
+    "passengers": "{{count}} pasajero(s)",
+    "flightResultsTitle": "Itinerarios disponibles",
+    "outboundFlights": "Elige el vuelo de ida",
+    "returnFlights": "Elige el vuelo de regreso",
+    "noFlights": "No encontramos vuelos con esos datos. Prueba otra fecha o ruta.",
+    "noReturnFlights": "No encontramos opciones de regreso para esa fecha.",
+    "totalFare": "Total del itinerario",
+    "reviewCheckout": "Revisar y continuar",
+    "confirmCheckoutTitle": "Confirma tu itinerario",
+    "confirmCheckoutDescription": "Se guardará el itinerario y se abrirá el checkout de prueba de Stripe por {{total}}. El pago no se completa hasta que Stripe lo confirme.",
+    "cancel": "Volver",
+    "checkoutWorking": "Preparando el checkout…",
+    "createPaymentLink": "Crear enlace de pago",
+    "checkoutError": "No se pudo preparar el itinerario o el enlace de pago. Actualiza la búsqueda e inténtalo otra vez.",
+    "flightSearchNotice": "La disponibilidad y las tarifas pueden cambiar; el catálogo actual no es inventario aéreo en tiempo real.",
+    "currencyMismatch": "Elige opciones de ida y regreso en la misma moneda para continuar."
+  },
   "travelPages": {
     "carouselPrevious": "Ruta anterior",
     "carouselNext": "Ruta siguiente",
@@ -16,7 +101,6 @@
     "to": "Hasta",
     "searchRoute": "Explorar esta ruta",
     "routeNote": "Selecciona tus fechas para consultar los vuelos y las tarifas disponibles para tu viaje.",
-    "officialRouteMap": "Ver rutas disponibles",
     "prepareTitle": "Prepara tu viaje",
     "prepareDescription": "Encuentra información y servicios útiles para cada etapa de tu viaje.",
     "resourcesEyebrow": "RECURSOS DE VIAJE",
@@ -71,7 +155,6 @@
         "description": "Descubre las mejoras en la experiencia de viaje."
       }
     },
-    "visitAirIndia": "Explorar información de viaje",
     "footer": "Planifica tu viaje con tranquilidad."
   },
   "tripOperations": {
@@ -234,7 +317,9 @@
       "BOM": "Mumbai",
       "BLR": "Bengaluru",
       "MAA": "Chennai",
-      "HYD": "Hyderabad"
+      "HYD": "Hyderabad",
+      "LHR": "Londres Heathrow",
+      "SIN": "Singapur Changi"
     },
     "actions": {
       "swapAirports": "Intercambiar origen y destino",
@@ -296,7 +381,7 @@
     "searchPlaceholder": "Buscar un tema…",
     "topicCount": "{{count}} temas",
     "learnMore": "Ver tema",
-    "disclaimer": "Esta guía local reúne la información de viaje por temas. Las tarifas, condiciones, indicaciones de salud y datos operativos pueden cambiar; las notas de procedencia se conservan junto al contenido para futuras actualizaciones.",
+    "disclaimer": "Consulta tu itinerario para confirmar los detalles de tu viaje.",
     "categories": {
       "booking": {
         "title": "Reservas",
@@ -347,15 +432,15 @@
         "description": "Consulta respuestas y orientación práctica para esta parte de tu viaje."
       },
       "integration": {
-        "title": "Integración Air India–Vistara",
+        "title": "Conexiones y vuelos de otras aerolíneas",
         "description": "Consulta respuestas y orientación práctica para esta parte de tu viaje."
       },
       "rail": {
-        "title": "Rail and Fly",
+        "title": "Tren y transporte terrestre",
         "description": "Consulta respuestas y orientación práctica para esta parte de tu viaje."
       },
       "app": {
-        "title": "Aplicación móvil",
+        "title": "Acceso desde el móvil",
         "description": "Consulta respuestas y orientación práctica para esta parte de tu viaje."
       },
       "account": {

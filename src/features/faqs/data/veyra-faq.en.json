@@ -1,0 +1,632 @@
+{
+  "booking": {
+    "title": "Booking",
+    "overview": "Plan a one-way or round-trip journey and check your dates, cabin and total before saving an itinerary.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Finding a flight",
+        "entries": [
+          {
+            "question": "Can I search without an account?",
+            "answer": "Yes. Choose a route, dates and cabin in Book & Manage. Sign in with Google when you are ready to save the itinerary."
+          },
+          {
+            "question": "How do I select a round trip?",
+            "answer": "Pick an outbound flight and a return flight. Check both travel dates and the total for all passengers before continuing."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Reviewing a booking",
+        "entries": [
+          {
+            "question": "Where can I find the booking reference?",
+            "answer": "Open My trips with the account used to save the itinerary. The reference appears with the flight details and payment status."
+          }
+        ]
+      }
+    ]
+  },
+  "checkin": {
+    "title": "Check-in",
+    "overview": "Use My trips to check whether each leg is ready for online check-in.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Eligibility",
+        "entries": [
+          {
+            "question": "When can I check in?",
+            "answer": "For eligible trips in Veyra, online check-in opens 48 hours before departure and closes 60 minutes before departure. The window is based on the selected leg."
+          },
+          {
+            "question": "Why is check-in unavailable?",
+            "answer": "Check the departure time, payment status and selected leg in My trips. If a leg is outside the check-in window, wait until it opens or review the airport instructions for that itinerary."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Return trips",
+        "entries": [
+          {
+            "question": "Does checking in for the outbound flight cover the return?",
+            "answer": "Each leg has its own check-in status and window. Open the return leg when its check-in becomes available."
+          }
+        ]
+      }
+    ]
+  },
+  "baggage": {
+    "title": "Baggage",
+    "overview": "Plan separately for the bag you keep with you and the one you hand over at the airport.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Packing",
+        "entries": [
+          {
+            "question": "What should stay in my personal bag?",
+            "answer": "Keep the documents, medication you need during the journey, keys and valuables with you. Leave enough room to reach them without unpacking your bag at the gate."
+          },
+          {
+            "question": "How do I know whether a checked bag is included?",
+            "answer": "Review the allowance associated with your itinerary and fare before packing. Bag limits and extras can differ between legs, so check the return as well."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "At baggage claim",
+        "entries": [
+          {
+            "question": "What if my bag does not appear at the carousel?",
+            "answer": "Check the carousel assigned to your flight and the area for oversized items. If it still does not appear, ask the airport baggage desk for help before leaving and keep your baggage tag."
+          }
+        ]
+      }
+    ]
+  },
+  "reaccommodation": {
+    "title": "Flight changes and disruptions",
+    "overview": "Review the current flight status and keep your booking reference ready when your plans change.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Schedule changes",
+        "entries": [
+          {
+            "question": "What should I check after a schedule change?",
+            "answer": "Compare the new departure time, date and airport with your saved itinerary. Review onward connections and transport to the airport before changing other plans."
+          },
+          {
+            "question": "Where do I see the status of a flight?",
+            "answer": "Use Flight status with the flight number and departure date. If a lookup is unavailable, use the most recent itinerary or airport information for the journey."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Alternatives",
+        "entries": [
+          {
+            "question": "Can I change to another flight in My trips?",
+            "answer": "My trips shows the saved itinerary and its available actions. If no change action appears, review the fare terms and contact the original booking channel before making another reservation."
+          }
+        ]
+      }
+    ]
+  },
+  "loyalty": {
+    "title": "Loyalty",
+    "overview": "Keep your travel references together so you can verify any benefits associated with a fare or promotion.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Travel benefits",
+        "entries": [
+          {
+            "question": "Does a Veyra account show a points balance?",
+            "answer": "The Veyra account currently shows trips and profile details. There is no points balance or redemption screen in this experience."
+          },
+          {
+            "question": "How can I check a promotional benefit?",
+            "answer": "Read the terms shown with the offer and confirm the benefit is listed before you pay. Save the fare summary and booking reference for later review."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Account use",
+        "entries": [
+          {
+            "question": "Does signing in change the price of a search result?",
+            "answer": "Sign-in lets you save and manage your itinerary. Use the fare shown when you review the flight as the reference for your booking."
+          }
+        ]
+      }
+    ]
+  },
+  "notifications": {
+    "title": "Journey notifications",
+    "overview": "Use the itinerary and Flight status to confirm the latest details before heading to the airport.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Finding an update",
+        "entries": [
+          {
+            "question": "Where should I check for a time or gate change?",
+            "answer": "Look up the flight number and date in Flight status. At the airport, check the terminal displays for the latest gate and boarding information."
+          },
+          {
+            "question": "What if I do not receive an email?",
+            "answer": "Check the inbox and spam folder for the account used to book. You can also sign in and open My trips to see the itinerary and its payment status."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Contact details",
+        "entries": [
+          {
+            "question": "What information should I keep ready?",
+            "answer": "Save the flight number, departure date and booking reference somewhere accessible. These details help you tell similar itineraries apart."
+          }
+        ]
+      }
+    ]
+  },
+  "insurance": {
+    "title": "Travel insurance",
+    "overview": "Review insurance separately from the flight fare and keep the provider details with your travel documents.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Before buying",
+        "entries": [
+          {
+            "question": "Is travel insurance added at checkout?",
+            "answer": "Veyra checkout prepares payment for the selected flight itinerary. If you need insurance, arrange it separately and check the dates and destinations it covers."
+          },
+          {
+            "question": "What should I compare in an insurance policy?",
+            "answer": "Review the covered events, exclusions, coverage dates and the documents the insurer expects if you make a claim."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "If you need to claim",
+        "entries": [
+          {
+            "question": "What should I keep if a disruption affects my trip?",
+            "answer": "Keep the booking reference, notices about the disruption and relevant receipts. Ask your insurer how and when to submit them."
+          }
+        ]
+      }
+    ]
+  },
+  "cargo": {
+    "title": "Cargo",
+    "overview": "Freight and unaccompanied shipments require arrangements separate from a passenger itinerary.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Planning a shipment",
+        "entries": [
+          {
+            "question": "Can I add cargo while booking a passenger flight?",
+            "answer": "The passenger booking flow is for itineraries and does not accept freight shipments. Arrange a shipment directly with a cargo provider."
+          },
+          {
+            "question": "What details should I prepare for a freight quote?",
+            "answer": "Have the origin, destination, parcel count, dimensions, weight and contents ready. Ask the cargo provider about packing and acceptance for unusual goods."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Tracking",
+        "entries": [
+          {
+            "question": "Can I track a shipment in Flight status?",
+            "answer": "Flight status is for passenger flight records. Use the shipment reference and tracking channel supplied by the cargo provider."
+          }
+        ]
+      }
+    ]
+  },
+  "health": {
+    "title": "Health and assistance",
+    "overview": "Plan any assistance before departure and check requirements with the operating carrier for your itinerary.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Assistance at the airport",
+        "entries": [
+          {
+            "question": "What should I tell the airline if I need help at the airport?",
+            "answer": "Describe the assistance you need for check-in, security, boarding or a connection. Have the route and booking reference ready so the operating carrier can confirm the arrangements."
+          },
+          {
+            "question": "What if I travel with a powered mobility device?",
+            "answer": "Have the device dimensions, weight, battery type and manufacturer instructions available. Ask the operating carrier what approval or preparation is needed before going to the airport."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Health documents",
+        "entries": [
+          {
+            "question": "Should I share medical records in the travel assistant?",
+            "answer": "Use the secure channel provided by the operating carrier if it requests medical paperwork. Keep private records and prescriptions out of the chat."
+          }
+        ]
+      }
+    ]
+  },
+  "children": {
+    "title": "Travelling with children",
+    "overview": "Plan seating, documents and supplies for each child before going to the airport.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Planning the trip",
+        "entries": [
+          {
+            "question": "How do I check whether a child needs a separate seat?",
+            "answer": "Give the operating carrier the child's age on the date of travel. Confirm the applicable fare, seating options and documents before paying."
+          },
+          {
+            "question": "How can my family sit together?",
+            "answer": "Review seating when planning the itinerary. If you cannot see suitable seats, ask the operating carrier before check-in. Seating requests depend on availability."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "At the airport",
+        "entries": [
+          {
+            "question": "Should I bring a stroller to the gate?",
+            "answer": "Ask where it will be accepted and returned. Keep essentials for the child in a separate bag in case you hand the stroller over at check-in."
+          }
+        ]
+      }
+    ]
+  },
+  "pets": {
+    "title": "Travelling with pets",
+    "overview": "Check availability, transport arrangements and destination rules before you book a journey with a pet.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Getting approval",
+        "entries": [
+          {
+            "question": "Can I add a pet in the passenger checkout?",
+            "answer": "The Veyra checkout is for the passenger itinerary. Confirm pet transport with the operating carrier before booking, including any limit on animals on the flight."
+          },
+          {
+            "question": "What should I ask about the carrier or crate?",
+            "answer": "Share your pet's type and size, the dimensions of the carrier and their combined weight. Ask whether it can travel in the cabin or needs a separate arrangement."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Travel documents",
+        "entries": [
+          {
+            "question": "Where can I confirm the destination rules?",
+            "answer": "Check the destination authority's requirements and confirm the paperwork with the operating carrier. Include any country where you connect."
+          }
+        ]
+      }
+    ]
+  },
+  "payments": {
+    "title": "Payments, refunds and cancellation",
+    "overview": "Use My trips to review your itinerary and confirm whether its payment has been recorded.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Payment status",
+        "entries": [
+          {
+            "question": "How do I pay for a saved itinerary?",
+            "answer": "Open the trip and select its payment action. Review the amount and complete the payment on the checkout page."
+          },
+          {
+            "question": "What if My trips still shows a pending payment?",
+            "answer": "Refresh My trips to check the latest status. If you already completed checkout, confirm the result before starting another payment."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Refunds and cancellations",
+        "entries": [
+          {
+            "question": "Can I cancel or request a refund in Veyra?",
+            "answer": "This version of My trips does not process cancellations or refunds. Review the fare conditions and speak with the original booking channel for any applicable options."
+          }
+        ]
+      }
+    ]
+  },
+  "integration": {
+    "title": "Connections and partner flights",
+    "overview": "Check who operates each flight and whether your connections belong to a single itinerary.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Operating carrier",
+        "entries": [
+          {
+            "question": "What is the difference between the seller and the operating carrier?",
+            "answer": "The seller issues the booking. The operating carrier runs the flight and can confirm check-in, baggage and assistance for that leg."
+          },
+          {
+            "question": "What should I check during a connection?",
+            "answer": "Compare the arrival and departure airports, the terminals and the time between flights. Leave room for security, immigration or baggage collection if they apply."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Separate tickets",
+        "entries": [
+          {
+            "question": "Will my baggage automatically transfer between separate bookings?",
+            "answer": "Confirm this at the first check-in desk. With separate bookings, you may need to collect your baggage and check it in again."
+          }
+        ]
+      }
+    ]
+  },
+  "rail": {
+    "title": "Rail and onward travel",
+    "overview": "Plan the ground portion of your journey with enough time for the transfer to or from the airport.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Planning a transfer",
+        "entries": [
+          {
+            "question": "Can I add a train to my Veyra itinerary?",
+            "answer": "The Veyra flight search does not sell rail tickets. Book any train segment separately and compare its timetable with the flight before paying."
+          },
+          {
+            "question": "How much time should I leave between a train and a flight?",
+            "answer": "Allow for the trip from the station to the terminal, check-in and security. If the train and flight are separate bookings, choose a buffer you can comfortably manage if one is delayed."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Travel records",
+        "entries": [
+          {
+            "question": "Which reference do I use for a rail change?",
+            "answer": "Use the reference issued by the rail operator. Your Veyra booking reference is for the flight itinerary."
+          }
+        ]
+      }
+    ]
+  },
+  "app": {
+    "title": "Mobile access",
+    "overview": "Use Veyra in your browser to search flights and open trips from your phone.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Getting started",
+        "entries": [
+          {
+            "question": "Do I need to install a Veyra app?",
+            "answer": "You can use Veyra from your mobile browser. Sign in with the same Google account to find your saved trips."
+          },
+          {
+            "question": "Can I switch the display language on mobile?",
+            "answer": "Open the language menu in the site header and choose a language. The interface and Veyra assistant use the language you select where supported."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "At the airport",
+        "entries": [
+          {
+            "question": "What if I lose my internet connection?",
+            "answer": "Keep your flight number, departure time and booking reference somewhere you can access offline. Live updates need a connection."
+          }
+        ]
+      }
+    ]
+  },
+  "account": {
+    "title": "Your Veyra account",
+    "overview": "Sign in to save trips and open the itineraries and conversations associated with your account.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Signing in",
+        "entries": [
+          {
+            "question": "How do I create or access my account?",
+            "answer": "Choose Sign in and continue with Google. Use the same Google account whenever you want to return to previously saved trips."
+          },
+          {
+            "question": "Why is a trip missing after I sign in?",
+            "answer": "Check whether you signed in with a different Google account or left the itinerary before saving it. My trips is scoped to the current account."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Privacy",
+        "entries": [
+          {
+            "question": "How can I remove a saved chat conversation?",
+            "answer": "Open the assistant's conversation history, choose the conversation and select the delete action. Confirm the deletion when prompted."
+          }
+        ]
+      }
+    ]
+  },
+  "wifi": {
+    "title": "Onboard connectivity",
+    "overview": "Plan for periods without internet and confirm onboard services for the specific flight.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Preparing to connect",
+        "entries": [
+          {
+            "question": "Can I assume my flight has Wi-Fi?",
+            "answer": "Confirm Wi-Fi availability with the operating carrier. It can vary by aircraft and a flight search result alone does not confirm onboard connectivity."
+          },
+          {
+            "question": "What should I download before the flight?",
+            "answer": "Download important travel details, entertainment and anything you need for work before boarding. Keep a charger and any required adapter with your cabin essentials."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "While onboard",
+        "entries": [
+          {
+            "question": "How do I know which network to use?",
+            "answer": "Follow the network name and connection instructions provided by the crew or the onboard portal. Review any charges before choosing a plan."
+          }
+        ]
+      }
+    ]
+  },
+  "baggage-guidelines": {
+    "title": "Baggage guidelines",
+    "overview": "Check size, weight and special items for each leg so you can pack before leaving for the airport.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Cabin and checked bags",
+        "entries": [
+          {
+            "question": "How do I measure a cabin bag?",
+            "answer": "Measure the outside of the packed bag, including wheels, handles and pockets. Compare it with the limit for the flight and check the weight separately."
+          },
+          {
+            "question": "How should I prepare a checked bag?",
+            "answer": "Put an identification tag on the bag and keep the baggage receipt when you hand it over. Remove items you need during the flight before going to the drop-off counter."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Special and restricted items",
+        "entries": [
+          {
+            "question": "Where do I confirm whether I can carry batteries or sports equipment?",
+            "answer": "Check with the operating carrier before packing. Share the item type, size and battery capacity when relevant, and confirm whether it belongs in the cabin, the hold or neither."
+          }
+        ]
+      }
+    ]
+  },
+  "customer-support": {
+    "title": "Help and support",
+    "overview": "Use the assistant or the relevant trip page to find the next step without sharing sensitive information.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Getting help",
+        "entries": [
+          {
+            "question": "What can I ask the Veyra assistant?",
+            "answer": "Ask for help finding flights, using My trips or understanding the site. For a booking or payment problem, check the trip page for its current state and available actions."
+          },
+          {
+            "question": "What information can help explain a problem?",
+            "answer": "Include the page name, the action you tried and the approximate time. Keep card numbers, passwords and identity documents out of the conversation."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "At the airport",
+        "entries": [
+          {
+            "question": "Who can help with an item left at the airport?",
+            "answer": "Contact the airport's lost property desk. If you left it onboard, have your flight number, date and seat details ready for the operating carrier."
+          }
+        ]
+      }
+    ]
+  },
+  "flight-status-info": {
+    "title": "Flight status guide",
+    "overview": "Look up a flight by number and date to see the most recent record available in Veyra.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Finding a flight",
+        "entries": [
+          {
+            "question": "What do I enter in Flight status?",
+            "answer": "Enter the flight number shown on your itinerary and its scheduled departure date. For a round trip, use the number and date of the leg you want to check."
+          },
+          {
+            "question": "What does it mean when no status is available?",
+            "answer": "Check that the flight number and date match the itinerary. A missing result means Veyra has no record for that lookup. It does not indicate a cancellation."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "Interpreting updates",
+        "entries": [
+          {
+            "question": "Where should I confirm a gate or terminal?",
+            "answer": "Use the airport's current displays or ask its staff before heading to the gate. The Veyra status page shows stored records for the flights available in the platform."
+          }
+        ]
+      }
+    ]
+  },
+  "online-checkin-info": {
+    "title": "Online check-in guide",
+    "overview": "Open the correct leg from My trips and check whether its online check-in window is open.",
+    "sections": [
+      {
+        "id": "section-1",
+        "title": "Before check-in",
+        "entries": [
+          {
+            "question": "Where do I start online check-in?",
+            "answer": "Sign in, open My trips, and select the outbound or return leg. Choose Check in when that action appears."
+          },
+          {
+            "question": "What is the online check-in window in Veyra?",
+            "answer": "Online check-in opens 48 hours before the scheduled departure of an eligible leg and closes 60 minutes before departure. The payment must be recorded before check-in."
+          }
+        ]
+      },
+      {
+        "id": "section-2",
+        "title": "At the terminal",
+        "entries": [
+          {
+            "question": "What should I check before going to the gate?",
+            "answer": "Confirm the terminal and boarding instructions for your itinerary. If you have checked baggage or need a document check, allow time for the relevant counter before security."
+          }
+        ]
+      }
+    ]
+  }
+}

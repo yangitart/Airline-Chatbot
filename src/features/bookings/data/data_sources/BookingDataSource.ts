@@ -5,7 +5,7 @@ import type { BookingModel } from "../models/BookingModel";
 export interface BookingDataSource {
   createDemoBooking(command: CreateDemoBookingCommand): Promise<BookingModel>;
   listMyBookings(): Promise<BookingModel[]>;
-  getMyBooking(id: string): Promise<BookingModel | null>;
+  getMyBooking(id: string, signal?: AbortSignal): Promise<BookingModel | null>;
 }
 
 export const BookingApiDataSourceImpl = (client: AxiosInstance): BookingDataSource => ({
@@ -25,8 +25,8 @@ export const BookingApiDataSourceImpl = (client: AxiosInstance): BookingDataSour
     const { data } = await client.get<BookingModel[]>("/api/v1/bookings");
     return data;
   },
-  getMyBooking: async (id) => {
-    const { data } = await client.get<BookingModel>(`/api/v1/bookings/${encodeURIComponent(id)}`);
+  getMyBooking: async (id, signal) => {
+    const { data } = await client.get<BookingModel>(`/api/v1/bookings/${encodeURIComponent(id)}`, { signal });
     return data;
   },
 });

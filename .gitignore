@@ -53,3 +53,6 @@ next-env.d.ts
 /cypress/logs/
 
 !.env.example
+/.faq-rag/
+/tmp/
+__pycache__/

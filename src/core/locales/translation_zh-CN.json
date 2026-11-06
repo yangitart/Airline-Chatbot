@@ -1,4 +1,89 @@
 {
+  "chatbot": {
+    "authUnavailable": "登录服务暂时不可用，请重试。",
+    "conversationMissing": "此对话已不可用，您可以开始新对话。",
+    "faqUnavailable": "旅行指南暂时不可用，请重试。",
+    "rateLimited": "助手正忙，请稍后重试。",
+    "connectionInterrupted": "连接已中断，您可以重新发送消息。",
+    "messageTooLong": "消息过长，请缩短后重试。",
+    "title": "Veyra 旅行助手",
+    "subtitle": "随时为您的旅程提供帮助",
+    "online": "随时为您服务",
+    "close": "关闭助手",
+    "minimize": "收起助手",
+    "greeting": "您好，我是 Veyra。",
+    "welcome": "今天我可以怎样让您的旅程更轻松？",
+    "quickTopics": "我可以为您提供什么帮助？",
+    "newBooking": "查找航班",
+    "manageBooking": "管理行程",
+    "checkIn": "值机信息",
+    "baggage": "行李指南",
+    "flightStatus": "航班状态",
+    "tripActions": {
+      "allTrips": "查看所有行程",
+      "openBooking": "打开预订 {{reference}}",
+      "notCheckedIn": "尚未值机",
+      "confirmPayment": "为预订 {{reference}} 打开金额为 {{total}} 的 Stripe 测试支付页面吗？",
+      "confirmCheckIn": "确认办理预订 {{reference}} 的{{leg}}值机吗？",
+      "confirm": "确认",
+      "demoFlightRecord": "演示航班记录",
+      "bookingStates": {
+        "demo_saved": "已保存",
+        "pending_payment": "待付款",
+        "confirmed": "已确认",
+        "failed": "失败",
+        "expired": "已过期",
+        "cancelled": "已取消",
+        "checked_in": "已值机"
+      }
+    },
+    "topicPrompts": {
+      "newBooking": "可以帮我查找航班吗？",
+      "manageBooking": "显示我保存的预订。",
+      "checkIn": "请帮我办理行程值机。",
+      "baggage": "出行前应该查看哪些行李信息？",
+      "flightStatus": "请帮我查询航班状态。"
+    },
+    "suggestionTitle": "从这些问题开始",
+    "suggestions": ["出行前需要准备什么？", "如何查询航班状态？", "帮我查找航班"],
+    "placeholder": "输入您的问题…",
+    "send": "发送消息",
+    "sending": "Veyra 正在思考…",
+    "you": "您",
+    "assistant": "Veyra",
+    "signInTitle": "登录以保存对话",
+    "signInDescription": "您下次访问时可以重新打开已保存的聊天。",
+    "signInAction": "登录",
+    "privacyNote": "消息会发送给所选 AI 服务商并保存在您的账户中。请勿分享付款信息或敏感个人资料。",
+    "error": "暂时无法连接助手，请重试。",
+    "timeout": "等待时间过长，请重试。",
+    "authRequired": "发送消息前请先登录。",
+    "launcher": "打开 Veyra 助手",
+    "clearChat": "开始新对话",
+    "newConversation": "新建聊天",
+    "historyTitle": "您的对话",
+    "historyLoading": "正在加载您的对话…",
+    "historyEmpty": "已保存的对话会显示在这里。",
+    "historyError": "暂时无法加载对话记录，请重试。",
+    "deleteConversation": "删除对话：{{title}}",
+    "confirmDelete": "确定删除此对话及其消息吗？此操作无法撤销。",
+    "passengers": "{{count}} 位乘客",
+    "flightResultsTitle": "可选行程",
+    "outboundFlights": "选择去程航班",
+    "returnFlights": "选择返程航班",
+    "noFlights": "没有符合条件的航班，请尝试其他日期或路线。",
+    "noReturnFlights": "该日期没有找到返程航班。",
+    "totalFare": "行程总价",
+    "reviewCheckout": "查看并继续",
+    "confirmCheckoutTitle": "确认您的行程",
+    "confirmCheckoutDescription": "系统将保存所选行程，并打开金额为 {{total}} 的 Stripe 测试结账页面。Stripe 确认后付款才算完成。",
+    "cancel": "返回",
+    "checkoutWorking": "正在准备结账…",
+    "createPaymentLink": "创建付款链接",
+    "checkoutError": "无法准备行程或付款链接，请刷新搜索后重试。",
+    "flightSearchNotice": "库存和票价可能变化；当前目录不是实时航班库存。",
+    "currencyMismatch": "请选择相同货币的去程和返程航班后再继续。"
+  },
   "travelPages": {
     "carouselPrevious": "上一条航线",
     "carouselNext": "下一条航线",
@@ -16,7 +101,6 @@
     "to": "目的地",
     "searchRoute": "查看此航线",
     "routeNote": "选择出行日期，查看可选航班和票价。",
-    "officialRouteMap": "查看航线网络",
     "prepareTitle": "出行准备",
     "prepareDescription": "查找旅程各阶段所需的信息和服务。",
     "resourcesEyebrow": "出行资源",
@@ -71,7 +155,6 @@
         "description": "了解旅客体验的更新。"
       }
     },
-    "visitAirIndia": "查看旅行信息",
     "footer": "安心规划您的旅程。"
   },
   "tripOperations": {
@@ -234,7 +317,9 @@
       "BOM": "孟买",
       "BLR": "班加罗尔",
       "MAA": "金奈",
-      "HYD": "海得拉巴"
+      "HYD": "海得拉巴",
+      "LHR": "伦敦希思罗",
+      "SIN": "新加坡樟宜"
     },
     "actions": {
       "swapAirports": "交换出发地和目的地",
@@ -296,7 +381,7 @@
     "searchPlaceholder": "搜索主题…",
     "topicCount": "{{count}} 个主题",
     "learnMore": "查看主题",
-    "disclaimer": "本地指南按主题汇总旅行信息。票价、资格、健康建议和运营信息可能变化；来源记录保存在本地知识库中，便于后续更新。",
+    "disclaimer": "请查看您的行程单，确认适用于您旅程的具体信息。",
     "categories": {
       "booking": {
         "title": "预订",
@@ -347,15 +432,15 @@
         "description": "查看此行程环节的实用解答与指南。"
       },
       "integration": {
-        "title": "印度航空与维斯塔拉整合",
+        "title": "转机与合作航班",
         "description": "查看此行程环节的实用解答与指南。"
       },
       "rail": {
-        "title": "铁路与航空联运",
+        "title": "铁路及地面交通",
         "description": "查看此行程环节的实用解答与指南。"
       },
       "app": {
-        "title": "手机应用",
+        "title": "移动端访问",
         "description": "查看此行程环节的实用解答与指南。"
       },
       "account": {

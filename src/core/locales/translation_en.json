@@ -1,4 +1,89 @@
 {
+  "chatbot": {
+    "authUnavailable": "Sign-in is temporarily unavailable. Please try again.",
+    "conversationMissing": "This conversation is no longer available. You can start a new one.",
+    "faqUnavailable": "The travel guides are temporarily unavailable. Please try again.",
+    "rateLimited": "The assistant is busy right now. Please try again in a moment.",
+    "connectionInterrupted": "The connection was interrupted. You can send your message again.",
+    "messageTooLong": "Your message is too long. Shorten it and try again.",
+    "title": "Veyra assistant",
+    "subtitle": "Travel support, wherever you are",
+    "online": "Here to help",
+    "close": "Close assistant",
+    "minimize": "Minimize assistant",
+    "greeting": "Hello, I’m Veyra.",
+    "welcome": "How can I make your journey easier today?",
+    "quickTopics": "What can I help you with?",
+    "newBooking": "Find a flight",
+    "manageBooking": "Manage a trip",
+    "checkIn": "Check-in information",
+    "baggage": "Baggage guidance",
+    "flightStatus": "Flight status",
+    "tripActions": {
+      "allTrips": "View all trips",
+      "openBooking": "Open booking {{reference}}",
+      "notCheckedIn": "Not checked in",
+      "confirmPayment": "Open Stripe test checkout for {{total}} for booking {{reference}}?",
+      "confirmCheckIn": "Confirm check-in for {{leg}} on booking {{reference}}?",
+      "confirm": "Confirm",
+      "demoFlightRecord": "Demo flight record",
+      "bookingStates": {
+        "demo_saved": "Saved",
+        "pending_payment": "Pending payment",
+        "confirmed": "Confirmed",
+        "failed": "Failed",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "checked_in": "Checked in"
+      }
+    },
+    "topicPrompts": {
+      "newBooking": "Can you help me find a flight?",
+      "manageBooking": "Show my saved bookings.",
+      "checkIn": "Help me check in for my trip.",
+      "baggage": "What baggage information should I review before travelling?",
+      "flightStatus": "Help me look up a flight's status."
+    },
+    "suggestionTitle": "A few ways to get started",
+    "suggestions": ["What should I prepare before my trip?", "How can I check my flight status?", "Help me find a flight"],
+    "placeholder": "Type your question…",
+    "send": "Send message",
+    "sending": "Veyra is thinking…",
+    "you": "You",
+    "assistant": "Veyra",
+    "signInTitle": "Sign in to save your conversations",
+    "signInDescription": "Reopen your saved chats from your account on any visit.",
+    "signInAction": "Sign in",
+    "privacyNote": "Messages go to the selected AI provider and are saved to your account. Don’t share payment details or sensitive personal information.",
+    "error": "I couldn’t reach the assistant. Please try again.",
+    "timeout": "That took too long. Please try again.",
+    "authRequired": "Please sign in before sending a message.",
+    "launcher": "Open Veyra assistant",
+    "clearChat": "Start a new conversation",
+    "newConversation": "New chat",
+    "historyTitle": "Your conversations",
+    "historyLoading": "Loading your conversations…",
+    "historyEmpty": "Your saved conversations will appear here.",
+    "historyError": "Conversation history is unavailable right now. Please try again.",
+    "deleteConversation": "Delete conversation: {{title}}",
+    "confirmDelete": "Delete this conversation and its messages? This cannot be undone.",
+    "passengers": "{{count}} passenger(s)",
+    "flightResultsTitle": "Available itineraries",
+    "outboundFlights": "Choose your outbound flight",
+    "returnFlights": "Choose your return flight",
+    "noFlights": "No flights matched those details. Try another date or route.",
+    "noReturnFlights": "No return options were found for this date.",
+    "totalFare": "Itinerary total",
+    "reviewCheckout": "Review and continue",
+    "confirmCheckoutTitle": "Confirm your itinerary",
+    "confirmCheckoutDescription": "This will save the selected itinerary and open Stripe test checkout for {{total}}. Payment is not complete until Stripe confirms it.",
+    "cancel": "Go back",
+    "checkoutWorking": "Preparing checkout…",
+    "createPaymentLink": "Create payment link",
+    "checkoutError": "The itinerary or payment link could not be prepared. Refresh the search and try again.",
+    "flightSearchNotice": "Inventory and fares are subject to availability; the current catalogue is not live airline inventory.",
+    "currencyMismatch": "Choose outbound and return options with the same currency to continue."
+  },
   "travelPages": {
     "carouselPrevious": "Previous route",
     "carouselNext": "Next route",
@@ -16,7 +101,6 @@
     "to": "To",
     "searchRoute": "Explore this route",
     "routeNote": "Choose your travel dates to see available flights and fares for your journey.",
-    "officialRouteMap": "View route network",
     "prepareTitle": "Prepare to travel",
     "prepareDescription": "Find the information and services that help you get ready for every stage of your journey.",
     "resourcesEyebrow": "TRAVEL RESOURCES",
@@ -71,7 +155,6 @@
         "description": "Explore updates to the traveler experience."
       }
     },
-    "visitAirIndia": "Explore travel information",
     "footer": "Plan your journey with confidence."
   },
   "tripOperations": {
@@ -234,7 +317,9 @@
       "BOM": "Mumbai",
       "BLR": "Bengaluru",
       "MAA": "Chennai",
-      "HYD": "Hyderabad"
+      "HYD": "Hyderabad",
+      "LHR": "London Heathrow",
+      "SIN": "Singapore Changi"
     },
     "actions": {
       "swapAirports": "Swap origin and destination",
@@ -296,7 +381,7 @@
     "searchPlaceholder": "Search a topic…",
     "topicCount": "{{count}} topics",
     "learnMore": "Explore topic",
-    "disclaimer": "This local guide brings the collected travel information together by topic. Fare, eligibility, health, and operational details can change; the source notes are kept with the local knowledge records for future updates.",
+    "disclaimer": "Check your itinerary for the details that apply to your trip.",
     "categories": {
       "booking": {
         "title": "Booking",
@@ -347,15 +432,15 @@
         "description": "Browse practical answers and guidance for this part of your journey."
       },
       "integration": {
-        "title": "Air India–Vistara integration",
+        "title": "Connections and partner flights",
         "description": "Browse practical answers and guidance for this part of your journey."
       },
       "rail": {
-        "title": "Rail and Fly",
+        "title": "Rail and onward travel",
         "description": "Browse practical answers and guidance for this part of your journey."
       },
       "app": {
-        "title": "Mobile app",
+        "title": "Mobile access",
         "description": "Browse practical answers and guidance for this part of your journey."
       },
       "account": {

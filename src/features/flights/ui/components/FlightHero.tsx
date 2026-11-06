@@ -6,6 +6,8 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { DemoAirportCode } from "../../domain/models/DemoRoutes";
+import { destinationPhotos } from "../../data/destinationPhotos";
+import { DestinationCountry, DestinationPhotoCredit } from "./DestinationPhotoDetails";
 
 export type FeaturedFlight = {
   origin: DemoAirportCode;
@@ -24,13 +26,8 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
   const [playing, setPlaying] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [index, setIndex] = useState(0);
-  const country = new Intl.DisplayNames(i18n.resolvedLanguage ?? "en", { type: "region" }).of("IN");
-  const destination = flights[index]?.destination;
-  const destinationPhoto = destination === "BOM"
-    ? { image: "/images/mumbai-gateway.jpg", city: "Mumbai", author: "Deepak Kumar Singh", file: "Gateway_Of_India,_Mumbai,_India.jpg", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/" }
-    : destination === "DEL"
-      ? { image: "/images/delhi-india-gate.jpg", city: "New Delhi", author: "Kamalkant0411", file: "Delhi,_India_Gate.jpg", license: "CC0", licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/" }
-      : { image: "/images/airport-terminal-hero.png", city: null, author: null, file: null, license: null, licenseUrl: null };
+  const destination = flights[index]?.destination ?? flights[0]?.destination ?? "BOM";
+  const destinationPhoto = destinationPhotos[destination];
 
   useEffect(() => {
     setPlaying(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -62,11 +59,10 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocusCapture={(event) => { if (event.target.matches(":focus-visible")) setPlaying(false); }}>
       <Image key={destinationPhoto.image} src={destinationPhoto.image} alt="" fill sizes="(min-width: 1024px) 45vw, 100vw" className="-z-20 object-cover" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101d2b] via-[#101d2b]/80 to-[#101d2b]/20" aria-hidden="true" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101d2b] via-[#101d2b]/60 to-[#101d2b]/15" aria-hidden="true" />
       <div className="flex min-h-[310px] flex-col justify-end p-4 sm:p-8 lg:min-h-[530px]">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-          <Image src="/flags/in.svg" alt="" width={24} height={16} className="rounded-sm" />
-          <span>{country}</span>
+          <DestinationCountry photo={destinationPhoto} locale={i18n.resolvedLanguage ?? "en"} />
         </div>
         <h1 id="hero-title" className="mb-4 font-serif text-2xl sm:text-3xl">{t("travelPages.featuredRoutes")}</h1>
         {flights.length === 0 ? <p className="text-sm text-white/90">{t("travelPages.routeNote")}</p> : (
@@ -94,7 +90,7 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
 
           </>
         )}
-        {destinationPhoto.city && <p className="mt-3 text-xs text-white/85">{destinationPhoto.city} · <a className="underline underline-offset-2" href={`https://commons.wikimedia.org/wiki/File:${destinationPhoto.file}`}>{destinationPhoto.author}</a> · <a className="underline underline-offset-2" href={destinationPhoto.licenseUrl ?? undefined}>{destinationPhoto.license}</a></p>}
+        <DestinationPhotoCredit photo={destinationPhoto} className="mt-3" />
       </div>
     </section>
   );

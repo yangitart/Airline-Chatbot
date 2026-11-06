@@ -46,17 +46,37 @@ See `001-google-auth-flight-search` for implementation evidence.
 - Support English, Spanish, Hindi, French, Brazilian Portuguese, and Simplified Chinese in the language card and profile preference.
 - Keep the warm premium palette and use Tailwind utilities; no Three.js or backend work.
 
-## Stage 4 — Manage a trip
+## Stage 4 — Veyra assistant and local help
+
+**Spec:** `005-travel-assistant` (implementation in progress)
+
+- Persist owner-scoped conversation history in Supabase with RLS and user controls to reopen/delete conversations.
+- Keep the 21 original Veyra FAQ articles in local English and Spanish catalogs.
+- Use OpenAI generation and safe flight-search/confirmed Stripe test-checkout actions by reusing existing services. Keep other provider adapters inactive.
+- Connect the chat to saved trips, booking and payment status, checkout for eligible existing bookings, demo check-in by leg, and stored flight status.
+- Live airline inventory, status, and ticket issuance depend on airline integrations. Changes, cancellations, and refunds require booking use cases before they can be offered in chat.
+
+## Stage 5 — Veyra PDF and FAQ retrieval
+
+The implementation is prepared; complete the local/hosted setup after reviewing the authored content.
+
+- Keep PDFs as human review copies and index the canonical Veyra JSON into a versioned Supabase `pgvector` corpus with category and question provenance.
+- Combine vector and keyword search, cite local FAQ articles, and abstain when evidence is missing, stale, or conflicting.
+- Publish only after migration, dry-run and content review; evaluate retrieval before enabling the `FAQ_RAG_ENABLED` flag.
+
+The Air India extraction is archived research material and is not a Veyra policy source.
+
+## Stage 6 — Manage a trip
 
 Create a separate spec after the demo booking flow is accepted.
 
 - Retrieve bookings by account and show the saved itinerary, booking status, and fare snapshot.
 - Add seat selection, upgrades, and ancillaries only when a provider exposes their availability and price.
-- Add cancellation, changes, refunds, and re-accommodation only with provider rules and confirmed outcomes.
+- Add cancellation, changes, refunds, and re-accommodation with provider rules and confirmed outcomes. Connect those operations to the chat when their server use cases are available.
 
 **Dependencies:** provider-supported booking management, secure traveler verification, fare rules, payment/refund support, and audit history.
 
-## Stage 5 — Additional journey operations
+## Stage 7 — Additional journey operations
 
 Create a separate spec for each operation or cohesive slice.
 
@@ -67,7 +87,7 @@ Create a separate spec for each operation or cohesive slice.
 
 **Dependencies:** live flight-operations and check-in interfaces, identity/PNR verification, codeshare rules, and event delivery. Air India's public pages describe capabilities and policies; they do not themselves provide an integration contract.
 
-## Stage 6 — Additional travel services
+## Stage 8 — Additional travel services
 
 Treat each external service as an optional, independently specified integration.
 

@@ -1,11 +1,14 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, Plane } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Booking } from "@/src/features/bookings/domain/models/Booking";
 import type { FlightOption, FlightSearchResult } from "../../domain/models/FlightSearch";
+import { getDestinationPhoto } from "../../data/destinationPhotos";
+import { DestinationCountry, DestinationPhotoCredit } from "./DestinationPhotoDetails";
 
 const formatFare = (locale: string, currency: string, minor: number) =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(minor / 100);
@@ -67,6 +70,9 @@ export function FlightResults({ result, isAuthenticated, bookingBusy, booking, b
   const locale = i18n.resolvedLanguage ?? "en";
   const hasReturn = Boolean(result.return_date);
   const isReturn = leg === "return" && hasReturn;
+  const origin = isReturn ? result.destination : result.origin;
+  const destination = isReturn ? result.origin : result.destination;
+  const photo = getDestinationPhoto(destination);
   const flights = isReturn ? result.return_flights : result.flights;
   const total = outbound && (!hasReturn || inbound)
     ? formatFare(locale, outbound.currency, (outbound.fare_minor + (inbound?.fare_minor ?? 0)) * result.passengers)
@@ -79,15 +85,23 @@ export function FlightResults({ result, isAuthenticated, bookingBusy, booking, b
 
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col gap-4 pb-4" aria-labelledby="results-title">
-      <header className="shrink-0 rounded-[26px] bg-airline-forest px-5 py-4 text-white sm:px-7">
+      <header className="relative isolate shrink-0 overflow-hidden rounded-[26px] bg-airline-forest px-5 py-4 text-white sm:px-7">
+        {photo && <>
+          <Image key={photo.image} src={photo.image} alt="" fill sizes="(min-width: 1180px) 1116px, 100vw" className="-z-20 object-cover object-[center_48%]" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-airline-night via-airline-night/75 to-airline-night/35" aria-hidden="true" />
+        </>}
         <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-airline-gold">{t("flightSearch.results.eyebrow")}</p>
-            <h2 id="results-title" className="mt-1 flex items-center gap-3 font-serif text-3xl tracking-tight sm:text-4xl">{result.origin}<ArrowRight size={20} className="text-airline-gold" aria-hidden="true" />{result.destination}</h2>
+            <h2 id="results-title" className="mt-1 flex items-center gap-3 font-serif text-3xl tracking-tight sm:text-4xl">{origin}<ArrowRight size={20} className="text-airline-gold" aria-hidden="true" />{destination}</h2>
           </div>
           <button type="button" onClick={onBack} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/40 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"><ArrowLeft size={14} aria-hidden="true" />{t("flightSearch.booking.backToSearch")}</button>
         </div>
         <p className="mt-2 text-sm text-white/90">{t("flightSearch.results.searchSummary", { passengers: result.passengers, passengerLabel: t(result.passengers === 1 ? "flightSearch.fields.adult" : "flightSearch.fields.adults"), cabinClass: t("flightSearch.fields." + (result.cabin_class === "premium-economy" ? "premiumEconomy" : result.cabin_class)) })}</p>
+        {photo && <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <DestinationCountry photo={photo} locale={locale} />
+          <DestinationPhotoCredit photo={photo} />
+        </div>}
       </header>
 
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,21rem)] lg:grid-rows-[minmax(0,1fr)]">
@@ -103,7 +117,7 @@ export function FlightResults({ result, isAuthenticated, bookingBusy, booking, b
           <div className="min-h-0 space-y-2 lg:overflow-y-auto lg:px-1 lg:pb-2">
             <h3 className="px-1 text-sm font-semibold text-airline-night">{legs[isReturn ? 1 : 0].instruction}</h3>
             {flights.length ? flights.map((flight) => (
-              <FlightCard key={flight.id} flight={flight} locale={locale} origin={isReturn ? result.destination : result.origin} destination={isReturn ? result.origin : result.destination}
+              <FlightCard key={flight.id} flight={flight} locale={locale} origin={origin} destination={destination}
                 selected={flight.id === (isReturn ? inbound : outbound)?.id}
                 perPassengerLabel={t("flightSearch.results.perAdult")}
                 onSelect={() => isReturn ? setInbound(flight) : setOutbound(flight)} />

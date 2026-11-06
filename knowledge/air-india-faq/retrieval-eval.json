@@ -1,0 +1,39 @@
+[
+  {
+    "id": "international-checked-allowance",
+    "question": "What determines my international checked baggage allowance?",
+    "documents": ["baggage", "baggage-guidelines-checked-baggage"],
+    "terms": ["route", "fare"]
+  },
+  {
+    "id": "international-online-checkin",
+    "question": "¿Con cuánta anticipación abre y cierra el check-in en línea para un vuelo internacional?",
+    "documents": ["checkin", "online-checkin-info"],
+    "terms": ["48 hours", "international"]
+  },
+  {
+    "id": "specific-power-bank",
+    "question": "Can I pack a MOBIKINS MK-PB-04 power bank in checked baggage?",
+    "documents": ["restricted-baggage"],
+    "terms": ["MK-PB-04", "checked"]
+  },
+  {
+    "id": "booking-change",
+    "question": "What details are needed to look up a booking before changing travel dates?",
+    "documents": ["booking"],
+    "terms": ["booking reference", "last name"]
+  },
+  {
+    "id": "mobility-aid",
+    "question": "What do I need to check before flying with an electric wheelchair?",
+    "documents": ["disability-assistance", "restricted-baggage", "health"],
+    "terms": ["wheelchair", "batter"]
+  },
+  {
+    "id": "pdf-refund",
+    "question": "In Air India's Conditions of Carriage, which section explains involuntary refunds?",
+    "documents": ["conditions-of-carriage"],
+    "terms": ["involuntary refund"],
+    "pdf": true
+  }
+]

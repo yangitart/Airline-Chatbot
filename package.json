@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "faq:export-pdf": "python scripts/export_veyra_faq_pdf.py",
+    "faq:index:dry-run": "node --env-file=.env.local scripts/index_veyra_faq.mjs --dry-run",
+    "faq:index:publish": "node --env-file=.env.local scripts/index_veyra_faq.mjs --publish"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

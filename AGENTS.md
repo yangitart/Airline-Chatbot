@@ -3,10 +3,11 @@
 ## Product and current milestone
 - Build the travel assistant as a Next.js application backed by Supabase Auth and Supabase Postgres.
 - Current code includes Google authentication, public search of Supabase flight rows, demo bookings, Stripe test-mode Checkout wiring, owner-scoped profiles, demo check-in, and stored demo flight status lookup.
+- Spec 005 is the active chatbot slice: OpenAI is the active model provider; keep alternate provider adapters inactive for now. Persist owner-scoped conversation history in Supabase, use the local authored FAQ catalog, and route booking/payment actions through existing server use cases with explicit confirmation.
 - Demo inventory stores Amadeus-shaped `flight-offer` JSON, demo orders store `flight-order` JSON, and demo operational snapshots use AviationStack-style nested flight data, alongside normalized columns for querying and transactions.
 - Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. Stripe integration uses test keys and a verified webhook; it records a demo payment and never issues a ticket. Demo check-in produces a sample seat/reference, not an airline boarding pass.
-- Chat, policy ingestion, embeddings, and RAG are future work outside active specs 002–004. Do not start that implementation or enable vector storage without a new reviewed feature spec and approved sources.
-- A local research summary of Air India FAQ and travel-service topics lives in `knowledge/air-india-faq/corpus.json`; UI-safe summaries live in `src/features/faqs/data/faqSummaries.json`. The summaries are not a complete or validated Q&A corpus and must not be treated as RAG-ready policy answers. Keep source URLs internal; the FAQ experience should render local content without sending travelers to external pages.
+- The FAQ uses 21 original Veyra catalogs under `src/features/faqs/data/veyra-faq.en.json` and `veyra-faq.es.json`. Other supported locales currently show the English FAQ article.
+- Keep FAQ and experience links within Veyra. The archived Air India research is excluded from the Veyra index. Veyra PDF copies are for human review; the JSON catalog is canonical and is indexed directly into a versioned Supabase pgvector corpus after migrations and credentials are configured. Retrieval stays disabled until `FAQ_RAG_ENABLED=true`.
 
 ## Repository architecture
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.
@@ -40,9 +41,11 @@
 ### Core API and Supabase
 - Keep Supabase browser/server client factories under src/core/api/supabase. Client Components use the browser client; Server Components, Server Actions, Route Handlers, and middleware use the cookie-aware server client.
 - Use @supabase/ssr for cookie-based sessions. The middleware refreshes sessions; the OAuth callback exchanges the PKCE code.
-- Keep Supabase URL and publishable key in root .env.local and Vercel environment variables. Never expose a service-role key in NEXT_PUBLIC variables or browser code.
+- Keep Supabase URL and publishable key in root .env.local and Vercel environment variables. Keep the server secret key (`SUPABASE_SECRET_KEY`, with legacy `SUPABASE_SERVICE_ROLE_KEY` fallback) out of `NEXT_PUBLIC` variables and browser code.
 - Use Supabase Auth for Google sign-in. Use Supabase Postgres with RLS for application tables.
-- Stripe keys are server-only. Accept only `sk_test_` keys for demo checkout; verify webhook signatures against the raw request body and use the service-role client only in the webhook handler. Never store card data or mark payment complete from a browser redirect.
+- Chat history is private account data: RLS must scope `chat_conversations` and `chat_messages` to the authenticated owner; the server loads context from the owner's saved messages instead of trusting browser-supplied transcripts.
+- The archived Air India research corpus must never be used as Veyra guidance. Veyra FAQ records use `source_type='authored_faq'` and published versioning; retrieval filters to this type and the requested language. PDFs are review copies only; embeddings come from the canonical structured JSON.
+- Stripe keys are server-only. Accept only `sk_test_` keys for demo checkout; verify webhook signatures against the raw request body and use the Supabase server-secret client only in the webhook handler. Never store card data or mark payment complete from a browser redirect.
 - Demo check-in is stored per outbound/return leg. Use the owner-scoped RPC and show only sample seats/references; Stripe expiry releases demo inventory once using the idempotent event log.
 - Owner profile data lives in `profiles` under RLS. Flight status and schedules are seeded AviationStack-shaped demo snapshots; always label them as demo and not live.
 - Do not restore the old JWT token/refresh-cookie service; Supabase SSR owns auth session storage and refresh.
@@ -61,6 +64,8 @@
 - Use src/ioc/utils/applyDependencies and injector consistently; avoid direct construction of repositories in views.
 - The root Inversify container is the client composition root. Server Route Handlers may use a feature server factory to compose request-side use cases/repositories; create cookie-bound Supabase clients per request and never store them in the global container.
 - The active flight Route Handler delegates to a server use case and a request-bound Supabase data source. `supabase/seed.sql` supplies demo inventory; it must remain labeled demo until a live provider is configured.
+- Chat provider and embedding calls are server-side adapters under `features/chatbot`; keep prompt/tool orchestration, SSE streaming, citations, selected-language enforcement, and history persistence in the feature's domain/data layers.
+- Chat routes authenticate through the feature's request factory and reuse one cookie-aware Supabase client per request. The panel uses the injected chat API client for SSE and history. Return stable chat error codes in HTTP and SSE responses, and exclude message content and raw dependency errors from logs.
 - Demo booking creation runs through `public.create_demo_booking`, which derives `auth.uid()`, locks inventory, checks availability, and writes an owner-scoped demo record atomically. The UI must not present it as a ticket or paid purchase.
 - The GraphQL URL/query helpers still exist only for unregistered legacy user/nomenclature modules. Do not use them for Airline features; remove them once those legacy consumers are retired.
 

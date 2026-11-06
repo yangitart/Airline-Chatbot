@@ -1,2 +1,5 @@
-import AirIndiaExperienceView from "@/src/features/experience/ui/views/AirIndiaExperienceView";
-export default function ExperiencePage() { return <AirIndiaExperienceView />; }
+import TravelExperienceView from "@/src/features/experience/ui/views/TravelExperienceView";
+
+export default function ExperiencePage() {
+  return <TravelExperienceView />;
+}

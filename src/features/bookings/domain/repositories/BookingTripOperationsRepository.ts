@@ -12,7 +12,7 @@ export type CheckoutBooking = {
   is_demo: boolean;
 };
 
-export type DemoCheckIn = { demo_seat: string; demo_boarding_pass_reference: string };
+export type DemoCheckIn = { demo_seat: string; demo_boarding_pass_reference: string; checked_in_at: string };
 
 export interface BookingTripOperationsRepository {
   getOwnedCheckoutBooking(bookingId: string, userId: string): Promise<Either<string, CheckoutBooking | null>>;

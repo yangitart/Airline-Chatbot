@@ -17,7 +17,11 @@ export function createSupabaseTripOperationsDataSource(supabase: SupabaseClient)
     checkInDemoBooking: async (bookingId: string, flightLeg: "outbound" | "return") => {
       const { data, error } = await supabase.rpc("check_in_demo_booking", { p_booking_id: bookingId, p_flight_leg: flightLeg });
       if (error) throw error;
-      return data;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.demo_seat || !row.demo_boarding_pass_reference || !row.checked_in_at) {
+        throw new Error("checkin_failed");
+      }
+      return row;
     },
   };
 }

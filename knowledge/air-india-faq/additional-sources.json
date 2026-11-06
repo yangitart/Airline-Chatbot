@@ -1,0 +1,164 @@
+[
+  {
+    "id": "restricted-baggage",
+    "title": "Unsafe and Restricted Items",
+    "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines/restricted-baggage.html",
+    "sourceCategory": "baggage-guidelines",
+    "sourceType": "travel-information",
+    "requiredTerms": ["power bank", "liquid", "battery"]
+  },
+  {
+    "id": "disability-assistance",
+    "title": "Disability Assistance",
+    "sourceUrl": "https://www.airindia.com/in/en/travel-information/health-medical-assistance/disability-assistance.html",
+    "sourceCategory": "health",
+    "sourceType": "travel-information",
+    "requiredTerms": ["wheelchair"]
+  },
+  {
+    "id": "conditions-of-carriage",
+    "title": "Air India Conditions of Carriage",
+    "sourceUrl": "https://www.airindia.com/content/dam/air-india/pdfs/conditions-of-carriage-for-passengers-and-baggage.pdf",
+    "sourceCategory": "booking",
+    "sourceType": "conditions-of-carriage",
+    "format": "pdf",
+    "skipPages": [1],
+    "minPages": 26,
+    "requiredTerms": ["Article 7", "Article 9", "Article 11"]
+  },
+  {
+    "id": "cargo-booking",
+    "title": "Air India Cargo / Booking",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/booking.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-tracking",
+    "title": "Air India Cargo / Tracking",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/tracking.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-agent-registration",
+    "title": "Air India Cargo / Agent Registration",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/agent-registration.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-cargo-handling-process-facilities",
+    "title": "Air India Cargo / Handling and Facilities",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/cargo-handling-process-facilities.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-network",
+    "title": "Air India Cargo / Network",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/network.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-claims-refunds",
+    "title": "Air India Cargo / Claims and Refunds",
+    "sourceUrl": "https://cargo.airindia.com/in/en/frequently-asked-questions/claims-refunds.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-faq",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-express-shipping",
+    "title": "Air India Cargo / Express Shipping",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/express-shipping.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-pharma",
+    "title": "Air India Cargo / Pharma",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/pharma.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-fresh",
+    "title": "Air India Cargo / Fresh",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/fresh.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-mail",
+    "title": "Air India Cargo / Mail",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/mail.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-courier",
+    "title": "Air India Cargo / Courier",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/courier.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-dangerous-goods",
+    "title": "Air India Cargo / Dangerous Goods",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/dangerous-goods.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-live-animals",
+    "title": "Air India Cargo / Live Animals",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/live-animals.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-valuables",
+    "title": "Air India Cargo / Valuables",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/valuables.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-vulnerables",
+    "title": "Air India Cargo / Vulnerables",
+    "sourceUrl": "https://cargo.airindia.com/in/en/products/vulnerables.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide"
+  },
+  {
+    "id": "cargo-unaccompanied-baggage",
+    "title": "Air India Cargo / Unaccompanied Baggage",
+    "sourceUrl": "https://cargo.airindia.com/in/en/personal-cargo/unaccompanied-baggage.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-pets",
+    "title": "Air India Cargo / Pets",
+    "sourceUrl": "https://cargo.airindia.com/in/en/personal-cargo/pets.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide",
+    "minQuestions": 1
+  },
+  {
+    "id": "cargo-human-remains",
+    "title": "Air India Cargo / Human Remains",
+    "sourceUrl": "https://cargo.airindia.com/in/en/personal-cargo/human-remains.html",
+    "sourceCategory": "cargo",
+    "sourceType": "cargo-guide",
+    "minQuestions": 1
+  }
+]

@@ -15,12 +15,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="bg-airline-canvas overscroll-y-none" suppressHydrationWarning>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className="bg-airline-canvas">
+      <body className="min-h-dvh bg-airline-canvas overscroll-y-none">
         <AppProviders><TravelAppShell>{children}</TravelAppShell></AppProviders>
       </body>
     </html>
