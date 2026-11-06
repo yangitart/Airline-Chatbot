@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUp, BriefcaseBusiness, History, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
+import { ArrowUp, BriefcaseBusiness, History, LoaderCircle, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { useTravelShell } from "@/src/components/layout/TravelShellContext";
@@ -44,6 +44,8 @@ const promptKeys = ["prepare", "flightStatus", "findFlight"] as const;
 const promptIcons = [Sparkles, Plane, TicketCheck] as const;
 const topicKeys = ["newBooking", "manageBooking", "checkIn", "baggage", "flightStatus"] as const;
 const topicIcons = [Plane, BriefcaseBusiness, TicketCheck, Luggage, RotateCcw] as const;
+const FAQ_GREETING_DURATION_MS = 4_500;
+const FAQ_GREETING_FADE_MS = 220;
 
 function newId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
@@ -56,6 +58,7 @@ export function TravelAssistantWidget() {
   const { user, authLoading, openSignIn } = useTravelShell();
   const [client] = useState(() => injector<ChatClient>(CHAT_CLIENT));
   const [open, setOpen] = useState(false);
+  const [faqGreetingPhase, setFaqGreetingPhase] = useState<"hidden" | "visible" | "fading">("hidden");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [conversations, setConversations] = useState<ChatConversationSummary[]>([]);
@@ -71,13 +74,37 @@ export function TravelAssistantWidget() {
   const panelRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const submitPromptRef = useRef<(prompt: string) => void>(() => undefined);
+  const isFaqPage = pathname === "/faqs" || Boolean(pathname?.startsWith("/faqs/"));
+  const faqGreeting = isFaqPage && faqGreetingPhase === "visible" && !open
+    ? t("chatbot.faqGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })
+    : "";
+  const showFaqGreetingBubble = isFaqPage && faqGreetingPhase !== "hidden" && !open;
+  const activeReplyId = responding ? messages[messages.length - 1]?.id : undefined;
+
+  useEffect(() => {
+    if (!isFaqPage) {
+      setFaqGreetingPhase("hidden");
+      return;
+    }
+    setFaqGreetingPhase("visible");
+    const timeout = window.setTimeout(() => setFaqGreetingPhase("fading"), FAQ_GREETING_DURATION_MS);
+    return () => window.clearTimeout(timeout);
+  }, [isFaqPage]);
+
+  useEffect(() => {
+    if (faqGreetingPhase !== "fading") return;
+    const timeout = window.setTimeout(() => setFaqGreetingPhase("hidden"), FAQ_GREETING_FADE_MS);
+    return () => window.clearTimeout(timeout);
+  }, [faqGreetingPhase]);
 
   const close = useCallback(() => {
+    setFaqGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
     setOpen(false);
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
   const requestSignIn = useCallback(() => {
+    launcherRef.current?.focus({ preventScroll: true });
     setOpen(false);
     openSignIn();
   }, [openSignIn]);
@@ -197,8 +224,8 @@ export function TravelAssistantWidget() {
   }, [close, open]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
-  }, [messages]);
+    if (open && !historyOpen) endRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
+  }, [historyOpen, messages, open]);
 
   const submitMessage = useCallback(async (values: { message: string }, helpers: { resetForm: () => void }) => {
     const content = values.message.trim();
@@ -280,16 +307,33 @@ export function TravelAssistantWidget() {
       <button
         ref={launcherRef}
         type="button"
-        aria-label={t("chatbot.launcher")}
+        aria-label={faqGreeting || t("chatbot.launcher")}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
-        className={pathname === "/"
-          ? "fixed bottom-5 right-5 z-[60] grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest text-white shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition hover:-translate-y-1 hover:bg-airline-night focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-airline-gold sm:bottom-6 sm:right-6"
-          : "relative grid size-9 shrink-0 place-items-center rounded-full border border-airline-gold/70 bg-airline-forest text-white transition-shadow hover:ring-2 hover:ring-airline-gold/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold"}
+        onClick={() => {
+          setFaqGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+          setOpen(true);
+        }}
+        className="group fixed bottom-[calc(1.25rem_+_env(safe-area-inset-bottom))] right-[calc(1.25rem_+_env(safe-area-inset-right))] z-[60] flex max-w-[calc(100%_-_3rem_-_env(safe-area-inset-right)_-_env(safe-area-inset-left))] items-center gap-2.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-airline-gold sm:bottom-[calc(1.5rem_+_env(safe-area-inset-bottom))] sm:right-[calc(1.5rem_+_env(safe-area-inset-right))]"
       >
-        <span className="absolute inset-0 overflow-hidden rounded-full" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.webp" alt="" width={56} height={56} priority={pathname === "/"} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} /></span>
-        <MessageCircle className="absolute bottom-0.5 right-0.5 size-4 rounded-full bg-airline-paper p-0.5 text-airline-forest" aria-hidden="true" />
+        {showFaqGreetingBubble && (
+          <span
+            aria-hidden="true"
+            className={[
+              "absolute bottom-0 right-[calc(100%_+_0.625rem)] w-max max-w-[8.5rem] rounded-xl rounded-br-sm border border-airline-line bg-airline-paper px-3 py-2 text-left text-xs font-medium leading-snug text-airline-forest shadow-[0_5px_18px_rgb(24_61_55_/_12%)]",
+              styles.faqGreeting,
+              faqGreetingPhase === "visible" ? styles.faqGreetingVisible : styles.faqGreetingLeaving,
+            ].join(" ")}
+          >
+            {faqGreeting}
+          </span>
+        )}
+        <span className="relative grid size-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition-transform motion-safe:group-hover:-translate-y-1" aria-hidden="true">
+          <span className="absolute inset-0 overflow-hidden rounded-full">
+            <Image src="/images/veyra-assistant-avatar.webp" alt="" width={56} height={56} priority={pathname === "/"} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} />
+          </span>
+          <MessageCircle className="absolute bottom-0.5 right-0.5 size-4 rounded-full bg-airline-paper p-0.5 text-airline-forest" />
+        </span>
       </button>
 
       {open && createPortal(
@@ -323,7 +367,11 @@ export function TravelAssistantWidget() {
                     <div><p className="text-[10px] font-semibold uppercase tracking-[.15em] text-airline-forest">VEYRA</p><h3 id="chat-history-heading" className="mt-1 font-serif text-2xl text-airline-night">{t("chatbot.historyTitle")}</h3></div>
                     <button type="button" disabled={responding || changingConversation} onClick={startNewConversation} className="rounded-full border border-airline-line bg-white px-3 py-2 text-xs font-semibold text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">{t("chatbot.newConversation")}</button>
                   </div>
-                  {(historyLoading || changingConversation) && <p className="rounded-xl bg-white p-4 text-sm text-airline-muted" role="status">{t("chatbot.historyLoading")}</p>}
+                  {(historyLoading || changingConversation) && (
+                    <div className="mb-3 rounded-xl border border-airline-forest/15 bg-airline-forest-soft px-4 py-3">
+                      <ChatProcessingStatus label={t("chatbot.historyLoading")} />
+                    </div>
+                  )}
                   {historyError && <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" role="alert">{t(errorKeys[historyError] ?? "chatbot.historyError")}</p>}
                   {!historyLoading && !changingConversation && !historyError && conversations.length === 0 && <p className="rounded-2xl border border-dashed border-airline-line bg-white p-5 text-sm leading-6 text-airline-muted">{t("chatbot.historyEmpty")}</p>}
                   <div className="space-y-2">
@@ -371,20 +419,43 @@ export function TravelAssistantWidget() {
                 </div>
               ) : (
                 <div className="mx-auto flex max-w-[400px] flex-col gap-4">
-                  {messages.map((message) => <div key={message.id} className={`${styles.messageEnter} flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                    {message.role === "assistant" && <span className="mr-2 mt-1 h-7 w-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.webp" alt="" width={28} height={28} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} /></span>}
-                    <div className={`flex min-w-0 flex-col gap-2 ${message.role === "user" ? "max-w-[84%]" : "flex-1"}`}>
-                      <div className={`rounded-[20px] px-4 py-3 text-sm leading-6 ${message.role === "user" ? "rounded-br-md bg-airline-forest text-white" : "rounded-bl-md border border-airline-line bg-white text-airline-ink shadow-sm"}`}>
-                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] opacity-65">{message.role === "user" ? t("chatbot.you") : t("chatbot.assistant")}</p>
-                        <p className="whitespace-pre-wrap">{message.content}{message.role === "assistant" && message.content === "" && <span className="ml-1 inline-block h-4 w-1 animate-pulse rounded bg-airline-forest" aria-hidden="true" />}</p>
-                        {message.role === "assistant" && message.content === "" && <span className="sr-only" role="status">{t("chatbot.sending")}</span>}
-                        {message.sources && message.sources.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5 border-t border-airline-line pt-2">
-                          {message.sources.map((source, index) => <Link key={`${source.documentId}-${source.section}-${index}`} href={source.href} className="inline-flex max-w-full items-center gap-1 rounded-full bg-airline-forest-soft px-2.5 py-1 text-[10px] font-medium text-airline-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"><span className="shrink-0">[{source.citationNumber ?? index + 1}]</span><span className="truncate">{source.title}{source.section ? ` · ${source.section}` : ""}</span></Link>)}
-                        </div>}
+                  {messages.map((message) => {
+                    const isUser = message.role === "user";
+                    const isActiveReply = !isUser && message.id === activeReplyId;
+                    const isThinking = isActiveReply && !message.content.trim();
+                    const bubbleStyle = isUser
+                      ? "rounded-br-md bg-airline-forest text-white"
+                      : isThinking
+                        ? "w-fit rounded-bl-md border border-airline-forest/15 bg-airline-forest-soft"
+                        : "rounded-bl-md border border-airline-line bg-white text-airline-ink shadow-sm";
+
+                    return (
+                      <div key={message.id} className={`${styles.messageEnter} flex ${isUser ? "justify-end" : "justify-start"}`}>
+                        {!isUser && (
+                          <span className={`mr-2 mt-1 size-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest ${isActiveReply ? "ring-2 ring-airline-forest-soft" : ""}`} aria-hidden="true">
+                            <Image src="/images/veyra-assistant-avatar.webp" alt="" width={28} height={28} unoptimized className={`h-full w-full object-cover ${isActiveReply ? styles.avatarThinking : ""}`} />
+                          </span>
+                        )}
+                        <div className={`flex min-w-0 flex-col gap-2 ${isUser ? "max-w-[84%]" : "flex-1"}`}>
+                          <div className={`rounded-[20px] px-4 py-3 text-sm leading-6 ${bubbleStyle}`}>
+                            {isThinking ? <ChatProcessingStatus label={t("chatbot.sending")} /> : (
+                              <>
+                                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] opacity-65">{t(isUser ? "chatbot.you" : "chatbot.assistant")}</p>
+                                <p className="whitespace-pre-wrap break-words">
+                                  {message.content}
+                                  {isActiveReply && <span className="ml-1 inline-block h-3.5 w-0.5 rounded-full bg-airline-forest/55 align-middle motion-safe:animate-pulse" aria-hidden="true" />}
+                                </p>
+                                {message.sources && message.sources.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5 border-t border-airline-line pt-2">
+                                  {message.sources.map((source, index) => <Link key={`${source.documentId}-${source.section}-${index}`} href={source.href} className="inline-flex max-w-full items-center gap-1 rounded-full bg-airline-forest-soft px-2.5 py-1 text-[10px] font-medium text-airline-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"><span className="shrink-0">[{source.citationNumber ?? index + 1}]</span><span className="truncate">{source.title}{source.section ? ` · ${source.section}` : ""}</span></Link>)}
+                                </div>}
+                              </>
+                            )}
+                          </div>
+                          {message.action && <ChatActionCards action={message.action} isAuthenticated={Boolean(user)} onSignIn={requestSignIn} />}
+                        </div>
                       </div>
-                      {message.action && <ChatActionCards action={message.action} isAuthenticated={Boolean(user)} onSignIn={requestSignIn} />}
-                    </div>
-                  </div>)}
+                    );
+                  })}
                   <div ref={endRef} />
                 </div>
               )}
@@ -410,6 +481,19 @@ export function TravelAssistantWidget() {
   );
 }
 
+function ChatProcessingStatus({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2.5 text-sm font-medium leading-snug text-airline-forest">
+      <span className={`${styles.processingDots} flex h-6 shrink-0 items-center gap-1 rounded-full bg-white/80 px-2`} aria-hidden="true">
+        <span className="size-1.5 rounded-full bg-current" />
+        <span className="size-1.5 rounded-full bg-current" />
+        <span className="size-1.5 rounded-full bg-current" />
+      </span>
+      <span>{label}</span>
+    </div>
+  );
+}
+
 function ChatComposer({ disabled, registerSubmitPrompt }: { disabled: boolean; registerSubmitPrompt: (submit: (prompt: string) => void) => void }) {
   const { t } = useTranslation();
   const { isSubmitting, submitForm, setFieldValue, values } = useFormikContext<{ message: string }>();
@@ -428,8 +512,8 @@ function ChatComposer({ disabled, registerSubmitPrompt }: { disabled: boolean; r
             void submitForm();
           }
         }} />
-        <button type="submit" disabled={disabled || busy || !values.message.trim()} aria-label={t("chatbot.send")} className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-airline-forest text-white transition hover:bg-airline-night disabled:cursor-not-allowed disabled:bg-airline-muted/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold">
-          {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" /> : <ArrowUp className="h-5 w-5" aria-hidden="true" />}
+        <button type="submit" disabled={disabled || busy || !values.message.trim()} aria-label={t(busy ? "chatbot.sending" : "chatbot.send")} className={`mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-airline-forest text-white transition-colors enabled:hover:bg-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold ${busy ? "cursor-wait" : "disabled:cursor-not-allowed disabled:bg-airline-muted/30"}`}>
+          {busy ? <LoaderCircle className="size-5 motion-safe:animate-spin" aria-hidden="true" /> : <ArrowUp className="size-5" aria-hidden="true" />}
         </button>
     </Form>
   );

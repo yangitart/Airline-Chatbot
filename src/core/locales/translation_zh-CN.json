@@ -60,6 +60,7 @@
     "timeout": "等待时间过长，请重试。",
     "authRequired": "发送消息前请先登录。",
     "launcher": "打开 Veyra 助手",
+    "faqGreeting": "需要帮忙吗？",
     "clearChat": "开始新对话",
     "newConversation": "新建聊天",
     "historyTitle": "您的对话",

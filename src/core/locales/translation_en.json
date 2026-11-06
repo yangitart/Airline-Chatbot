@@ -60,6 +60,7 @@
     "timeout": "That took too long. Please try again.",
     "authRequired": "Please sign in before sending a message.",
     "launcher": "Open Veyra assistant",
+    "faqGreeting": "Need help?",
     "clearChat": "Start a new conversation",
     "newConversation": "New chat",
     "historyTitle": "Your conversations",

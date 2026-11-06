@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
 import { Menu, UserRound, X } from "lucide-react";
-import { useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
 import { LanguagePicker } from "@/src/components/navigation/LanguagePicker";
@@ -30,14 +30,13 @@ function TabPending() {
   return <span aria-hidden="true" className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-airline-gold transition-opacity duration-150 motion-reduce:transition-none ${pending ? "opacity-100" : "opacity-0"}`} />;
 }
 
-export function FlightsHeader({ pathname = "/", user, authLoading, onSignIn, onSignOut, onEditSearch, assistant }: {
+export function FlightsHeader({ pathname = "/", user, authLoading, onSignIn, onSignOut, onEditSearch }: {
   pathname?: string;
   user: GoogleUser | null;
   authLoading: boolean;
   onSignIn: () => void;
   onSignOut: () => void;
   onEditSearch?: () => void;
-  assistant?: ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -90,7 +89,6 @@ export function FlightsHeader({ pathname = "/", user, authLoading, onSignIn, onS
               <UserRound size={16} aria-hidden="true" /><span className="hidden sm:inline">{t("flightSearch.nav.signIn")}</span>
             </button>
           )}
-          {assistant}
           <button ref={menuButton} type="button" aria-label={t(mobileMenuOpen ? "flightSearch.nav.closeMenu" : "flightSearch.nav.openMenu")} aria-expanded={mobileMenuOpen}
             aria-controls={mobileMenuOpen ? "veyra-mobile-menu" : undefined} onClick={() => setMobileMenuOpen((open) => !open)}
             className={"grid h-9 w-9 shrink-0 place-items-center rounded-full bg-airline-canvas text-airline-night min-[1051px]:hidden " + focusStyle}>

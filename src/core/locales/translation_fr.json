@@ -60,6 +60,7 @@
     "timeout": "La réponse a pris trop de temps. Veuillez réessayer.",
     "authRequired": "Connectez-vous avant d’envoyer un message.",
     "launcher": "Ouvrir l’assistant Veyra",
+    "faqGreeting": "Besoin d’aide ?",
     "clearChat": "Démarrer une nouvelle conversation",
     "newConversation": "Nouveau chat",
     "historyTitle": "Vos conversations",
