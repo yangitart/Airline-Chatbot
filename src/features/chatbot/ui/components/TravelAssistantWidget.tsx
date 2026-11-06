@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUp, BriefcaseBusiness, History, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { usePathname } from "next/navigation";
 import { useTravelShell } from "@/src/components/layout/TravelShellContext";
 import { supportedLanguages } from "@/src/core/locales/supportedLanguages";
 import { injector } from "@/src/ioc/utils/injector";
@@ -27,6 +29,7 @@ const errorKeys: Partial<Record<ChatErrorCode, string>> = {
   conversation_not_found: "chatbot.conversationMissing",
   faq_unavailable: "chatbot.faqUnavailable",
   provider_rate_limited: "chatbot.rateLimited",
+  provider_quota_exceeded: "chatbot.quotaExceeded",
   provider_timeout: "chatbot.timeout",
   connection_interrupted: "chatbot.connectionInterrupted",
   message_too_long: "chatbot.messageTooLong",
@@ -47,6 +50,7 @@ function newId() {
 }
 
 export function TravelAssistantWidget() {
+  const pathname = usePathname();
   const { t, i18n } = useTranslation();
   const selectedLanguage = supportedLanguages.find((language) => language.code === i18n.resolvedLanguage) ?? supportedLanguages[0];
   const { user, authLoading, openSignIn } = useTravelShell();
@@ -273,20 +277,22 @@ export function TravelAssistantWidget() {
 
   return (
     <>
-      {!open && (
-        <button
-          ref={launcherRef}
-          type="button"
-          aria-label={t("chatbot.launcher")}
-          onClick={() => setOpen(true)}
-          className={`${styles.launcher} fixed bottom-5 right-5 z-[70] flex h-[62px] w-[62px] items-center justify-center rounded-full border border-white/70 bg-airline-forest text-white transition duration-200 hover:-translate-y-1 hover:bg-airline-night focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-airline-gold sm:bottom-7 sm:right-7`}
-        >
-          <span className="absolute inset-0 overflow-hidden rounded-full" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.png" alt="" width={62} height={62} priority className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full rounded-full object-cover`} /></span>
-          <MessageCircle className="absolute bottom-1 right-1 h-[19px] w-[19px] rounded-full bg-airline-paper p-[3px] text-airline-forest" aria-hidden="true" />
-        </button>
-      )}
+      <button
+        ref={launcherRef}
+        type="button"
+        aria-label={t("chatbot.launcher")}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className={pathname === "/"
+          ? "fixed bottom-5 right-5 z-[60] grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest text-white shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition hover:-translate-y-1 hover:bg-airline-night focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-airline-gold sm:bottom-6 sm:right-6"
+          : "relative grid size-9 shrink-0 place-items-center rounded-full border border-airline-gold/70 bg-airline-forest text-white transition-shadow hover:ring-2 hover:ring-airline-gold/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold"}
+      >
+        <span className="absolute inset-0 overflow-hidden rounded-full" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.webp" alt="" width={56} height={56} priority={pathname === "/"} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} /></span>
+        <MessageCircle className="absolute bottom-0.5 right-0.5 size-4 rounded-full bg-airline-paper p-0.5 text-airline-forest" aria-hidden="true" />
+      </button>
 
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[80] flex items-end justify-end sm:p-4 lg:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
           <button type="button" aria-label={t("chatbot.close")} onClick={close} className={`${styles.backdrop} absolute inset-0 cursor-default`} />
           <section ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="veyra-chat-title" className={`${styles.panel} relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-airline-canvas text-airline-ink sm:h-[min(820px,calc(100dvh-32px))] sm:max-w-[480px] sm:rounded-[28px] lg:max-h-[calc(100dvh-48px)]`}>
@@ -334,7 +340,7 @@ export function TravelAssistantWidget() {
                 <div className="mx-auto max-w-[390px]">
                   <div className="mb-6 text-center">
                     <div className="mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full border-2 border-airline-gold/70 bg-airline-forest shadow-[0_10px_24px_rgba(24,61,55,.16)]">
-                      <Image src="/images/veyra-assistant-avatar.png" alt="" width={64} height={64} className={`${styles.avatarPortrait} h-full w-full object-cover`} />
+                      <Image src="/images/veyra-assistant-avatar.webp" alt="" width={64} height={64} unoptimized className={`${styles.avatarPortrait} h-full w-full object-cover`} />
                     </div>
                     <h3 className="font-serif text-[26px] leading-tight text-airline-night">{t("chatbot.greeting")}</h3>
                     <p className="mt-2 text-sm leading-6 text-airline-muted">{t("chatbot.welcome")}</p>
@@ -366,7 +372,7 @@ export function TravelAssistantWidget() {
               ) : (
                 <div className="mx-auto flex max-w-[400px] flex-col gap-4">
                   {messages.map((message) => <div key={message.id} className={`${styles.messageEnter} flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                    {message.role === "assistant" && <span className="mr-2 mt-1 h-7 w-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.png" alt="" width={28} height={28} className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} /></span>}
+                    {message.role === "assistant" && <span className="mr-2 mt-1 h-7 w-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest" aria-hidden="true"><Image src="/images/veyra-assistant-avatar.webp" alt="" width={28} height={28} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} /></span>}
                     <div className={`flex min-w-0 flex-col gap-2 ${message.role === "user" ? "max-w-[84%]" : "flex-1"}`}>
                       <div className={`rounded-[20px] px-4 py-3 text-sm leading-6 ${message.role === "user" ? "rounded-br-md bg-airline-forest text-white" : "rounded-bl-md border border-airline-line bg-white text-airline-ink shadow-sm"}`}>
                         <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] opacity-65">{message.role === "user" ? t("chatbot.you") : t("chatbot.assistant")}</p>
@@ -397,7 +403,8 @@ export function TravelAssistantWidget() {
             </Formik>
             <p className="shrink-0 px-5 pb-3 pt-2 text-center text-[10px] leading-4 text-airline-muted sm:px-7">{t("chatbot.privacyNote")}</p>
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

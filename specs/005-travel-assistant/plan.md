@@ -5,7 +5,7 @@
 ## Design
 The shared travel shell hosts the chat panel. `features/chatbot` owns the streaming client, history, provider adapters and server orchestration. Existing flight search, booking and checkout remain the source of transaction rules.
 
-The FAQ UI and the index exporter read the original Veyra JSON catalogs. PDF files are for human review, while embeddings are generated directly from each question/answer entry. The old Air India HTML/PDF crawler is disconnected from runtime and retrieval.
+The FAQ views use the original Veyra JSON catalogs. The active chat skips FAQ retrieval. The old Air India HTML/PDF crawler is disconnected from runtime.
 
 ## Data flow
 1. The client sends the conversation ID, new message and selected UI language through the injected ChatClient.
@@ -24,4 +24,4 @@ Return stable error codes. Distinguish an expired login from an authentication s
 Focused tests cover the bounded history query and FAQ content catalog. Typecheck and production build validate the application. Review the selected locale, stream error recovery, confirmation flow and page navigation.
 
 ## Rollout
-Apply pending Supabase migrations and configure `OPENAI_API_KEY`. Generate bilingual PDF review copies, run the FAQ index dry run, then publish a versioned bilingual corpus using the OpenAI key and Supabase secret key (the legacy service-role variable remains supported). Keep `FAQ_RAG_ENABLED=false` until corpus publication and review are complete. Flight checkout remains in Stripe test mode.
+Apply the chat history migration, configure a working `OPENAI_API_KEY`, and verify chat streaming and trip operations. RAG remains a later phase.

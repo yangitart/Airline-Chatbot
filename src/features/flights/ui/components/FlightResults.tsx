@@ -87,7 +87,7 @@ export function FlightResults({ result, isAuthenticated, bookingBusy, booking, b
     <section className="flex min-h-0 w-full flex-1 flex-col gap-4 pb-4" aria-labelledby="results-title">
       <header className="relative isolate shrink-0 overflow-hidden rounded-[26px] bg-airline-forest px-5 py-4 text-white sm:px-7">
         {photo && <>
-          <Image key={photo.image} src={photo.image} alt="" fill sizes="(min-width: 1180px) 1116px, 100vw" className="-z-20 object-cover object-[center_48%]" />
+          <Image key={photo.image} src={photo.image} alt="" fill unoptimized loading="eager" className="-z-20 object-cover object-[center_48%]" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-airline-night via-airline-night/75 to-airline-night/35" aria-hidden="true" />
         </>}
         <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
@@ -134,18 +134,20 @@ export function FlightResults({ result, isAuthenticated, bookingBusy, booking, b
               </div>
             ))}
           </dl>
-          {total && <p className="mt-4 text-lg font-semibold text-airline-night" role="status">{t("flightSearch.results.estimatedTotal", { total })}</p>}
-          <button type="button" disabled={!total || bookingBusy || Boolean(booking)}
-            onClick={() => { if (outbound) onBook(outbound.id, inbound?.id, outbound.fare_minor, inbound?.fare_minor); }}
-            className="mt-4 min-h-11 w-full rounded-xl bg-airline-garnet px-4 py-3 text-sm font-semibold text-white hover:bg-[#722136] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet disabled:cursor-not-allowed disabled:opacity-50">
-            {bookingBusy ? t("flightSearch.booking.saving") : isAuthenticated ? t("flightSearch.booking.saveDemo") : t("flightSearch.booking.signInToSave")}
-          </button>
+          <div className="mt-4 space-y-3 pr-16">
+            {total && <p className="text-lg font-semibold text-airline-night" role="status">{t("flightSearch.results.estimatedTotal", { total })}</p>}
+            <button type="button" disabled={!total || bookingBusy || Boolean(booking)}
+              onClick={() => { if (outbound) onBook(outbound.id, inbound?.id, outbound.fare_minor, inbound?.fare_minor); }}
+              className="min-h-11 w-full rounded-xl bg-airline-garnet px-4 py-3 text-sm font-semibold text-white hover:bg-[#722136] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet disabled:cursor-not-allowed disabled:opacity-50">
+              {bookingBusy ? t("flightSearch.booking.saving") : isAuthenticated ? t("flightSearch.booking.saveDemo") : t("flightSearch.booking.signInToSave")}
+            </button>
           {bookingError && <p className="mt-3 text-sm text-[#b42318]" role="alert">{bookingError}</p>}
           {booking && <div className="mt-3 space-y-1 text-sm text-airline-forest">
             <p className="font-semibold" role="status">{t("flightSearch.booking.saved", { reference: booking.bookingReference.replace(/^DEMO-/i, "AI-") })}</p>
             <Link href="/my-trips" className="underline underline-offset-2">{t("flightSearch.booking.myTrips")}</Link>
           </div>}
           <p className="mt-3 text-xs leading-relaxed text-airline-muted">{result.is_mock ? t("flightSearch.results.mockNotice") : result.notice}</p>
+          </div>
         </aside>
       </div>
     </section>

@@ -3,7 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FaqChunk } from "../../domain/models/FaqChunk";
 import type { FaqRetriever } from "../../domain/repositories/FaqRetriever";
-import { OpenAIQuestionEmbedder } from "../providers/OpenAIQuestionEmbedder";
+import { embedFaqText, faqEmbeddingModel } from "../providers/localFaqEmbeddings.mjs";
 import { ChatError } from "../../domain/models/ChatError";
 
 type FaqMatchRow = {
@@ -17,18 +17,20 @@ type FaqMatchRow = {
 };
 
 export class SupabaseFaqRetriever implements FaqRetriever {
-  constructor(private readonly supabase: SupabaseClient, private readonly embedder: OpenAIQuestionEmbedder) {}
+  constructor(private readonly supabase: SupabaseClient) {}
 
   async search(query: string, language: string, signal?: AbortSignal): Promise<FaqChunk[]> {
-    const embedding = await this.embedder.embed(query, signal);
-    const timeout = AbortSignal.timeout(10_000);
-    const querySignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
     let data: unknown;
     try {
+      signal?.throwIfAborted();
+      const embedding = embedFaqText(query);
+      if (!embedding.some((value) => value !== 0)) return [];
+      const timeout = AbortSignal.timeout(10_000);
+      const querySignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
       const result = await this.supabase.rpc("match_faq_evidence", {
         p_query: query,
         p_query_embedding: `[${embedding.join(",")}]`,
-        p_embedding_model: this.embedder.model,
+        p_embedding_model: faqEmbeddingModel,
         p_match_count: 6,
         p_language: language === "es" ? "es" : "en",
       }).abortSignal(querySignal);

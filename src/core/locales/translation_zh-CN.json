@@ -1,5 +1,6 @@
 {
   "chatbot": {
+    "quotaExceeded": "AI 服务的使用额度已用完，暂时无法回复。",
     "authUnavailable": "登录服务暂时不可用，请重试。",
     "conversationMissing": "此对话已不可用，您可以开始新对话。",
     "faqUnavailable": "旅行指南暂时不可用，请重试。",
@@ -143,14 +144,20 @@
         "description": "了解值机、机场设施和地面服务。"
       },
       "inAir": {
+        "details": "搜索航班时可以比较可用舱位，并在出发前查看机上网络指南。",
+        "action": "查看机上网络",
         "title": "机上体验",
         "description": "了解客舱、机上服务和舒适出行选择。"
       },
       "fleet": {
+        "details": "当前航班目录在短途航线上使用空客 A320，在长途航线上使用波音 787-9。",
+        "action": "浏览航线网络",
         "title": "机队",
         "description": "了解航线网络运营的机型。"
       },
       "transformation": {
+        "details": "您可以在手机上查看已保存的行程、付款状态和值机选项。",
+        "action": "查看移动端使用方式",
         "title": "体验升级",
         "description": "了解旅客体验的更新。"
       }

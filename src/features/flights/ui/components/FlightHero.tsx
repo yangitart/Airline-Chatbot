@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { DemoAirportCode } from "../../domain/models/DemoRoutes";
-import { destinationPhotos } from "../../data/destinationPhotos";
+import { destinationPhotos, getDestinationPhoto } from "../../data/destinationPhotos";
 import { DestinationCountry, DestinationPhotoCredit } from "./DestinationPhotoDetails";
 
 export type FeaturedFlight = {
@@ -26,8 +26,8 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
   const [playing, setPlaying] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [index, setIndex] = useState(0);
-  const destination = flights[index]?.destination ?? flights[0]?.destination ?? "BOM";
-  const destinationPhoto = destinationPhotos[destination];
+  const destination = flights[index]?.destination ?? flights[0]?.destination;
+  const destinationPhoto = (destination ? destinationPhotos[destination] : getDestinationPhoto(selectedDestination ?? "")) ?? destinationPhotos.BOM;
 
   useEffect(() => {
     setPlaying(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -43,8 +43,22 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
 
   useEffect(() => {
     const selectedIndex = flights.findIndex((flight) => flight.destination === selectedDestination);
-    if (selectedIndex >= 0) carousel?.scrollTo(selectedIndex);
+    if (selectedIndex >= 0) {
+      setPlaying(false);
+      carousel?.scrollTo(selectedIndex);
+    }
   }, [carousel, flights, selectedDestination]);
+
+  useEffect(() => {
+    if (flights.length < 2) return;
+    const next = flights[(index + 1) % flights.length];
+    const previous = flights[(index + flights.length - 1) % flights.length];
+    for (const airport of new Set([next.destination, previous.destination])) {
+      const preload = new window.Image();
+      preload.fetchPriority = "low";
+      preload.src = destinationPhotos[airport].image;
+    }
+  }, [flights, index]);
 
   useEffect(() => {
     if (!carousel || !playing || hovered || flights.length < 2) return;
@@ -58,7 +72,7 @@ export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
     <section aria-labelledby="hero-title" className="relative isolate flex min-w-0 flex-col justify-end overflow-hidden rounded-[28px] bg-airline-night text-white"
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocusCapture={(event) => { if (event.target.matches(":focus-visible")) setPlaying(false); }}>
-      <Image key={destinationPhoto.image} src={destinationPhoto.image} alt="" fill sizes="(min-width: 1024px) 45vw, 100vw" className="-z-20 object-cover" />
+      <Image key={destinationPhoto.image} src={destinationPhoto.image} alt="" fill unoptimized priority={destinationPhoto === destinationPhotos.BOM} loading="eager" className="-z-20 object-cover" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101d2b] via-[#101d2b]/60 to-[#101d2b]/15" aria-hidden="true" />
       <div className="flex min-h-[310px] flex-col justify-end p-4 sm:p-8 lg:min-h-[530px]">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">

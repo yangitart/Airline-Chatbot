@@ -10,6 +10,7 @@ export const chatErrorStatus = {
   faq_unavailable: 503,
   assistant_unavailable: 503,
   provider_rate_limited: 503,
+  provider_quota_exceeded: 503,
   provider_timeout: 504,
   invalid_provider_response: 502,
   connection_interrupted: 502,

@@ -1,5 +1,6 @@
 {
   "chatbot": {
+    "quotaExceeded": "The AI service has reached its usage limit and cannot respond right now.",
     "authUnavailable": "Sign-in is temporarily unavailable. Please try again.",
     "conversationMissing": "This conversation is no longer available. You can start a new one.",
     "faqUnavailable": "The travel guides are temporarily unavailable. Please try again.",
@@ -143,14 +144,20 @@
         "description": "Explore check-in, airport facilities and ground services."
       },
       "inAir": {
+        "details": "Compare available cabin classes when searching for your flight. Check connectivity guidance before flying.",
+        "action": "See onboard connectivity",
         "title": "In the air",
         "description": "Discover cabin experiences, onboard services and comfort options."
       },
       "fleet": {
+        "details": "The current flight catalog uses Airbus A320 aircraft on shorter routes and Boeing 787-9 aircraft on longer routes.",
+        "action": "Explore the route network",
         "title": "The fleet",
         "description": "Learn about the aircraft serving the network."
       },
       "transformation": {
+        "details": "Use Veyra from your phone to find saved itineraries, check payment status and review check-in options.",
+        "action": "See mobile access options",
         "title": "Transforming experiences",
         "description": "Explore updates to the traveler experience."
       }

@@ -1,5 +1,6 @@
 {
   "chatbot": {
+    "quotaExceeded": "Le service d’IA a atteint sa limite d’utilisation et ne peut pas répondre pour le moment.",
     "authUnavailable": "La connexion à votre compte est temporairement indisponible. Réessayez.",
     "conversationMissing": "Cette conversation n’est plus disponible. Vous pouvez en commencer une nouvelle.",
     "faqUnavailable": "Les guides de voyage sont temporairement indisponibles. Réessayez.",
@@ -143,14 +144,20 @@
         "description": "Découvrez l’enregistrement, les installations et les services au sol."
       },
       "inAir": {
+        "details": "Comparez les classes disponibles pendant votre recherche et consultez les conseils de connectivité avant votre départ.",
+        "action": "Voir la connectivité à bord",
         "title": "À bord",
         "description": "Découvrez les cabines, les services à bord et les options de confort."
       },
       "fleet": {
+        "details": "Le catalogue actuel utilise des Airbus A320 sur les trajets courts et des Boeing 787-9 sur les trajets longs.",
+        "action": "Explorer le réseau",
         "title": "La flotte",
         "description": "Découvrez les appareils utilisés sur le réseau."
       },
       "transformation": {
+        "details": "Sur votre téléphone, consultez vos itinéraires, l’état de vos paiements et les options d’enregistrement.",
+        "action": "Voir les options sur mobile",
         "title": "Une expérience renouvelée",
         "description": "Découvrez les évolutions de l’expérience voyageur."
       }

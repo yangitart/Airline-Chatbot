@@ -2,7 +2,7 @@
 
 Next.js App Router application using Supabase Auth and Postgres. The current slice provides Google sign-in, database-backed flight search, demo bookings and trip history, Stripe test-mode checkout wiring, profile editing, demo check-in, and stored flight-status lookup.
 
-The travel assistant streams responses in the selected site language and saves account-scoped chat history in Supabase. OpenAI is the only active chat provider. Search and payment actions reuse the existing inventory and Stripe test-mode checkout and require explicit traveler confirmation. FAQ articles are authored in the local Veyra catalogs; reviewed, versioned FAQ chunks can be indexed in Supabase pgvector with OpenAI embeddings.
+The travel assistant streams OpenAI responses in the selected site language and saves account-scoped chat history in Supabase. Search and trip actions use existing services and require explicit traveler confirmation. FAQ retrieval is paused while the chat operations are completed and verified.
 
 ## Current flight data and booking limits
 
@@ -28,11 +28,11 @@ The updated seed adds round trips between Delhi and London Heathrow and between 
 
 ## Travel assistant setup
 
-Configure `OPENAI_API_KEY`, `OPENAI_CHAT_MODEL`, and `OPENAI_EMBEDDING_MODEL` as server-only environment variables. OpenAI is the only provider wired into the active assistant; the Gemini and Groq adapters remain inactive for future use. Set `SUPABASE_SECRET_KEY` for server-side administrative tasks; the previous `SUPABASE_SERVICE_ROLE_KEY` name remains accepted by the code during migration.
+Configure `OPENAI_API_KEY` for chat responses and optionally set `OPENAI_CHAT_MODEL`. Use `SUPABASE_SECRET_KEY` or the existing `SUPABASE_SERVICE_ROLE_KEY` for server administration.
 
-Apply pending migrations with `npx supabase db push`. This creates owner-scoped chat history and a versioned pgvector FAQ index with hybrid English/Spanish retrieval. Review the generated PDFs before publishing an FAQ index. The PDFs are a human review/export format; the canonical source and embedding input remain the Veyra JSON catalogs. To generate the review copies, install `python -m pip install -r scripts/requirements-faq-export.txt` once and run `npm run faq:export-pdf`.
+Apply the chat history migration with `npx supabase db push --remote --dry-run`, review pending migrations, then apply with `npx supabase db push --remote`. The FAQ index schema can remain for a later RAG phase.
 
-The original Veyra FAQ catalogs live in `src/features/faqs/data/veyra-faq.en.json` and `src/features/faqs/data/veyra-faq.es.json`. Run `npm run faq:export-pdf` to create review copies in `output/pdf/`. After applying migrations and configuring `OPENAI_API_KEY` plus `SUPABASE_SECRET_KEY` (or the existing legacy `SUPABASE_SERVICE_ROLE_KEY`) in `.env.local`, run `npm run faq:index:dry-run`, review its counts, then run `npm run faq:index:publish`. Set `FAQ_RAG_ENABLED=true` only after a corpus is published. The archived Air India research is excluded from Veyra retrieval.
+The original Veyra FAQ catalogs live in `src/features/faqs/data/veyra-faq.en.json` and `src/features/faqs/data/veyra-faq.es.json`. The catalog stays available in the site, while FAQ retrieval remains disconnected from the active chat until that phase resumes.
 
 For demo Checkout, add `STRIPE_SECRET_KEY` (`sk_test_...`), `STRIPE_WEBHOOK_SECRET` (`whsec_...`), and server-only `SUPABASE_SECRET_KEY` to the local environment. Forward Stripe test events to `/api/v1/stripe/webhook` with Stripe CLI. Configure these values in Vercel only when deploying the demo. Do not use a live Stripe key.
 

@@ -16,7 +16,7 @@ export default function WhereWeFlyView() {
     <TravelSectionLayout eyebrow={t("travelPages.eyebrow")} title={t("travelPages.whereTitle")} description={t("travelPages.whereDescription")}>
       <section aria-labelledby="routes-heading" className="overflow-hidden rounded-[28px] border border-airline-line bg-airline-paper shadow-[0_16px_45px_rgb(23_40_59_/_8%)] lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div className="relative isolate flex min-h-[245px] flex-col justify-end overflow-hidden bg-airline-night p-6 text-white sm:p-8">
-          <Image src={photo.image} alt="" fill sizes="(min-width: 1024px) 450px, 100vw" className="-z-20 object-cover" />
+          <Image src={photo.image} alt="" fill unoptimized priority className="-z-20 object-cover" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b2229] via-[#0b2229]/75 to-transparent" aria-hidden="true" />
           <p className="text-xs font-bold uppercase tracking-[.16em] text-airline-gold">{t("travelPages.routeEyebrow")}</p>
           <h2 id="routes-heading" className="mt-2 max-w-[15ch] font-serif text-3xl leading-tight sm:text-4xl">{t("travelPages.featuredRoutes")}</h2>
@@ -27,7 +27,7 @@ export default function WhereWeFlyView() {
           <ul className="divide-y divide-airline-line">
             {DEMO_ROUTE_PAIRS.map(({ origin, destination }) => (
               <li key={origin + destination}>
-                <Link href={"/?origin=" + origin + "&destination=" + destination + "#search"}
+                <Link href={{ pathname: "/", query: { origin, destination }, hash: "search" }} scroll={false}
                   className="group grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-4 text-airline-ink no-underline transition-colors hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-airline-forest sm:gap-5 sm:px-6">
                   <span className="min-w-0"><strong className="block text-lg tracking-wide text-airline-forest">{origin}</strong><span className="block text-xs leading-5 text-airline-muted">{t("flightSearch.airports." + origin)}</span></span>
                   <ArrowRight size={15} className="text-airline-garnet" aria-hidden="true" />

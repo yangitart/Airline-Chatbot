@@ -3,14 +3,12 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { embedFaqText, faqEmbeddingDimensions, faqEmbeddingModel } from "../src/features/chatbot/data/providers/localFaqEmbeddings.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const catalogDir = path.join(root, "src", "features", "faqs", "data");
-const embeddingModel = process.env.OPENAI_EMBEDDING_MODEL || "text-embedding-3-small";
 const isPublish = process.argv.includes("--publish");
 const isDryRun = process.argv.includes("--dry-run");
-const embeddingDimensions = 1536;
-const embeddingBatchSize = 32;
 
 if (isPublish === isDryRun) {
   throw new Error("Choose exactly one mode: --dry-run or --publish.");
@@ -64,57 +62,6 @@ async function loadCatalog(language) {
   return { documents, chunks };
 }
 
-async function requestEmbeddings(inputs, apiKey) {
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    let response;
-    try {
-      response = await fetch("https://api.openai.com/v1/embeddings", {
-        method: "POST",
-        signal: AbortSignal.timeout(45_000),
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: embeddingModel, dimensions: embeddingDimensions, input: inputs, encoding_format: "float" }),
-      });
-    } catch (error) {
-      if (attempt === 3) throw new Error(`OpenAI embeddings request failed: ${error instanceof Error ? error.name : "network_error"}`);
-      await new Promise((resolve) => setTimeout(resolve, 500 * (2 ** attempt)));
-      continue;
-    }
-
-    if (response.ok) {
-      const payload = await response.json();
-      if (!Array.isArray(payload.data) || payload.data.length !== inputs.length) {
-        throw new Error("OpenAI returned an incomplete embedding batch.");
-      }
-      const ordered = [...payload.data].sort((a, b) => a.index - b.index);
-      return ordered.map((item) => {
-        if (!Array.isArray(item.embedding) || item.embedding.length !== embeddingDimensions
-          || item.embedding.some((value) => typeof value !== "number" || !Number.isFinite(value))) {
-          throw new Error("OpenAI returned an invalid FAQ embedding.");
-        }
-        return item.embedding;
-      });
-    }
-
-    if (response.status !== 429 && response.status < 500) {
-      throw new Error(`OpenAI embeddings request rejected (${response.status}). Check the API key, billing and model access.`);
-    }
-    if (attempt === 3) throw new Error(`OpenAI embeddings request failed after retries (${response.status}).`);
-    await new Promise((resolve) => setTimeout(resolve, 500 * (2 ** attempt)));
-  }
-  throw new Error("OpenAI embeddings request failed.");
-}
-
-async function createEmbeddings(chunks, apiKey) {
-  const result = [];
-  for (let start = 0; start < chunks.length; start += embeddingBatchSize) {
-    const batch = chunks.slice(start, start + embeddingBatchSize);
-    const embeddings = await requestEmbeddings(batch.map((chunk) => chunk.content), apiKey);
-    result.push(...batch.map((chunk, index) => ({ ...chunk, embedding: embeddings[index] })));
-    process.stdout.write(`Embedded ${Math.min(start + batch.length, chunks.length)}/${chunks.length} FAQ entries\n`);
-  }
-  return result;
-}
-
 async function insertInBatches(client, table, rows, batchSize = 50) {
   for (let start = 0; start < rows.length; start += batchSize) {
     const { error } = await client.from(table).insert(rows.slice(start, start + batchSize));
@@ -132,47 +79,67 @@ const chunkCounts = {
 };
 
 console.log(`Validated Veyra FAQ catalog: ${documents.length} documents, ${chunks.length} Q&A chunks (${chunkCounts.en} EN, ${chunkCounts.es} ES).`);
-console.log(`Embedding model: ${embeddingModel} (${embeddingDimensions} dimensions).`);
+console.log(`FAQ vectors: ${faqEmbeddingModel} (${faqEmbeddingDimensions} dimensions).`);
+
+const embeddedChunks = chunks.map((chunk) => {
+  const embedding = embedFaqText(chunk.content);
+  if (!embedding.some((value) => value !== 0)) throw new Error(`FAQ entry has no searchable words: ${chunk.document_id}`);
+  return { ...chunk, embedding };
+});
+console.log(`Generated ${embeddedChunks.length} FAQ vectors locally.`);
 
 if (isDryRun) {
   console.log("Dry run only. No API calls or Supabase writes were made.");
-  process.exit(0);
+} else {
+  try {
+    await publishCatalog(documents, embeddedChunks);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : "FAQ publication failed.");
+    process.exitCode = 1;
+  }
 }
 
-const openAiKey = process.env.OPENAI_API_KEY?.trim();
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-if (!openAiKey || !supabaseUrl || !supabaseSecretKey) {
-  throw new Error("Publishing needs OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or the legacy SUPABASE_SERVICE_ROLE_KEY) in the local environment.");
+async function publishCatalog(documents, embeddedChunks) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!supabaseUrl || !supabaseSecretKey) {
+    throw new Error("Publishing needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or the legacy SUPABASE_SERVICE_ROLE_KEY) in the local environment.");
+  }
+
+  const admin = createClient(supabaseUrl, supabaseSecretKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
+  const { data: version, error: versionError } = await admin.from("faq_corpus_versions")
+    .insert({
+      status: "staging",
+      expected_documents: documents.length,
+      expected_chunks: embeddedChunks.length,
+      embedding_model: faqEmbeddingModel,
+    })
+    .select("id")
+    .single();
+  if (versionError?.code === "PGRST205" || versionError?.code === "PGRST204") {
+    const host = new URL(supabaseUrl).hostname;
+    const command = ["localhost", "127.0.0.1", "[::1]"].includes(host)
+      ? "npx supabase db push"
+      : "npx supabase db push --remote";
+    throw new Error(`FAQ schema is unavailable on ${host} (${versionError.code}). Apply the FAQ migrations to this project with ${command}, then run npm run faq:index:publish again.`);
+  }
+  if (versionError || !version?.id) {
+    throw new Error(`Could not create a staging FAQ version: ${versionError?.code || "database_error"}`);
+  }
+
+  console.log(`Created staging FAQ corpus ${version.id}.`);
+  try {
+    await insertInBatches(admin, "faq_documents", documents.map((document) => ({ ...document, version_id: version.id })));
+    await insertInBatches(admin, "faq_chunks", embeddedChunks.map((chunk) => ({ ...chunk, version_id: version.id })));
+    const { error: publishError } = await admin.rpc("publish_faq_corpus_version", { p_version_id: version.id });
+    if (publishError) throw new Error(`Could not publish FAQ corpus: ${publishError.code || "database_error"}`);
+  } catch (error) {
+    console.error(`The corpus remains in staging and was not made searchable (version ${version.id}).`);
+    throw error;
+  }
+
+  console.log(`Published Veyra FAQ corpus ${version.id}; the previous published version was superseded atomically.`);
 }
-
-const embeddedChunks = await createEmbeddings(chunks, openAiKey);
-const admin = createClient(supabaseUrl, supabaseSecretKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
-
-const { data: version, error: versionError } = await admin.from("faq_corpus_versions")
-  .insert({
-    status: "staging",
-    expected_documents: documents.length,
-    expected_chunks: embeddedChunks.length,
-    embedding_model: embeddingModel,
-  })
-  .select("id")
-  .single();
-if (versionError || !version?.id) {
-  throw new Error(`Could not create a staging FAQ version: ${versionError?.code || "database_error"}`);
-}
-
-console.log(`Created staging FAQ corpus ${version.id}.`);
-try {
-  await insertInBatches(admin, "faq_documents", documents.map((document) => ({ ...document, version_id: version.id })));
-  await insertInBatches(admin, "faq_chunks", embeddedChunks.map((chunk) => ({ ...chunk, version_id: version.id })));
-  const { error: publishError } = await admin.rpc("publish_faq_corpus_version", { p_version_id: version.id });
-  if (publishError) throw new Error(`Could not publish FAQ corpus: ${publishError.code || "database_error"}`);
-} catch (error) {
-  console.error(`The corpus remains in staging and was not made searchable (version ${version.id}).`);
-  throw error;
-}
-
-console.log(`Published Veyra FAQ corpus ${version.id}; the previous published version was superseded atomically.`);

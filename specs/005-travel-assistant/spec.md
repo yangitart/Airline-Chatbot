@@ -16,18 +16,17 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 
 ## Scope
 ### In scope
-- Floating, responsive Veyra chat with streaming, private account history and six UI languages.
+- Responsive Veyra chat launched from the shared navigation, with streaming, private account history and six UI languages.
 - Original authored FAQ articles for all 21 local categories in English and Spanish.
 - In-page question and answer search with links inside Veyra.
 - Read-only flight search through the existing flights feature.
 - Booking and Stripe test checkout after offer selection, fare review and explicit confirmation.
 - Chat access to the existing booking list and details, payment status and checkout for an eligible saved booking, demo check-in by leg, and stored flight status.
-- Server-side OpenAI generation and embeddings. Gemini and Groq adapter files remain inactive for now.
-- A reviewable export and an explicit, versioned import flow for the authored FAQ catalog into Supabase pgvector.
+- Server-side OpenAI generation, flight search and saved trip operations.
 
 ### Out of scope for this slice
 - Importing Air India research as Veyra policy.
-- Activating FAQ RAG before the corpus is reviewed, migrated and published.
+- FAQ embeddings, pgvector retrieval and RAG until chat operations are verified.
 - Live inventory, ticket issuance, and live flight operations. Changes, cancellations, and refunds join the chat once Veyra has server use cases for them.
 
 ## Functional requirements
@@ -42,8 +41,6 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - **FR-009:** Payment and booking states come from existing endpoints and webhook processing.
 - **FR-010:** Provider secrets and account history stay server side and owner scoped.
 - **FR-011:** The active model provider is OpenAI; alternate provider adapters are not required in configuration.
-- **FR-012:** FAQ indexing creates a versioned corpus from the English and Spanish structured catalogs, one retrieval chunk per question and answer, using 1536-dimensional OpenAI embeddings.
-- **FR-013:** FAQ retrieval is disabled by default, filters to published Veyra-authored records in the selected language, and uses semantic plus keyword matching when explicitly enabled.
 - **FR-014:** The assistant lists and opens the signed-in traveler’s bookings and displays the stored itinerary, reference, booking and payment states, and check-in status for each leg.
 - **FR-015:** The traveler can start or resume an eligible booking’s Stripe test checkout and confirm demo check-in for a specific eligible leg from the chat panel. The server validates ownership and eligibility and returns the outcome for the panel to display.
 - **FR-016:** The assistant looks up flight status using Veyra’s stored flight records and identifies them as demo data.
@@ -66,15 +63,14 @@ Travelers need original Veyra guidance, flight search and trip actions in one ch
 - [x] FAQ search covers the question and its answer text.
 - [x] The Veyra FAQ view does not link to external airline pages.
 - [x] The selected UI language is sent with each chat request.
-- [x] OpenAI is the only active provider and RAG has a disabled-by-default feature flag.
-- [x] Migration, bilingual PDF export and versioned catalog indexing scripts are prepared.
+- [x] OpenAI is the only active provider. The chat composition skips FAQ retrieval.
 - [ ] Supabase migrations, OpenAI key, corpus publication and chat flow are verified end to end.
 - [ ] Flight selection and test checkout confirmation are reviewed in the application.
 - [ ] From chat, a traveler can find their own booking, see its current payment state, and resume an eligible checkout. A different account cannot access or act on that booking.
 - [ ] From chat, a traveler can confirm check-in for the selected eligible leg, see the resulting demo pass reference, and look up stored flight status.
 
 ## RAG rollout
-The application uses the JSON catalog as canonical source. Exported PDFs are human review copies, not an ingestion dependency. After configuring OpenAI and Supabase server keys, apply migrations, review the PDFs, run the dry-run, publish a versioned index, and only then enable `FAQ_RAG_ENABLED`. The database query filters to `authored_faq` Veyra records and the requested locale; archived Air India research is excluded.
+The application uses the JSON catalog as canonical source. Resume PDF review, local indexing and pgvector retrieval after the OpenAI chat and trip operations are verified.
 
 ## Risks
 - The extra locales display English FAQ articles until their content is translated.

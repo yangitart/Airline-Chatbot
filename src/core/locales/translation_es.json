@@ -1,5 +1,6 @@
 {
   "chatbot": {
+    "quotaExceeded": "El servicio de IA agotó su cuota y no puede responder en este momento.",
     "authUnavailable": "El servicio de inicio de sesión no está disponible en este momento. Inténtalo de nuevo.",
     "conversationMissing": "Esta conversación ya no está disponible. Puedes iniciar una nueva.",
     "faqUnavailable": "Las guías de viaje no están disponibles en este momento. Inténtalo de nuevo.",
@@ -143,14 +144,20 @@
         "description": "Explora el check-in, las instalaciones y los servicios en tierra."
       },
       "inAir": {
+        "details": "Compara las clases disponibles al buscar tu vuelo y consulta la guía de conectividad antes de viajar.",
+        "action": "Ver conectividad a bordo",
         "title": "A bordo",
         "description": "Descubre las cabinas, servicios a bordo y opciones de confort."
       },
       "fleet": {
+        "details": "El catálogo actual usa Airbus A320 en rutas cortas y Boeing 787-9 en trayectos largos.",
+        "action": "Explorar la red de rutas",
         "title": "La flota",
         "description": "Conoce los aviones que operan estas rutas."
       },
       "transformation": {
+        "details": "Desde el móvil puedes consultar tus itinerarios guardados, revisar el estado del pago y ver las opciones de check-in.",
+        "action": "Ver opciones de acceso móvil",
         "title": "Nuevas experiencias",
         "description": "Descubre las mejoras en la experiencia de viaje."
       }

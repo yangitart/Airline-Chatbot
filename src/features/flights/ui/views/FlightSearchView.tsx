@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -15,11 +15,11 @@ import { FlightSearchForm, localDate } from "../components/FlightSearchForm";
 import { BookingTabs } from "../components/BookingTabs";
 import { FlightResults } from "../components/FlightResults";
 import { FlightHero, type FeaturedFlight } from "../components/FlightHero";
-import { DEMO_AIRPORT_CODES, DEMO_ROUTE_PAIRS, type DemoAirportCode } from "../../domain/models/DemoRoutes";
+import { FlightRouteFromUrl, type RoutePrefill } from "../components/FlightRouteFromUrl";
+import { DEMO_ROUTE_PAIRS } from "../../domain/models/DemoRoutes";
 
 type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
 type CreateBookingUseCase = IUseCase<CreateDemoBookingCommand, Promise<import("fp-ts/Either").Either<string, Booking>>>;
-type RoutePrefill = { origin: DemoAirportCode; destination: DemoAirportCode; date?: string };
 
 const featuredRoutes = DEMO_ROUTE_PAIRS.filter(({ destination }, index) =>
   DEMO_ROUTE_PAIRS.findIndex((route) => route.destination === destination) === index,
@@ -84,28 +84,22 @@ export default function FlightSearchView() {
   }, [user, submitDemoBooking]);
 
   useEffect(() => {
-    const authError = new URLSearchParams(window.location.search).get("authError");
-    if (authError) {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("authError")) {
       setError(t("flightSearch.errors.signInFailed"));
-      window.history.replaceState({}, "", window.location.pathname);
+      url.searchParams.delete("authError");
+      window.history.replaceState(window.history.state, "", url);
     }
   }, [t]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const origin = params.get("origin");
-    const destination = params.get("destination");
-    if (origin && destination
-      && DEMO_AIRPORT_CODES.includes(origin as DemoAirportCode)
-      && DEMO_AIRPORT_CODES.includes(destination as DemoAirportCode)
-      && origin !== destination) {
-      setRoutePrefill({ origin: origin as DemoAirportCode, destination: destination as DemoAirportCode });
-      window.history.replaceState({}, "", `${window.location.pathname}#search`);
-      requestAnimationFrame(() => document.getElementById("search")?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "center",
-      }));
-    }
+  const selectRoute = useCallback((route: RoutePrefill) => {
+    setResults(null);
+    setRoutePrefill(route);
+    setRouteRevision((revision) => revision + 1);
+    requestAnimationFrame(() => {
+      document.getElementById("booking-title")?.focus({ preventScroll: true });
+      document.getElementById("search")?.scrollIntoView({ block: "start" });
+    });
   }, []);
 
   const searchFlights = useCallback(async (query: FlightSearchQuery) => {
@@ -169,13 +163,9 @@ export default function FlightSearchView() {
 
   return (
     <main className="relative isolate min-h-[calc(100dvh-62px)] text-airline-ink sm:min-h-[calc(100dvh-72px)]">
+      <Suspense fallback={null}><FlightRouteFromUrl onSelect={selectRoute} /></Suspense>
       <div className={`mx-auto grid max-w-[1440px] items-stretch gap-4 px-4 py-5 sm:gap-6 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-8 ${results ? "lg:hidden" : ""}`}>
-      <FlightHero flights={featuredFlights} selectedDestination={results?.destination ?? routePrefill?.destination} onSelectRoute={(route) => {
-        setRoutePrefill(route);
-        setRouteRevision((revision) => revision + 1);
-        document.getElementById("booking-title")?.focus({ preventScroll: true });
-        document.getElementById("search")?.scrollIntoView({ block: "nearest" });
-      }} />
+      <FlightHero flights={featuredFlights} selectedDestination={results?.destination ?? routePrefill?.destination} onSelectRoute={selectRoute} />
       <section className="min-w-0 scroll-mt-20 rounded-[28px] border border-airline-line bg-airline-paper p-5 shadow-[0_16px_48px_rgb(23_40_59_/_7%)] sm:p-7 lg:p-8" id="search" aria-labelledby="booking-title">
         <h2 className="mb-5 text-2xl font-semibold tracking-tight text-airline-night sm:text-3xl" id="booking-title" tabIndex={-1}>{t("flightSearch.booking.title")}</h2>
         <BookingTabs isAuthenticated={Boolean(user)} authLoading={authLoading} onSignIn={() => openSignIn()} />

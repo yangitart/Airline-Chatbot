@@ -1,5 +1,6 @@
 {
   "chatbot": {
+    "quotaExceeded": "O serviço de IA atingiu o limite de uso e não pode responder agora.",
     "authUnavailable": "O serviço de login está temporariamente indisponível. Tente novamente.",
     "conversationMissing": "Esta conversa não está mais disponível. Você pode iniciar uma nova.",
     "faqUnavailable": "Os guias de viagem estão temporariamente indisponíveis. Tente novamente.",
@@ -143,14 +144,20 @@
         "description": "Conheça o check-in, as instalações e os serviços em terra."
       },
       "inAir": {
+        "details": "Compare as classes disponíveis ao buscar seu voo e consulte as orientações sobre conectividade antes da viagem.",
+        "action": "Ver conectividade a bordo",
         "title": "A bordo",
         "description": "Descubra as cabines, os serviços a bordo e as opções de conforto."
       },
       "fleet": {
+        "details": "O catálogo atual usa Airbus A320 nas rotas mais curtas e Boeing 787-9 nas rotas mais longas.",
+        "action": "Explorar a rede de rotas",
         "title": "A frota",
         "description": "Conheça as aeronaves que atendem à rede."
       },
       "transformation": {
+        "details": "Use o celular para consultar itinerários salvos, acompanhar pagamentos e revisar as opções de check-in.",
+        "action": "Ver opções de acesso móvel",
         "title": "Novas experiências",
         "description": "Explore as mudanças na experiência de viagem."
       }

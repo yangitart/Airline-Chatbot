@@ -86,11 +86,11 @@ export function TravelAppShell({ children }: { children: ReactNode }) {
       <div className="relative isolate min-h-dvh bg-airline-canvas">
         <TravelPageBackdrop tab={getTravelTab(pathname)} muted={pathname === "/" && Boolean(searchAction)} />
         <FlightsHeader pathname={pathname} user={user} authLoading={authLoading} onSignIn={() => openSignIn()}
-          onSignOut={() => void signOut()} onEditSearch={pathname === "/" ? searchAction : undefined} />
+          onSignOut={() => void signOut()} onEditSearch={pathname === "/" ? searchAction : undefined}
+          assistant={<TravelAssistantWidget key={user?.id ?? "guest"} />} />
         <div className="overflow-x-clip">
           <div key={pathname} className={styles.routeView}>{children}</div>
         </div>
-        <TravelAssistantWidget key={user?.id ?? "guest"} />
         {modalOpen && <GoogleAuthModal onClose={closeSignIn} onRedirect={prepareRedirect} />}
       </div>
     </TravelShellContext.Provider>

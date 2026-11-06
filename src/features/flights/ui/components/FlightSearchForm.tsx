@@ -145,7 +145,9 @@ export function FlightSearchForm({
           </div>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-xl text-xs leading-5 text-[#72817c]">{t("flightSearch.booking.publicSearchNote")}</p>
-            <FormikSubmitButton label={t("flightSearch.actions.search")} busyLabel={t("flightSearch.actions.searching")} />
+            <div className="w-[calc(100%-4rem)] min-w-0 sm:mr-16 sm:w-auto">
+              <FormikSubmitButton label={t("flightSearch.actions.search")} busyLabel={t("flightSearch.actions.searching")} />
+            </div>
           </div>
         </Form>
       )}

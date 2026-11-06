@@ -32,11 +32,11 @@ it("changes the photo and flag when the carousel moves to a different destinatio
     { origin: "DEL", destination: "LHR", date: "2026-11-10", number: "AI 901" },
     { origin: "DEL", destination: "SIN", date: "2026-11-10", number: "AI 951" },
   ]} />);
-  expect(container.querySelector('img[src="/images/london-tower-bridge.jpg"]')).toBeTruthy();
+  expect(container.querySelector('img[src="/images/london-tower-bridge.webp"]')).toBeTruthy();
   expect(container.querySelector('img[src="/flags/gb.svg"]')).toBeTruthy();
 
   fireEvent.click(screen.getByRole("button", { name: "travelPages.carouselNext" }));
-  expect(container.querySelector('img[src="/images/singapore-marina-bay.jpg"]')).toBeTruthy();
+  expect(container.querySelector('img[src="/images/singapore-marina-bay.webp"]')).toBeTruthy();
   expect(container.querySelector('img[src="/flags/sg.svg"]')).toBeTruthy();
 });
 
@@ -48,8 +48,8 @@ it("shows the photo of the arrival city for both legs in flight results", () => 
     }}
     isAuthenticated bookingBusy={false} booking={null} bookingError="" onBook={vi.fn()} onBack={vi.fn()}
   />);
-  expect(container.querySelector('img[src="/images/london-tower-bridge.jpg"]')).toBeTruthy();
+  expect(container.querySelector('img[src="/images/london-tower-bridge.webp"]')).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: /^tripOperations.return/ }));
-  expect(container.querySelector('img[src="/images/delhi-india-gate.jpg"]')).toBeTruthy();
+  expect(container.querySelector('img[src="/images/delhi-india-gate.webp"]')).toBeTruthy();
   expect(container.querySelector('img[src="/flags/in.svg"]')).toBeTruthy();
 });

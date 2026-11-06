@@ -3,11 +3,11 @@
 ## Product and current milestone
 - Build the travel assistant as a Next.js application backed by Supabase Auth and Supabase Postgres.
 - Current code includes Google authentication, public search of Supabase flight rows, demo bookings, Stripe test-mode Checkout wiring, owner-scoped profiles, demo check-in, and stored demo flight status lookup.
-- Spec 005 is the active chatbot slice: OpenAI is the active model provider; keep alternate provider adapters inactive for now. Persist owner-scoped conversation history in Supabase, use the local authored FAQ catalog, and route booking/payment actions through existing server use cases with explicit confirmation.
+- Spec 005 uses OpenAI for chat generation. FAQ retrieval is paused. Persist owner-scoped conversation history in Supabase and route booking/payment actions through existing server use cases with explicit confirmation.
 - Demo inventory stores Amadeus-shaped `flight-offer` JSON, demo orders store `flight-order` JSON, and demo operational snapshots use AviationStack-style nested flight data, alongside normalized columns for querying and transactions.
 - Seeded flight schedules, availability, and fares are demo data even though they are stored and queried in Postgres. Stripe integration uses test keys and a verified webhook; it records a demo payment and never issues a ticket. Demo check-in produces a sample seat/reference, not an airline boarding pass.
 - The FAQ uses 21 original Veyra catalogs under `src/features/faqs/data/veyra-faq.en.json` and `veyra-faq.es.json`. Other supported locales currently show the English FAQ article.
-- Keep FAQ and experience links within Veyra. The archived Air India research is excluded from the Veyra index. Veyra PDF copies are for human review; the JSON catalog is canonical and is indexed directly into a versioned Supabase pgvector corpus after migrations and credentials are configured. Retrieval stays disabled until `FAQ_RAG_ENABLED=true`.
+- Keep FAQ and experience links within Veyra. The archived Air India research is excluded from Veyra answers. The active chat does not query the FAQ index. JSON source and indexing tools remain prepared for a later RAG phase.
 
 ## Repository architecture
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.

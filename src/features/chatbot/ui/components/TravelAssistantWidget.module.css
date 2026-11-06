@@ -45,21 +45,6 @@
   stroke-width: 1;
 }
 
-.launcher {
-  box-shadow: 0 12px 35px rgb(24 61 55 / 32%), 0 0 0 7px rgb(255 255 255 / 26%);
-}
-
-.launcher::before {
-  position: absolute;
-  z-index: -1;
-  inset: -6px;
-  border: 1px solid rgb(196 164 102 / 70%);
-  border-radius: 9999px;
-  content: "";
-  animation: avatar-halo 3.4s ease-in-out infinite;
-  pointer-events: none;
-}
-
 .avatarPortrait {
   animation: avatar-idle 5.2s ease-in-out infinite;
   transform-origin: center 54%;
@@ -88,11 +73,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes avatar-halo {
-  0%, 100% { opacity: .25; transform: scale(1); }
-  50% { opacity: .75; transform: scale(1.12); }
-}
-
 @keyframes avatar-idle {
   0%, 100% { transform: scale(1.025) translateY(1px) rotate(-.25deg); }
   50% { transform: scale(1.075) translateY(-1px) rotate(.25deg); }
@@ -104,7 +84,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .backdrop, .panel, .messageEnter, .launcher::before, .avatarPortrait, .avatarThinking { animation: none; }
+  .backdrop, .panel, .messageEnter, .avatarPortrait, .avatarThinking { animation: none; }
 }
 
 @media (max-width: 639px) {
