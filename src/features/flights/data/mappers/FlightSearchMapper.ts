@@ -1,7 +1,9 @@
 import { FlightSearchResult } from "../../domain/models/FlightSearch";
 import { FlightSearchModel } from "../models/FlightSearchModel";
 
-export const mapFlightSearchModel = (model: FlightSearchModel): FlightSearchResult => ({
+export const mapFlightSearchModel = (
+  model: FlightSearchModel,
+): FlightSearchResult => ({
   origin: model.origin,
   destination: model.destination,
   departure_date: model.departure_date,

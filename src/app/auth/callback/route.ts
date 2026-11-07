@@ -10,17 +10,23 @@ export async function GET(request: Request) {
     try {
       const destination = new URL(requestedNext, requestUrl.origin);
       if (destination.origin === requestUrl.origin) next = destination;
-    } catch { /* Keep the home page as the fallback. */ }
+    } catch {
+      /* Keep the home page as the fallback. */
+    }
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/?authError=missing_code", requestUrl.origin));
+    return NextResponse.redirect(
+      new URL("/?authError=missing_code", requestUrl.origin),
+    );
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(new URL("/?authError=oauth_exchange_failed", requestUrl.origin));
+    return NextResponse.redirect(
+      new URL("/?authError=oauth_exchange_failed", requestUrl.origin),
+    );
   }
 
   return NextResponse.redirect(next);

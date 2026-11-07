@@ -10,7 +10,9 @@ export type TravelShellContextValue = {
   registerSearchAction: (action: () => void) => () => void;
 };
 
-export const TravelShellContext = createContext<TravelShellContextValue | null>(null);
+export const TravelShellContext = createContext<TravelShellContextValue | null>(
+  null,
+);
 
 export function useTravelShell() {
   const shell = useContext(TravelShellContext);

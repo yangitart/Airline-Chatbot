@@ -5,7 +5,11 @@ import { authenticateChatRequest } from "@/src/features/chatbot/ioc/serverChatRe
 export async function GET() {
   return chatResponse("list_conversations", async () => {
     const { supabase, userId } = await authenticateChatRequest();
-    const conversations = await createServerChatHistory(supabase).listConversations.execute(userId);
-    return Response.json({ conversations }, { headers: { "Cache-Control": "no-store" } });
+    const conversations =
+      await createServerChatHistory(supabase).listConversations.execute(userId);
+    return Response.json(
+      { conversations },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   });
 }

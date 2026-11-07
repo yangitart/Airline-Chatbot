@@ -1,6 +1,12 @@
-import { chatEventStream, chatResponse } from "@/src/features/chatbot/data/http/chatResponses";
+import {
+  chatEventStream,
+  chatResponse,
+} from "@/src/features/chatbot/data/http/chatResponses";
 import { readChatMessageRequest } from "@/src/features/chatbot/data/http/chatMessageRequest";
-import { prepareChatTurn, streamChatTurn } from "@/src/features/chatbot/domain/useCases/streamChatTurn";
+import {
+  prepareChatTurn,
+  streamChatTurn,
+} from "@/src/features/chatbot/domain/useCases/streamChatTurn";
 import { createServerChatHistory } from "@/src/features/chatbot/ioc/serverChatHistory";
 import { authenticateChatRequest } from "@/src/features/chatbot/ioc/serverChatRequest";
 import { createServerTravelAssistant } from "@/src/features/chatbot/ioc/serverTravelAssistant";
@@ -18,7 +24,12 @@ export async function POST(request: Request) {
     const signal = AbortSignal.any([request.signal, cancellation.signal]);
 
     async function* events() {
-      for await (const event of streamChatTurn(turn, assistant, history, signal)) {
+      for await (const event of streamChatTurn(
+        turn,
+        assistant,
+        history,
+        signal,
+      )) {
         if (event.type === "delta") {
           yield { event: "delta", data: { content: event.content } };
         } else {

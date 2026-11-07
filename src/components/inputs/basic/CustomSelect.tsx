@@ -1,9 +1,9 @@
-'use client';
-import React, { useEffect, useState, useRef } from 'react';
+"use client";
+import React, { useEffect, useState, useRef } from "react";
 import { Select, SelectItem, Tooltip } from "@heroui/react";
-import { BaseItemNomenclature } from '@/src/features/shared/nomenclatures/domain/entities/BaseItemNomenclature';
-import { FormikValues, getIn } from 'formik';
-import InfoIcon from '@/src/components/Icons/legacy/InfoIcon';
+import { BaseItemNomenclature } from "@/src/features/shared/nomenclatures/domain/entities/BaseItemNomenclature";
+import { FormikValues, getIn } from "formik";
+import InfoIcon from "@/src/components/Icons/legacy/InfoIcon";
 
 const CustomSelect = ({
   items,
@@ -43,7 +43,7 @@ const CustomSelect = ({
   dataCy?: string;
 }) => {
   const [value, setValue] = useState(defaultSelectedValue);
-  const selectItemRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  const selectItemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const touched = getIn(form.touched, formKey);
   const error = getIn(form.errors, formKey);
 
@@ -76,10 +76,10 @@ const CustomSelect = ({
         {textInfo && (
           <Tooltip
             classNames={{
-              content: 'w-[300px] p-2 text-justify',
+              content: "w-[300px] p-2 text-justify",
             }}
             content={textInfo}
-            placement={'right'}
+            placement={"right"}
           >
             <div>
               <InfoIcon />
@@ -89,26 +89,26 @@ const CustomSelect = ({
       </div>
       <Select
         data-cy={dataCy}
-        classNames={{ trigger: 'rounded-[5px] border' }}
+        classNames={{ trigger: "rounded-[5px] border" }}
         isDisabled={isDisable}
         style={{ width: width }}
         id={formKey}
         name={formKey}
         size="md"
-        radius={'sm'}
+        radius={"sm"}
         multiple={multiple}
         items={items}
         variant="bordered"
-        placeholder={placeholder ?? 'Seleccionar'}
+        placeholder={placeholder ?? "Seleccionar"}
         onBlur={(event) => {
           form.handleBlur(event);
           void form.setFieldTouched(formKey, true);
         }}
         fullWidth
-        color={touched && error ? 'danger' : 'primary'}
+        color={touched && error ? "danger" : "primary"}
         errorMessage={
           touched && error
-            ? error.toString() !== 'Otro' && error.toString()
+            ? error.toString() !== "Otro" && error.toString()
             : undefined
         }
         isInvalid={Boolean(touched && error)}
@@ -126,7 +126,7 @@ const CustomSelect = ({
         {items.map((item) => (
           <SelectItem
             key={mapKey ? mapKey(item) : item.key!}
-            title={mapItem ? mapItem(item) : item.label} 
+            title={mapItem ? mapItem(item) : item.label}
           >
             {mapItem ? mapItem(item) : item.label}
           </SelectItem>
@@ -137,4 +137,3 @@ const CustomSelect = ({
 };
 
 export default CustomSelect;
-

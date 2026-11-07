@@ -27,4 +27,3 @@ export type GroundedChatResponse = {
 export type ChatCompletionStreamEvent =
   | { type: "delta"; content: string }
   | { type: "complete"; response: GroundedChatResponse };
-

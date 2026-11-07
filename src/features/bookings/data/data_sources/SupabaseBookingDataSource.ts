@@ -6,7 +6,9 @@ import { parseBookingLookup } from "../../domain/models/BookingReference";
 import type { BookingDataSource } from "./BookingDataSource";
 import type { BookingModel } from "../models/BookingModel";
 
-export const SupabaseBookingDataSourceImpl = (supabase: SupabaseClient): BookingDataSource => ({
+export const SupabaseBookingDataSourceImpl = (
+  supabase: SupabaseClient,
+): BookingDataSource => ({
   createDemoBooking: async (command: CreateDemoBookingCommand) => {
     const { data, error } = await supabase.rpc("create_demo_booking", {
       p_flight_instance_id: command.flightInstanceId,
@@ -25,7 +27,9 @@ export const SupabaseBookingDataSourceImpl = (supabase: SupabaseClient): Booking
   listMyBookings: async () => {
     const { data, error } = await supabase
       .from("bookings")
-      .select("id,booking_reference,flight_instance_id,return_flight_instance_id,cabin_class,passenger_count,total_fare_minor,currency,status,payment_status,is_demo,itinerary_snapshot,flight_order_payload,created_at,demo_checkins(flight_leg,checked_in_at,demo_seat,demo_boarding_pass_reference)")
+      .select(
+        "id,booking_reference,flight_instance_id,return_flight_instance_id,cabin_class,passenger_count,total_fare_minor,currency,status,payment_status,is_demo,itinerary_snapshot,flight_order_payload,created_at,demo_checkins(flight_leg,checked_in_at,demo_seat,demo_boarding_pass_reference)",
+      )
       .order("created_at", { ascending: false })
       .limit(50);
     if (error) throw error;
@@ -36,7 +40,9 @@ export const SupabaseBookingDataSourceImpl = (supabase: SupabaseClient): Booking
     if (!lookup) return null;
     const { data, error } = await supabase
       .from("bookings")
-      .select("id,booking_reference,flight_instance_id,return_flight_instance_id,cabin_class,passenger_count,total_fare_minor,currency,status,payment_status,is_demo,itinerary_snapshot,flight_order_payload,created_at,demo_checkins(flight_leg,checked_in_at,demo_seat,demo_boarding_pass_reference)")
+      .select(
+        "id,booking_reference,flight_instance_id,return_flight_instance_id,cabin_class,passenger_count,total_fare_minor,currency,status,payment_status,is_demo,itinerary_snapshot,flight_order_payload,created_at,demo_checkins(flight_leg,checked_in_at,demo_seat,demo_boarding_pass_reference)",
+      )
       .eq(lookup.column, lookup.value)
       .maybeSingle();
     if (error) throw error;

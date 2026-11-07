@@ -46,7 +46,11 @@
       "flightStatus": "Ajude-me a consultar o status de um voo."
     },
     "suggestionTitle": "Algumas ideias para começar",
-    "suggestions": ["O que devo preparar antes da viagem?", "Como consulto o status do meu voo?", "Ajude-me a encontrar um voo"],
+    "suggestions": [
+      "O que devo preparar antes da viagem?",
+      "Como consulto o status do meu voo?",
+      "Ajude-me a encontrar um voo"
+    ],
     "placeholder": "Digite sua pergunta…",
     "send": "Enviar mensagem",
     "sending": "A Veyra está pensando…",

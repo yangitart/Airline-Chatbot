@@ -5,5 +5,7 @@ import { FlightStatusRepositoryImpl } from "../data/repositories/FlightStatusRep
 import { lookupFlightStatusUseCase } from "../domain/useCases/lookupFlightStatusUseCase";
 
 export function createServerFlightStatus(supabase: SupabaseClient) {
-  return lookupFlightStatusUseCase(FlightStatusRepositoryImpl(createSupabaseFlightStatusDataSource(supabase)));
+  return lookupFlightStatusUseCase(
+    FlightStatusRepositoryImpl(createSupabaseFlightStatusDataSource(supabase)),
+  );
 }

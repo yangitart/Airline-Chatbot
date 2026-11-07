@@ -48,6 +48,10 @@ const tailwindConfig = {
           '0%': { backgroundPosition: '100% 0' },
           '100%': { backgroundPosition: '-100% 0' },
         },
+        'route-enter': {
+          '0%': { opacity: '.34', transform: 'translate3d(28px, 5px, 0)' },
+          '100%': { opacity: '1', transform: 'translate3d(0, 0, 0)' },
+        },
       },
       animation: {
         'soft-rise': 'soft-rise 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both',
@@ -55,6 +59,7 @@ const tailwindConfig = {
         'flight-trace': 'flight-trace 7s ease-in-out infinite',
         'soft-glow': 'soft-glow 5s ease-in-out infinite',
         'skeleton-shimmer': 'skeleton-shimmer 1.6s linear infinite',
+        'route-enter': 'route-enter 440ms cubic-bezier(0.22, 0.75, 0.22, 1)',
       },
       margin: {
         '30': '7.50rem',

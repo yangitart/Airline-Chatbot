@@ -40,4 +40,8 @@ export type ChatModelResponse = {
 
 export type ChatModelStreamEvent =
   | { type: "delta"; content: string }
-  | { type: "tool_calls"; toolCalls: ModelToolCall[]; providerParts?: ReadonlyArray<Record<string, unknown>> };
+  | {
+      type: "tool_calls";
+      toolCalls: ModelToolCall[];
+      providerParts?: ReadonlyArray<Record<string, unknown>>;
+    };

@@ -8,7 +8,9 @@ export const createSupabaseBrowserClient: BrowserSupabaseClientFactory = () => {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !key) {
-    throw new Error("Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in the root .env.local file.");
+    throw new Error(
+      "Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in the root .env.local file.",
+    );
   }
 
   return createBrowserClient(url, key);

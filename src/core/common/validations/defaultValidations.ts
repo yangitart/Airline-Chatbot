@@ -6,4 +6,6 @@ export const numberValidation = Yup.string()
   .required(ValidationErrorMessages.required)
   .matches(numberRegex, ValidationErrorMessages.formatIncorrect);
 
-export const defaultValidation = Yup.string().required(ValidationErrorMessages.required);
+export const defaultValidation = Yup.string().required(
+  ValidationErrorMessages.required,
+);

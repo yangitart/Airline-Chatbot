@@ -1,5 +1,5 @@
-import { left, right } from 'fp-ts/Either';
-import { handleError } from '@/src/core/api/hooks/handleError';
+import { left, right } from "fp-ts/Either";
+import { handleError } from "@/src/core/api/hooks/handleError";
 
 /**
  * Convierte la respuesta de la petición en la right de {Either}

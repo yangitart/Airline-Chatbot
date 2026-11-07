@@ -1,25 +1,25 @@
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 export const showToast = (
   text: string,
-  variant: 'error' | 'success' | 'loading' | 'custom',
+  variant: "error" | "success" | "loading" | "custom",
   duration?: number,
 ) => {
   const notify = () => {
     switch (variant) {
-      case 'custom':
+      case "custom":
         return toast.error(() => <span> {text} </span>, {
           duration: duration ?? 5000,
         });
-      case 'loading':
+      case "loading":
         return toast.loading(() => <span> {text} </span>, {
           duration: duration ?? 5000,
         });
-      case 'success':
+      case "success":
         return toast.success(() => <span> {text} </span>, {
           duration: duration ?? 5000,
         });
-      case 'error':
+      case "error":
         return toast.error(() => <span> {text} </span>, {
           duration: duration ?? 5000,
         });
@@ -30,9 +30,9 @@ export const showToast = (
 };
 
 export function ShowSuccessToast() {
-  return showToast('Operación exitosa', 'success');
+  return showToast("Operación exitosa", "success");
 }
 
 export function ShowErrorToast(error: string) {
-  return showToast(error, 'error');
+  return showToast(error, "error");
 }

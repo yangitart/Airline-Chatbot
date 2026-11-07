@@ -16,10 +16,10 @@ export function createGraphQLQuery(
 ): string {
   const getParams = (param: any, value: any) => {
     switch (param) {
-      case 'search':
-        return value ? `${param}:'${value}'` : '';
-      case 'urls':
-        return `urls:'${(value as string[]).map((e) => `${e}`).join(',')}'`;
+      case "search":
+        return value ? `${param}:'${value}'` : "";
+      case "urls":
+        return `urls:'${(value as string[]).map((e) => `${e}`).join(",")}'`;
       default:
         return `${param}:${value}`;
     }
@@ -31,7 +31,7 @@ export function createGraphQLQuery(
         ? getParams(param, queryParams[param])
         : undefined,
     )
-    .join(' ');
+    .join(" ");
 
   // Filtrar los campos que se deben incluir en la consulta
   // const fields = include.length > 0
@@ -40,8 +40,8 @@ export function createGraphQLQuery(
 
   // Construir la consulta
   const query = `
-      (${variables} ${filters ? filters : ''} ) {
-        ${include ?? '*'}
+      (${variables} ${filters ? filters : ""} ) {
+        ${include ?? "*"}
       }
   `;
 
@@ -54,18 +54,18 @@ export function createGraphQLQuery(
  * @returns {string}
  */
 export function formatFilters(filters: { [key: string]: any }): string {
-  let __filters = '';
+  let __filters = "";
 
   for (const key in filters) {
     if (
       filters[key] !== null &&
       filters[key] !== undefined &&
-      filters[key] !== ''
+      filters[key] !== ""
     ) {
       const value = filters[key];
 
       // Si el valor es un string, lo envolvemos entre comillas
-      const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+      const formattedValue = typeof value === "string" ? `"${value}"` : value;
 
       // Agregar el filtro solo si el valor no es nulo o indefinido
       if (formattedValue !== null && formattedValue !== undefined) {

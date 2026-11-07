@@ -2,7 +2,10 @@ import { ChatError } from "../models/ChatError";
 import type { ChatMessage } from "../models/ChatMessage";
 import type { GroundedChatResponse } from "../models/FaqChunk";
 import type { ChatAssistantUseCase } from "./sendChatMessageUseCase";
-import type { getChatConversationContextUseCase, saveChatTurnUseCase } from "./manageChatHistoryUseCases";
+import type {
+  getChatConversationContextUseCase,
+  saveChatTurnUseCase,
+} from "./manageChatHistoryUseCases";
 
 type HistoryUseCases = {
   getContext: ReturnType<typeof getChatConversationContextUseCase>;
@@ -16,7 +19,11 @@ export async function prepareChatTurn(
 ) {
   const messages: ChatMessage[] = [];
   if (input.conversationId) {
-    const context = await history.getContext.execute(input.conversationId, 10, signal);
+    const context = await history.getContext.execute(
+      input.conversationId,
+      10,
+      signal,
+    );
     if (!context) throw new ChatError("conversation_not_found");
     messages.push(...context);
   }
@@ -31,7 +38,10 @@ export async function* streamChatTurn(
   signal: AbortSignal,
 ) {
   let response: GroundedChatResponse | undefined;
-  const generationSignal = AbortSignal.any([signal, AbortSignal.timeout(65_000)]);
+  const generationSignal = AbortSignal.any([
+    signal,
+    AbortSignal.timeout(65_000),
+  ]);
   for await (const event of assistant.stream(turn, generationSignal)) {
     generationSignal.throwIfAborted();
     if (event.type === "delta") yield event;

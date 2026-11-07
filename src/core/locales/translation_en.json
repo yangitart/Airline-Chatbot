@@ -46,7 +46,11 @@
       "flightStatus": "Help me look up a flight's status."
     },
     "suggestionTitle": "A few ways to get started",
-    "suggestions": ["What should I prepare before my trip?", "How can I check my flight status?", "Help me find a flight"],
+    "suggestions": [
+      "What should I prepare before my trip?",
+      "How can I check my flight status?",
+      "Help me find a flight"
+    ],
     "placeholder": "Type your question…",
     "send": "Send message",
     "sending": "Veyra is thinking…",

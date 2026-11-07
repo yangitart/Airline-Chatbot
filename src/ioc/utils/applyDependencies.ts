@@ -1,5 +1,5 @@
-import { interfaces } from 'inversify';
-import { ApplicationContainer } from '@/src/ioc/application.container';
+import { interfaces } from "inversify";
+import { ApplicationContainer } from "@/src/ioc/application.container";
 
 export const applyDependencies = <Arguments extends unknown[], Result>(
   factory: (...args: Arguments) => Result,

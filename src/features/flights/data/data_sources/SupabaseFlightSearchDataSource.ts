@@ -8,7 +8,12 @@ import { FlightSearchDataSource } from "./FlightSearchDataSource";
 import { FlightSearchModel } from "../models/FlightSearchModel";
 import type { AmadeusFlightOfferModel } from "../models/AmadeusFlightOfferModel";
 
-type AirportRow = { code: string; city: string; name: string; time_zone: string };
+type AirportRow = {
+  code: string;
+  city: string;
+  name: string;
+  time_zone: string;
+};
 type FlightRow = {
   id: string;
   flight_number: string;
@@ -59,7 +64,8 @@ function formatLocalDate(timestamp: string, timeZone: string) {
     month: "2-digit",
     day: "2-digit",
   }).formatToParts(new Date(timestamp));
-  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? "";
+  const part = (type: string) =>
+    parts.find((item) => item.type === type)?.value ?? "";
   return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
@@ -73,12 +79,27 @@ function mapFlight(row: InventoryRow) {
     offer_id: row.offer_id,
     id: flight.id,
     flight_number: `${segment?.carrierCode ?? "AI"} ${segment?.number ?? flight.flight_number.split(" ").at(-1)}`,
-    departure: formatTime(segment?.departure.at ?? flight.departure_at, flight.origin_airport.time_zone),
-    arrival: formatTime(segment?.arrival.at ?? flight.arrival_at, flight.destination_airport.time_zone),
-    duration: offer.itineraries[0]?.duration?.replace(/^PT/, "").replace("H", "h ").replace("M", "m") ?? `${Math.floor(minutes / 60)}h ${minutes % 60}m`,
+    departure: formatTime(
+      segment?.departure.at ?? flight.departure_at,
+      flight.origin_airport.time_zone,
+    ),
+    arrival: formatTime(
+      segment?.arrival.at ?? flight.arrival_at,
+      flight.destination_airport.time_zone,
+    ),
+    duration:
+      offer.itineraries[0]?.duration
+        ?.replace(/^PT/, "")
+        .replace("H", "h ")
+        .replace("M", "m") ?? `${Math.floor(minutes / 60)}h ${minutes % 60}m`,
     departure_date: flight.departure_date,
-    arrival_date: formatLocalDate(flight.arrival_at, flight.destination_airport.time_zone),
-    fare_minor: Number.isFinite(offerFareMinor) ? offerFareMinor : row.fare_minor,
+    arrival_date: formatLocalDate(
+      flight.arrival_at,
+      flight.destination_airport.time_zone,
+    ),
+    fare_minor: Number.isFinite(offerFareMinor)
+      ? offerFareMinor
+      : row.fare_minor,
     currency: offer.price.currency || row.currency,
     number_of_bookable_seats: offer.numberOfBookableSeats,
     is_demo: Boolean(offer.isDemo || flight.is_demo),
@@ -90,7 +111,11 @@ export const SupabaseFlightSearchDataSourceImpl = (
   supabase: SupabaseClient,
 ): FlightSearchDataSource => ({
   search: async (query: FlightSearchQuery): Promise<FlightSearchModel> => {
-    const getFlights = async (origin: string, destination: string, date: string) => {
+    const getFlights = async (
+      origin: string,
+      destination: string,
+      date: string,
+    ) => {
       const { data, error } = await supabase
         .from("flight_inventory")
         .select(flightInventorySelection)
@@ -103,7 +128,9 @@ export const SupabaseFlightSearchDataSourceImpl = (
 
       if (error) throw error;
       return ((data ?? []) as unknown as InventoryRow[])
-        .sort((a, b) => a.flight.departure_at.localeCompare(b.flight.departure_at))
+        .sort((a, b) =>
+          a.flight.departure_at.localeCompare(b.flight.departure_at),
+        )
         .map(mapFlight);
     };
 
@@ -122,7 +149,8 @@ export const SupabaseFlightSearchDataSourceImpl = (
       passengers: query.passengers,
       cabin_class: query.cabinClass,
       is_mock: true,
-      notice: "Flight schedules, seat availability, and fares for your selected dates.",
+      notice:
+        "Flight schedules, seat availability, and fares for your selected dates.",
       flights: outbound,
       return_flights: inbound,
     };
@@ -138,24 +166,41 @@ export const SupabaseFlightSearchDataSourceImpl = (
 
     if (error) throw error;
 
-    const allowedRoutes = new Set(DEMO_ROUTE_PAIRS.map(({ origin, destination }) => `${origin}-${destination}`));
+    const allowedRoutes = new Set(
+      DEMO_ROUTE_PAIRS.map(
+        ({ origin, destination }) => `${origin}-${destination}`,
+      ),
+    );
     const firstFlightByRoute = new Map<string, InventoryRow>();
-    const rows = ((data ?? []) as unknown as InventoryRow[])
-      .sort((left, right) => left.flight.departure_at.localeCompare(right.flight.departure_at));
+    const rows = ((data ?? []) as unknown as InventoryRow[]).sort(
+      (left, right) =>
+        left.flight.departure_at.localeCompare(right.flight.departure_at),
+    );
 
     for (const row of rows) {
       const routeKey = `${row.flight.origin_code}-${row.flight.destination_code}`;
-      if (allowedRoutes.has(routeKey) && !firstFlightByRoute.has(routeKey)) firstFlightByRoute.set(routeKey, row);
+      if (allowedRoutes.has(routeKey) && !firstFlightByRoute.has(routeKey))
+        firstFlightByRoute.set(routeKey, row);
     }
 
-    const routes = DEMO_ROUTE_PAIRS.filter((route, index, all) =>
-      all.findIndex((candidate) => candidate.destination === route.destination) === index,
+    const routes = DEMO_ROUTE_PAIRS.filter(
+      (route, index, all) =>
+        all.findIndex(
+          (candidate) => candidate.destination === route.destination,
+        ) === index,
     );
 
     return routes.flatMap(({ origin, destination }) => {
       const row = firstFlightByRoute.get(`${origin}-${destination}`);
       if (!row) return [];
-      return [{ origin, destination, date: row.flight.departure_date, number: mapFlight(row).flight_number }];
+      return [
+        {
+          origin,
+          destination,
+          date: row.flight.departure_date,
+          number: mapFlight(row).flight_number,
+        },
+      ];
     });
   },
 });

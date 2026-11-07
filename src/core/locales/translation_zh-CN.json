@@ -46,7 +46,11 @@
       "flightStatus": "请帮我查询航班状态。"
     },
     "suggestionTitle": "从这些问题开始",
-    "suggestions": ["出行前需要准备什么？", "如何查询航班状态？", "帮我查找航班"],
+    "suggestions": [
+      "出行前需要准备什么？",
+      "如何查询航班状态？",
+      "帮我查找航班"
+    ],
     "placeholder": "输入您的问题…",
     "send": "发送消息",
     "sending": "Veyra 正在思考…",

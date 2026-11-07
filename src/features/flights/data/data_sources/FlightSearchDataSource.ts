@@ -13,22 +13,28 @@ export const FlightSearchApiDataSourceImpl = (
   apiClient: AxiosInstance,
 ): FlightSearchDataSource => ({
   search: async (query) => {
-    const { data } = await apiClient.get<FlightSearchModel>(API_ROUTES.FLIGHT_SEARCH, {
-      params: {
-        origin: query.origin,
-        destination: query.destination,
-        departure_date: query.departureDate,
-        return_date: query.returnDate || undefined,
-        passengers: query.passengers,
-        cabin_class: query.cabinClass,
+    const { data } = await apiClient.get<FlightSearchModel>(
+      API_ROUTES.FLIGHT_SEARCH,
+      {
+        params: {
+          origin: query.origin,
+          destination: query.destination,
+          departure_date: query.departureDate,
+          return_date: query.returnDate || undefined,
+          passengers: query.passengers,
+          cabin_class: query.cabinClass,
+        },
       },
-    });
+    );
     return data;
   },
   featuredFlights: async (departureDate) => {
-    const { data } = await apiClient.get<{ flights: FeaturedFlight[] }>(API_ROUTES.FEATURED_FLIGHTS, {
-      params: { departure_date: departureDate },
-    });
+    const { data } = await apiClient.get<{ flights: FeaturedFlight[] }>(
+      API_ROUTES.FEATURED_FLIGHTS,
+      {
+        params: { departure_date: departureDate },
+      },
+    );
     return data.flights;
   },
 });

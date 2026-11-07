@@ -5,6 +5,8 @@ import { DemoPaymentWebhookRepositoryImpl } from "../data/repositories/DemoPayme
 import { applyDemoPaymentWebhookUseCase } from "../domain/useCases/applyDemoPaymentWebhookUseCase";
 
 export function createServerDemoPaymentWebhook() {
-  const repository = DemoPaymentWebhookRepositoryImpl(createSupabaseDemoPaymentWebhookDataSource(createSupabaseAdminClient()));
+  const repository = DemoPaymentWebhookRepositoryImpl(
+    createSupabaseDemoPaymentWebhookDataSource(createSupabaseAdminClient()),
+  );
   return applyDemoPaymentWebhookUseCase(repository);
 }

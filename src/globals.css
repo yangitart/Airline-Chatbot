@@ -4,35 +4,35 @@
 
 @layer base {
   @font-face {
-    font-family: 'Roboto';
-    src: url('/fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+    font-family: "Roboto";
+    src: url("/fonts/Roboto/Roboto-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
   }
 
   @font-face {
-    font-family: 'Rubik';
-    src: url('/fonts/Rubik/Rubik-VariableFont_wght.ttf') format('truetype');
+    font-family: "Rubik";
+    src: url("/fonts/Rubik/Rubik-VariableFont_wght.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
   }
 
   body {
-    font-family: 'Rubik', 'Roboto', sans-serif;
+    font-family: "Rubik", "Roboto", sans-serif;
   }
 
-  input[type='password']::-ms-reveal,
-  input[type='password']::-ms-clear {
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
     display: none !important;
   }
 
-  input[type='number'] {
+  input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
   }
 
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
@@ -40,8 +40,8 @@
 
 @layer components {
   /* Shared HeroUI slot styling for legacy admin components. */
-  [data-slot='input-wrapper'],
-  [data-slot='bg-content1'] {
+  [data-slot="input-wrapper"],
+  [data-slot="bg-content1"] {
     border-radius: 5px !important;
     border-width: 1px !important;
   }

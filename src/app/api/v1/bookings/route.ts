@@ -1,10 +1,14 @@
 import { isLeft } from "fp-ts/Either";
-import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/src/core/api/supabase/server";
+import { NextRequest } from "next/server";
+import { createAuthenticatedSupabaseContext } from "@/src/core/api/supabase/authenticatedRequest";
+import { jsonError, jsonResponse } from "@/src/core/api/http/jsonResponse";
 import { createServerBookings } from "@/src/features/bookings/ioc/serverBookings";
 import type { CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
 import type { Booking } from "@/src/features/bookings/domain/models/Booking";
-import { bookingUuidPattern, resolveBookingRequestKey } from "@/src/features/bookings/data/http/bookingRequestKey";
+import {
+  bookingUuidPattern,
+  resolveBookingRequestKey,
+} from "@/src/features/bookings/data/http/bookingRequestKey";
 
 function serializeBooking(booking: Booking) {
   return {
@@ -18,7 +22,12 @@ function serializeBooking(booking: Booking) {
     currency: booking.currency,
     status: booking.status,
     payment_status: booking.paymentStatus,
-    demo_checkins: booking.checkIns.map((checkin) => ({ flight_leg: checkin.flightLeg, checked_in_at: checkin.checkedInAt, demo_seat: checkin.demoSeat, demo_boarding_pass_reference: checkin.boardingPassReference })),
+    demo_checkins: booking.checkIns.map((checkin) => ({
+      flight_leg: checkin.flightLeg,
+      checked_in_at: checkin.checkedInAt,
+      demo_seat: checkin.demoSeat,
+      demo_boarding_pass_reference: checkin.boardingPassReference,
+    })),
     is_demo: true as const,
     itinerary_snapshot: booking.itinerarySnapshot,
     flight_order_payload: booking.flightOrderPayload,
@@ -27,47 +36,79 @@ function serializeBooking(booking: Booking) {
 }
 
 export async function GET() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return NextResponse.json({ detail: "Sign in to view your trips." }, { status: 401 });
+  const { supabase, user } = await createAuthenticatedSupabaseContext();
+  if (!user) return jsonError("Sign in to view your trips.", 401);
 
   const { listMyBookings } = createServerBookings(supabase);
   const result = await listMyBookings.execute();
-  if (isLeft(result)) return NextResponse.json({ detail: "Trips are temporarily unavailable." }, { status: 500 });
-  return NextResponse.json(result.right.map(serializeBooking));
+  if (isLeft(result))
+    return jsonError("Trips are temporarily unavailable.", 500);
+  return jsonResponse(result.right.map(serializeBooking));
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return NextResponse.json({ detail: "Sign in before saving your booking." }, { status: 401 });
+  const { supabase, user } = await createAuthenticatedSupabaseContext();
+  if (!user) return jsonError("Sign in before saving your booking.", 401);
 
-  let body: { flight_instance_id?: unknown; return_flight_instance_id?: unknown; cabin_class?: unknown; passenger_count?: unknown; expected_outbound_fare_minor?: unknown; expected_return_fare_minor?: unknown; idempotency_key?: unknown };
+  let body: {
+    flight_instance_id?: unknown;
+    return_flight_instance_id?: unknown;
+    cabin_class?: unknown;
+    passenger_count?: unknown;
+    expected_outbound_fare_minor?: unknown;
+    expected_return_fare_minor?: unknown;
+    idempotency_key?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ detail: "Invalid request body." }, { status: 400 });
+    return jsonError("Invalid request body.", 400);
   }
 
-  if (!body || typeof body !== "object") return NextResponse.json({ detail: "Invalid request body." }, { status: 400 });
-  const requestKey = request.headers.get("Idempotency-Key") ?? body.idempotency_key;
+  if (!body || typeof body !== "object")
+    return jsonError("Invalid request body.", 400);
+  const requestKey =
+    request.headers.get("Idempotency-Key") ?? body.idempotency_key;
   const flightInstanceId = body.flight_instance_id;
   const returnFlightInstanceId = body.return_flight_instance_id ?? undefined;
   const cabinClass = body.cabin_class;
   const passengerCount = body.passenger_count;
   const expectedOutboundFareMinor = body.expected_outbound_fare_minor;
   const expectedReturnFareMinor = body.expected_return_fare_minor ?? undefined;
-  if (typeof flightInstanceId !== "string" || !bookingUuidPattern.test(flightInstanceId)
-    || (returnFlightInstanceId !== undefined && (typeof returnFlightInstanceId !== "string" || !bookingUuidPattern.test(returnFlightInstanceId)))
-    || typeof cabinClass !== "string" || !["economy", "premium-economy", "business", "first"].includes(cabinClass)
-    || typeof passengerCount !== "number" || !Number.isInteger(passengerCount) || passengerCount < 1 || passengerCount > 9
-    || typeof expectedOutboundFareMinor !== "number" || !Number.isInteger(expectedOutboundFareMinor) || expectedOutboundFareMinor < 1
-    || (expectedReturnFareMinor !== undefined && (typeof expectedReturnFareMinor !== "number" || !Number.isInteger(expectedReturnFareMinor) || expectedReturnFareMinor < 1))
-    || (returnFlightInstanceId === undefined) !== (expectedReturnFareMinor === undefined)) {
-    return NextResponse.json({ detail: "Choose a valid flight, cabin, passenger count, and fare." }, { status: 422 });
+  if (
+    typeof flightInstanceId !== "string" ||
+    !bookingUuidPattern.test(flightInstanceId) ||
+    (returnFlightInstanceId !== undefined &&
+      (typeof returnFlightInstanceId !== "string" ||
+        !bookingUuidPattern.test(returnFlightInstanceId))) ||
+    typeof cabinClass !== "string" ||
+    !["economy", "premium-economy", "business", "first"].includes(cabinClass) ||
+    typeof passengerCount !== "number" ||
+    !Number.isInteger(passengerCount) ||
+    passengerCount < 1 ||
+    passengerCount > 9 ||
+    typeof expectedOutboundFareMinor !== "number" ||
+    !Number.isInteger(expectedOutboundFareMinor) ||
+    expectedOutboundFareMinor < 1 ||
+    (expectedReturnFareMinor !== undefined &&
+      (typeof expectedReturnFareMinor !== "number" ||
+        !Number.isInteger(expectedReturnFareMinor) ||
+        expectedReturnFareMinor < 1)) ||
+    (returnFlightInstanceId === undefined) !==
+      (expectedReturnFareMinor === undefined)
+  ) {
+    return jsonError(
+      "Choose a valid flight, cabin, passenger count, and fare.",
+      422,
+    );
   }
-  const idempotencyKey = resolveBookingRequestKey(requestKey, flightInstanceId, returnFlightInstanceId);
-  if (!idempotencyKey) return NextResponse.json({ detail: "Choose a valid booking request ID." }, { status: 422 });
+  const idempotencyKey = resolveBookingRequestKey(
+    requestKey,
+    flightInstanceId,
+    returnFlightInstanceId,
+  );
+  if (!idempotencyKey)
+    return jsonError("Choose a valid booking request ID.", 422);
 
   const command: CreateDemoBookingCommand = {
     flightInstanceId,
@@ -83,24 +124,39 @@ export async function POST(request: NextRequest) {
   if (isLeft(result)) {
     const error = result.left;
     if (error.includes("inventory_changed")) {
-      return NextResponse.json({ detail: "Availability changed. Search again before booking." }, { status: 409 });
+      return jsonError(
+        "Availability changed. Search again before booking.",
+        409,
+      );
     }
     if (error.includes("fare_changed")) {
-      return NextResponse.json({ detail: "The fare changed. Review the current offer before booking." }, { status: 409 });
+      return jsonError(
+        "The fare changed. Review the current offer before booking.",
+        409,
+      );
     }
     if (error.includes("flight_unavailable")) {
-      return NextResponse.json({ detail: "That flight is no longer available." }, { status: 404 });
+      return jsonError("That flight is no longer available.", 404);
     }
-    return NextResponse.json({ detail: "The booking could not be saved." }, { status: 500 });
+    return jsonError("The booking could not be saved.", 500);
   }
 
   const booking = result.right;
-  const expectedTotal = (expectedOutboundFareMinor + (expectedReturnFareMinor ?? 0)) * passengerCount;
-  if (booking.flightInstanceId !== flightInstanceId.toLowerCase()
-    || booking.returnFlightInstanceId !== (returnFlightInstanceId?.toLowerCase() ?? null)
-    || booking.cabinClass !== cabinClass || booking.passengerCount !== passengerCount
-    || booking.totalFareMinor !== expectedTotal) {
-    return NextResponse.json({ detail: "This booking request already refers to a different itinerary or fare." }, { status: 409 });
+  const expectedTotal =
+    (expectedOutboundFareMinor + (expectedReturnFareMinor ?? 0)) *
+    passengerCount;
+  if (
+    booking.flightInstanceId !== flightInstanceId.toLowerCase() ||
+    booking.returnFlightInstanceId !==
+      (returnFlightInstanceId?.toLowerCase() ?? null) ||
+    booking.cabinClass !== cabinClass ||
+    booking.passengerCount !== passengerCount ||
+    booking.totalFareMinor !== expectedTotal
+  ) {
+    return jsonError(
+      "This booking request already refers to a different itinerary or fare.",
+      409,
+    );
   }
-  return NextResponse.json(serializeBooking(booking), { status: 201 });
+  return jsonResponse(serializeBooking(booking), { status: 201 });
 }

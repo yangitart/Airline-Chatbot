@@ -21,7 +21,10 @@ export const GoogleAuthenticationRepositoryImpl = (
       return ErrorData(error);
     }
   },
-  onAuthStateChange: (listener) => dataSource.onAuthStateChange((model) => listener(model ? mapGoogleUser(model) : null)),
+  onAuthStateChange: (listener) =>
+    dataSource.onAuthStateChange((model) =>
+      listener(model ? mapGoogleUser(model) : null),
+    ),
   signOut: async () => {
     try {
       await dataSource.signOut();

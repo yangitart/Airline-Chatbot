@@ -1,14 +1,14 @@
 import { Spinner } from "@heroui/react";
-import TextField from '@mui/material/TextField';
-import React from 'react';
-import { FormikValues } from 'formik';
-import { CheckIcon } from '@heroicons/react/16/solid';
+import TextField from "@mui/material/TextField";
+import React from "react";
+import { FormikValues } from "formik";
+import { CheckIcon } from "@heroicons/react/16/solid";
 
 export const componentsProps = {
   popper: {
     modifiers: [
       {
-        name: 'offset',
+        name: "offset",
         options: {
           offset: [0, 5],
         },
@@ -71,9 +71,9 @@ export function RenderAutoCompleteInput({
         },
         endAdornment: AutocompleteEndContent(isLoading, clearText, inputValue),
       }}
-      placeholder={placeholder ?? 'Buscar'}
+      placeholder={placeholder ?? "Buscar"}
       color={
-        form.touched[formKey] && form.errors[formKey] ? 'error' : 'primary'
+        form.touched[formKey] && form.errors[formKey] ? "error" : "primary"
       }
       error={
         form.touched[formKey] && form.errors[formKey]
@@ -93,7 +93,7 @@ export function RenderAutocompleteItem(
     <li
       {...props}
       className={`mx-2 my-1 flex cursor-pointer flex-row items-center justify-between rounded-lg p-2 text-black hover:bg-default
-              ${selected ? 'bg-default' : ''}
+              ${selected ? "bg-default" : ""}
             `}
     >
       {mapItem}

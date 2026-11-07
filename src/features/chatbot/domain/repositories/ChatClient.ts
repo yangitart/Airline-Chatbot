@@ -1,6 +1,12 @@
-import type { ChatConversation, ChatConversationSummary } from "../models/ChatHistory";
+import type {
+  ChatConversation,
+  ChatConversationSummary,
+} from "../models/ChatHistory";
 import type { GroundedChatResponse } from "../models/FaqChunk";
-import type { Booking, CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
+import type {
+  Booking,
+  CreateDemoBookingCommand,
+} from "@/src/features/bookings/domain/models/Booking";
 
 export interface ChatClient {
   listConversations(signal: AbortSignal): Promise<ChatConversationSummary[]>;
@@ -16,7 +22,10 @@ export interface ChatBookingClient {
   getBooking(bookingId: string, signal?: AbortSignal): Promise<Booking>;
   createBooking(command: CreateDemoBookingCommand): Promise<string>;
   createCheckout(bookingId: string): Promise<string>;
-  checkIn(bookingId: string, flightLeg: "outbound" | "return"): Promise<Booking["checkIns"][number]>;
+  checkIn(
+    bookingId: string,
+    flightLeg: "outbound" | "return",
+  ): Promise<Booking["checkIns"][number]>;
 }
 
 export class TripOperationError extends Error {

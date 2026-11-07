@@ -6,16 +6,19 @@ import { LoaderCircle, X } from "lucide-react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { useTranslation } from "react-i18next";
-import type { IUseCase } from "@/src/core/interfaces/IUseCase";
-import { injector } from "@/src/ioc/utils/injector";
-import { GoogleAuthenticationSymbols } from "../../ioc/GoogleAuthenticationSymbols";
-
-type SignInUseCase = IUseCase<void, Promise<import("fp-ts/Either").Either<string, string>>>;
+import { googleAuthenticationServices } from "../../ioc/googleAuthenticationServices";
 type AuthMode = "signin" | "signup";
 
-const focusStyle = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-forest";
+const focusStyle =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-forest";
 
-export function GoogleAuthModal({ onClose, onRedirect }: { onClose: () => void; onRedirect: () => void }) {
+export function GoogleAuthModal({
+  onClose,
+  onRedirect,
+}: {
+  onClose: () => void;
+  onRedirect: () => void;
+}) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -36,8 +39,7 @@ export function GoogleAuthModal({ onClose, onRedirect }: { onClose: () => void; 
     setBusy(true);
     setHasError(false);
     try {
-      const signIn = injector<SignInUseCase>(GoogleAuthenticationSymbols.signInUseCase);
-      const result = await signIn.execute();
+      const result = await googleAuthenticationServices.signIn.execute();
       // The traveler may dismiss the dialog while OAuth is being prepared.
       if (!dialogRef.current?.open) return;
       if (isLeft(result)) throw new Error(result.left);
@@ -74,9 +76,12 @@ export function GoogleAuthModal({ onClose, onRedirect }: { onClose: () => void; 
         event.preventDefault();
         dismiss();
       }}
-      onPointerDown={(event) => { pressedBackdrop.current = event.target === event.currentTarget; }}
+      onPointerDown={(event) => {
+        pressedBackdrop.current = event.target === event.currentTarget;
+      }}
       onClick={(event) => {
-        if (pressedBackdrop.current && event.target === event.currentTarget) dismiss();
+        if (pressedBackdrop.current && event.target === event.currentTarget)
+          dismiss();
       }}
     >
       <header className="bg-airline-forest-soft px-6 pb-6 pt-5 sm:px-8 sm:pb-7 sm:pt-6">
@@ -94,20 +99,40 @@ export function GoogleAuthModal({ onClose, onRedirect }: { onClose: () => void; 
             <X aria-hidden="true" size={19} />
           </button>
         </div>
-        <h2 className="mt-4 font-serif text-[clamp(1.75rem,6vw,2.125rem)] font-semibold leading-tight tracking-tight text-airline-forest" id={titleId}>
-          {t(signingIn ? "flightSearch.auth.welcome" : "flightSearch.auth.createAccount")}
+        <h2
+          className="mt-4 font-serif text-[clamp(1.75rem,6vw,2.125rem)] font-semibold leading-tight tracking-tight text-airline-forest"
+          id={titleId}
+        >
+          {t(
+            signingIn
+              ? "flightSearch.auth.welcome"
+              : "flightSearch.auth.createAccount",
+          )}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-airline-forest/85" id={descriptionId}>
-          {t(signingIn ? "flightSearch.auth.signInDescription" : "flightSearch.auth.signUpDescription")}
+        <p
+          className="mt-2 text-sm leading-6 text-airline-forest/85"
+          id={descriptionId}
+        >
+          {t(
+            signingIn
+              ? "flightSearch.auth.signInDescription"
+              : "flightSearch.auth.signUpDescription",
+          )}
         </p>
       </header>
 
       <div className="space-y-4 px-6 pb-6 pt-5 sm:px-8 sm:pb-7 sm:pt-6">
-        <div className="grid grid-cols-2 gap-1 rounded-xl bg-airline-canvas p-1" role="group" aria-label={t("flightSearch.auth.accountAccess")}>
-          {([
-            { value: "signin", label: t("flightSearch.nav.signIn") },
-            { value: "signup", label: t("flightSearch.auth.signUp") },
-          ] as const).map(({ value, label }) => (
+        <div
+          className="grid grid-cols-2 gap-1 rounded-xl bg-airline-canvas p-1"
+          role="group"
+          aria-label={t("flightSearch.auth.accountAccess")}
+        >
+          {(
+            [
+              { value: "signin", label: t("flightSearch.nav.signIn") },
+              { value: "signup", label: t("flightSearch.auth.signUp") },
+            ] as const
+          ).map(({ value, label }) => (
             <button
               key={value}
               className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-sm font-semibold leading-snug transition-colors disabled:opacity-60 ${focusStyle} ${mode === value ? "bg-white text-airline-forest shadow-sm" : "text-airline-forest/80 enabled:hover:text-airline-forest"}`}
@@ -131,18 +156,36 @@ export function GoogleAuthModal({ onClose, onRedirect }: { onClose: () => void; 
           disabled={busy}
           onClick={() => void startGoogleSignIn()}
         >
-          {busy
-            ? <LoaderCircle aria-hidden="true" className="size-5 shrink-0 motion-safe:animate-spin" />
-            : <FcGoogle aria-hidden="true" className="size-5 shrink-0" />}
-          <span className="leading-snug">{t(busy ? "flightSearch.auth.connecting" : "flightSearch.auth.continueGoogle")}</span>
+          {busy ? (
+            <LoaderCircle
+              aria-hidden="true"
+              className="size-5 shrink-0 motion-safe:animate-spin"
+            />
+          ) : (
+            <FcGoogle aria-hidden="true" className="size-5 shrink-0" />
+          )}
+          <span className="leading-snug">
+            {t(
+              busy
+                ? "flightSearch.auth.connecting"
+                : "flightSearch.auth.continueGoogle",
+            )}
+          </span>
         </button>
-        <span className="sr-only" role="status">{busy ? t("flightSearch.auth.connecting") : ""}</span>
+        <span className="sr-only" role="status">
+          {busy ? t("flightSearch.auth.connecting") : ""}
+        </span>
         {hasError && (
-          <p className="rounded-lg bg-airline-garnet/10 px-3 py-2.5 text-sm leading-snug text-airline-garnet" role="alert">
+          <p
+            className="rounded-lg bg-airline-garnet/10 px-3 py-2.5 text-sm leading-snug text-airline-garnet"
+            role="alert"
+          >
             {t("flightSearch.errors.signInFailed")}
           </p>
         )}
-        <p className="text-center text-xs leading-5 text-airline-muted">{t("flightSearch.auth.terms")}</p>
+        <p className="text-center text-xs leading-5 text-airline-muted">
+          {t("flightSearch.auth.terms")}
+        </p>
       </div>
     </dialog>
   );

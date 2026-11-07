@@ -6,13 +6,16 @@ const RELOAD_KEY = "airline-chatbot:last-chunk-reload";
 const RELOAD_COOLDOWN_MS = 60_000;
 
 function isChunkLoadFailure(value: unknown): boolean {
-  const message = value instanceof Error
-    ? value.message
-    : typeof value === "string"
-      ? value
-      : "";
+  const message =
+    value instanceof Error
+      ? value.message
+      : typeof value === "string"
+        ? value
+        : "";
 
-  return /ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(message);
+  return /ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+    message,
+  );
 }
 
 export default function ChunkErrorReloader() {
@@ -31,8 +34,10 @@ export default function ChunkErrorReloader() {
       window.location.reload();
     };
 
-    const handleError = (event: ErrorEvent) => reloadOnce(event.error ?? event.message);
-    const handleRejection = (event: PromiseRejectionEvent) => reloadOnce(event.reason);
+    const handleError = (event: ErrorEvent) =>
+      reloadOnce(event.error ?? event.message);
+    const handleRejection = (event: PromiseRejectionEvent) =>
+      reloadOnce(event.reason);
 
     window.addEventListener("error", handleError);
     window.addEventListener("unhandledrejection", handleRejection);

@@ -32,13 +32,15 @@
   height: 100%;
 }
 
-.farWave, .nearWave {
+.farWave,
+.nearWave {
   transform-box: fill-box;
   transform-origin: center;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .backdrop, .palette {
+  .backdrop,
+  .palette {
     transition: opacity 700ms ease-in-out;
   }
 

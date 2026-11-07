@@ -30,9 +30,21 @@ export type Booking = {
   passengerCount: number;
   totalFareMinor: number;
   currency: string;
-  status: "demo_saved" | "pending_payment" | "confirmed" | "failed" | "expired" | "cancelled" | "checked_in";
+  status:
+    | "demo_saved"
+    | "pending_payment"
+    | "confirmed"
+    | "failed"
+    | "expired"
+    | "cancelled"
+    | "checked_in";
   paymentStatus: "unpaid" | "checkout_pending" | "paid" | "failed";
-  checkIns: Array<{ flightLeg: "outbound" | "return"; checkedInAt: string; demoSeat: string; boardingPassReference: string }>;
+  checkIns: Array<{
+    flightLeg: "outbound" | "return";
+    checkedInAt: string;
+    demoSeat: string;
+    boardingPassReference: string;
+  }>;
   isDemo: true;
   itinerarySnapshot: {
     outbound: BookedOfferSnapshot;
@@ -46,4 +58,3 @@ export type Booking = {
   flightOrderPayload: unknown;
   createdAt: string;
 };
-

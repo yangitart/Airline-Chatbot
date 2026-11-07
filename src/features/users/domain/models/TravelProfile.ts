@@ -7,4 +7,7 @@ export type TravelProfile = {
   updatedAt: string;
 };
 
-export type UpdateTravelProfileCommand = Pick<TravelProfile, "displayName" | "phone" | "preferredLanguage">;
+export type UpdateTravelProfileCommand = Pick<
+  TravelProfile,
+  "displayName" | "phone" | "preferredLanguage"
+>;

@@ -10,14 +10,23 @@ export type ChatBookingChoice = {
 
 export const MAX_CHAT_ACTIONS = 4;
 
-type ChatFlightStatus = Pick<FlightStatusLookup, "flightNumber" | "flightDate" | "status" | "isDemo" | "updatedAt" | "schedule"> & {
+type ChatFlightStatus = Pick<
+  FlightStatusLookup,
+  "flightNumber" | "flightDate" | "status" | "isDemo" | "updatedAt" | "schedule"
+> & {
   departureTimeZone?: string;
   arrivalTimeZone?: string;
 };
 
 export type ChatActionResult =
-  | { type: "flight_search_results"; actionId: string; data: FlightSearchResult }
+  | {
+      type: "flight_search_results";
+      actionId: string;
+      data: FlightSearchResult;
+    }
   | { type: "booking_results"; data: ChatBookingChoice[] }
   | { type: "flight_status_result"; data: ChatFlightStatus };
 
-export type ChatAction = ChatActionResult | { type: "action_group"; data: ChatActionResult[] };
+export type ChatAction =
+  | ChatActionResult
+  | { type: "action_group"; data: ChatActionResult[] };

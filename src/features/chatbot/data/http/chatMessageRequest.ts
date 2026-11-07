@@ -2,7 +2,8 @@ import { isSupportedLanguage } from "@/src/core/locales/supportedLanguages";
 import { ChatError } from "../../domain/models/ChatError";
 
 const MAX_BODY_BYTES = 16_384;
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function isConversationId(value: unknown): value is string {
   return typeof value === "string" && uuidPattern.test(value);
@@ -37,10 +38,19 @@ export async function readChatMessageRequest(request: Request) {
     reader.releaseLock();
   }
 
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new ChatError("invalid_request");
-  const { conversation_id, message, language } = payload as Record<string, unknown>;
-  if (conversation_id !== undefined && !isConversationId(conversation_id)) throw new ChatError("invalid_request");
-  if (typeof message !== "string" || !message.trim() || !isSupportedLanguage(language)) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload))
+    throw new ChatError("invalid_request");
+  const { conversation_id, message, language } = payload as Record<
+    string,
+    unknown
+  >;
+  if (conversation_id !== undefined && !isConversationId(conversation_id))
+    throw new ChatError("invalid_request");
+  if (
+    typeof message !== "string" ||
+    !message.trim() ||
+    !isSupportedLanguage(language)
+  ) {
     throw new ChatError("invalid_request");
   }
   if (message.length > 2000) throw new ChatError("message_too_long");

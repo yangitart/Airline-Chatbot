@@ -12,7 +12,10 @@ function LanguageSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem("airline-language");
-    if (isSupportedLanguage(savedLanguage) && savedLanguage !== i18n.resolvedLanguage) {
+    if (
+      isSupportedLanguage(savedLanguage) &&
+      savedLanguage !== i18n.resolvedLanguage
+    ) {
       void i18n.changeLanguage(savedLanguage);
     }
     document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language;

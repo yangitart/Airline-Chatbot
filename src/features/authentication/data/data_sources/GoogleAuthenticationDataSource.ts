@@ -6,7 +6,9 @@ import { GoogleUserModel } from "../models/GoogleUserModel";
 export interface GoogleAuthenticationDataSource {
   signIn(): Promise<string>;
   currentUser(): Promise<GoogleUserModel | null>;
-  onAuthStateChange(listener: (user: GoogleUserModel | null) => void): () => void;
+  onAuthStateChange(
+    listener: (user: GoogleUserModel | null) => void,
+  ): () => void;
   signOut(): Promise<void>;
 }
 
@@ -18,8 +20,18 @@ function mapSupabaseUser(user: User): GoogleUserModel {
   return {
     id: user.id,
     email: user.email ?? "",
-    name: typeof fullName === "string" ? fullName : typeof displayName === "string" ? displayName : "",
-    picture: typeof avatarUrl === "string" ? avatarUrl : typeof picture === "string" ? picture : "",
+    name:
+      typeof fullName === "string"
+        ? fullName
+        : typeof displayName === "string"
+          ? displayName
+          : "",
+    picture:
+      typeof avatarUrl === "string"
+        ? avatarUrl
+        : typeof picture === "string"
+          ? picture
+          : "",
   };
 }
 
@@ -28,14 +40,21 @@ export const GoogleAuthenticationDataSourceImpl = (
 ): GoogleAuthenticationDataSource => ({
   signIn: async () => {
     const supabase = createSupabaseClient();
-    const callbackUrl = new URL(APP_ROUTES.GOOGLE_AUTH_CALLBACK, window.location.origin);
+    const callbackUrl = new URL(
+      APP_ROUTES.GOOGLE_AUTH_CALLBACK,
+      window.location.origin,
+    );
     callbackUrl.searchParams.set("next", APP_ROUTES.HOME + "?signedIn=1");
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: callbackUrl.toString(), skipBrowserRedirect: true },
+      options: {
+        redirectTo: callbackUrl.toString(),
+        skipBrowserRedirect: true,
+      },
     });
     if (error) throw error;
-    if (!data.url) throw new Error("Supabase did not return a Google OAuth URL.");
+    if (!data.url)
+      throw new Error("Supabase did not return a Google OAuth URL.");
     return data.url;
   },
   currentUser: async () => {
@@ -46,7 +65,9 @@ export const GoogleAuthenticationDataSourceImpl = (
   },
   onAuthStateChange: (listener) => {
     const supabase = createSupabaseClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       listener(session?.user ? mapSupabaseUser(session.user) : null);
     });
     return () => subscription.unsubscribe();

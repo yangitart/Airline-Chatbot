@@ -1,5 +1,7 @@
 /** Display helpers used by the legacy Formik input adapters. */
-export function formatNumber(value: number | string | null | undefined): string {
+export function formatNumber(
+  value: number | string | null | undefined,
+): string {
   if (value === null || value === undefined || value === "") return "";
   const normalized = String(value).trim().replace(/,/g, "");
   return normalized.replace(/\B(?=(\d{3})+(?!\d))/g, ",");

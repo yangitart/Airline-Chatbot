@@ -1,8 +1,13 @@
 import { createHash } from "node:crypto";
 
-export const bookingUuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const bookingUuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export function resolveBookingRequestKey(value: unknown, outboundId: string, returnId?: string): string | undefined {
+export function resolveBookingRequestKey(
+  value: unknown,
+  outboundId: string,
+  returnId?: string,
+): string | undefined {
   if (typeof value !== "string") return;
   if (bookingUuidPattern.test(value)) return value;
   if (!value.startsWith("chat:")) return;

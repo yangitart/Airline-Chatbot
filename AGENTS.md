@@ -17,6 +17,7 @@
 - src/features/<feature>: vertical slices with data, domain, ui, and ioc layers.
 - src/ioc: Inversify composition root and common dependency wiring.
 - specs: product vision, constitution, SDD workflow, and feature specifications.
+- Keep automated tests outside `src/`, under `tests/features/<feature>/...`, preserving the tested feature's layer structure. Import application code through the `@/src/...` alias so moving tests does not break module paths.
 
 ## Frontend conventions
 
@@ -51,7 +52,7 @@
 - Do not restore the old JWT token/refresh-cookie service; Supabase SSR owns auth session storage and refresh.
 - Route Handlers in app/api are the Next.js server boundary for app-specific logic. Keep them thin and put orchestration/data access in feature data sources and use cases.
 - A Route Handler validates/parses transport input, creates the server-side feature use case, and serializes the result. Keep mock fixtures, database queries, and business rules out of route.ts.
-- Server repositories/data sources live under the owning feature's data layer. Use a request-bound Supabase server client for user-scoped queries; never cache a cookie-bound client in a global singleton.
+- Server repositories/data sources live under the owning feature's data layer. Use a request-bound Supabase server client for user-scoped queries; never cache a cookie-bound client in a global singleton. Route Handlers that require a signed-in user should get the client and verified user from `createAuthenticatedSupabaseContext`; routes return JSON through `jsonResponse`/`jsonError` in `src/core/api/http/jsonResponse.ts` so response shapes stay consistent.
 - Keep domain repository interfaces free of Inversify imports. The ioc layer performs composition; client composition and request-scoped server composition are separate.
 - The repository root is the Next.js app; deploy it to Vercel. Supabase supplies Auth and Postgres. Do not add a separate FastAPI service or Railway deployment.
 
@@ -61,8 +62,8 @@
 - Data repositories implement domain interfaces and convert transport errors using core/api response helpers.
 - UI calls domain use cases, not fetch/Axios/Supabase directly.
 - Register feature data sources, repositories, and use cases in the feature's ioc module. Register that module in src/ioc/application.container.ts after shared network/Supabase dependencies.
-- Use src/ioc/utils/applyDependencies and injector consistently; avoid direct construction of repositories in views.
-- The root Inversify container is the client composition root. Server Route Handlers may use a feature server factory to compose request-side use cases/repositories; create cookie-bound Supabase clients per request and never store them in the global container.
+- Compose dependencies in the feature ioc layer with applyDependencies and Inversify. Export resolved feature services from feature ioc/*Services.ts facades; UI components consume those exports and must not call injector or access the application container directly.
+- The root Inversify container is the client composition root. Server Route Handlers may use a feature server factory to compose request-side use cases/repositories; create cookie-bound Supabase clients once per request and pass that instance into the feature server factory. Do not put the cookie-bound client in the global container: each request carries its own cookies and user session. A request-scoped Inversify container is possible, but should only be introduced if it materially simplifies composition; it does not replace per-request client creation. Keep HTTP JSON serialization in the shared response helpers.
 - The active flight Route Handler delegates to a server use case and a request-bound Supabase data source. `supabase/seed.sql` supplies demo inventory; it must remain labeled demo until a live provider is configured.
 - Chat generation and embedding calls are server-side adapters under `features/chatbot`; use the same Gemini embedding model and dimensions for indexing and retrieval. Keep prompt/tool orchestration, SSE streaming, citations, selected-language enforcement, and history persistence in the feature's domain/data layers.
 - Chat routes authenticate through the feature's request factory and reuse one cookie-aware Supabase client per request. The panel uses the injected chat API client for SSE and history. Return stable chat error codes in HTTP and SSE responses, and exclude message content and raw dependency errors from logs.

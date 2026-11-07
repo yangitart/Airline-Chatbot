@@ -19,7 +19,10 @@ export function BaseButton({
   }[variant];
 
   return (
-    <button className={`inline-flex items-center justify-center gap-[10px] font-[inherit] enabled:cursor-pointer disabled:cursor-wait disabled:opacity-65 ${variantClasses} ${className}`.trim()} {...props}>
+    <button
+      className={`inline-flex items-center justify-center gap-[10px] font-[inherit] enabled:cursor-pointer disabled:cursor-wait disabled:opacity-65 ${variantClasses} ${className}`.trim()}
+      {...props}
+    >
       {leadingIcon}
       {children}
     </button>

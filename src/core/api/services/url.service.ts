@@ -10,7 +10,10 @@ export interface Query {
 interface CreateEndpointProps {
   version: number;
   basePath: string;
-  queryParams?: Record<string, string | string[] | number | boolean | null | undefined>;
+  queryParams?: Record<
+    string,
+    string | string[] | number | boolean | null | undefined
+  >;
   filters?: string;
   queryFields?: string;
 }
@@ -33,7 +36,8 @@ export function generateUrl(path: string, version: number): string {
 
   const normalizedPath = path.replace(/^\/+/, "");
   if (normalizedPath.startsWith("api/")) return `/${normalizedPath}`;
-  if (normalizedPath.startsWith(`v${version}/`)) return `/api/${normalizedPath}`;
+  if (normalizedPath.startsWith(`v${version}/`))
+    return `/api/${normalizedPath}`;
   return `/api/v${version}/${normalizedPath}`;
 }
 
@@ -43,7 +47,10 @@ export function buildQueryParams(
   if (!params) return "";
   const query = Object.entries(params)
     .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value as string | number | boolean)}`)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string | number | boolean)}`,
+    )
     .join("&");
   return query ? `?${query}` : "";
 }

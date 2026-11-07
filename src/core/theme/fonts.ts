@@ -1,3 +1,3 @@
 export enum FONT_COLORS {
-  SECONDARY = '#51596C',
+  SECONDARY = "#51596C",
 }

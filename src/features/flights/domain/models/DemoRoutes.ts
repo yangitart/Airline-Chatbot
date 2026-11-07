@@ -1,8 +1,19 @@
-export const DEMO_AIRPORT_CODES = ["DEL", "BOM", "BLR", "MAA", "HYD", "LHR", "SIN"] as const;
+export const DEMO_AIRPORT_CODES = [
+  "DEL",
+  "BOM",
+  "BLR",
+  "MAA",
+  "HYD",
+  "LHR",
+  "SIN",
+] as const;
 export type DemoAirportCode = (typeof DEMO_AIRPORT_CODES)[number];
 
 /** Only route pairs present in the seeded demo inventory. */
-export const DEMO_ROUTE_PAIRS: ReadonlyArray<{ origin: DemoAirportCode; destination: DemoAirportCode }> = [
+export const DEMO_ROUTE_PAIRS: ReadonlyArray<{
+  origin: DemoAirportCode;
+  destination: DemoAirportCode;
+}> = [
   { origin: "DEL", destination: "BOM" },
   { origin: "DEL", destination: "LHR" },
   { origin: "DEL", destination: "SIN" },

@@ -24,7 +24,10 @@ export function isChatErrorCode(value: unknown): value is ChatErrorCode {
 }
 
 export class ChatError extends Error {
-  constructor(public readonly code: ChatErrorCode, cause?: unknown) {
+  constructor(
+    public readonly code: ChatErrorCode,
+    cause?: unknown,
+  ) {
     super(code, { cause });
     this.name = "ChatError";
   }

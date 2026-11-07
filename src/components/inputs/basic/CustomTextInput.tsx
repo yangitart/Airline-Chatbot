@@ -69,9 +69,8 @@ const CustomTextInput = ({
   noValidate,
   dataCy,
 }: CustomTextInputProps) => {
-
   function getValueForType(value: string) {
-    if (!value) return ""; 
+    if (!value) return "";
 
     switch (inputType) {
       case "text":
@@ -145,8 +144,8 @@ const CustomTextInput = ({
           inputType === "phone"
             ? 10
             : inputType === "bankAccount"
-            ? 16
-            : (maxLength ?? maxLength)
+              ? 16
+              : (maxLength ?? maxLength)
         }
         startContent={
           inputType === "phone" ? (
@@ -164,8 +163,8 @@ const CustomTextInput = ({
           error
             ? error
             : form.touched[formKey] && form.errors[formKey]
-            ? (form.errors[formKey] as React.ReactNode)
-            : undefined
+              ? (form.errors[formKey] as React.ReactNode)
+              : undefined
         }
         isInvalid={!!(form.touched[formKey] && form.errors[formKey])}
         type={type}
@@ -175,8 +174,8 @@ const CustomTextInput = ({
           inputType === "phone"
             ? PHONE_PLACEHOLDER
             : inputType === "bankAccount"
-            ? BANK_ACCOUNT_PLACEHOLDER
-            : (placeholder ?? placeholder)
+              ? BANK_ACCOUNT_PLACEHOLDER
+              : (placeholder ?? placeholder)
         }
       />
     </div>
@@ -184,4 +183,3 @@ const CustomTextInput = ({
 };
 
 export default CustomTextInput;
-

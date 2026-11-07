@@ -1,17 +1,17 @@
 import { Input } from "@heroui/react";
-import React from 'react';
-import * as Yup from 'yup';
-import { FormikValues } from 'formik';
-import { PHONE_PLACEHOLDER } from '@/src/components/inputs/const/placeholder'; // Validación del formato específico para el teléfono
+import React from "react";
+import * as Yup from "yup";
+import { FormikValues } from "formik";
+import { PHONE_PLACEHOLDER } from "@/src/components/inputs/const/placeholder"; // Validación del formato específico para el teléfono
 
 // Validación del formato específico para el teléfono
 export const phoneValidation = Yup.string()
-  .required('Campo requerido')
-  .matches(/^\+53 5 \d{3} \d{4}$/, 'Formato incorrecto');
+  .required("Campo requerido")
+  .matches(/^\+53 5 \d{3} \d{4}$/, "Formato incorrecto");
 
 export function formatPhone(value: string | null) {
   if (value) {
-    return value.replace(/^(\d{1,4})(\d{3})(\d{4})$/, '+53 $1 $2 $3');
+    return value.replace(/^(\d{1,4})(\d{3})(\d{4})$/, "+53 $1 $2 $3");
   }
 }
 
@@ -53,7 +53,7 @@ export const CustomPhoneInput = ({
   // Función para formatear el valor por defecto si existe
   const formattedDefaultValue = form.values[formKey]
     ? formatPhone(form.values[formKey])
-    : '';
+    : "";
 
   // Función para manejar el cambio en el input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ export const CustomPhoneInput = ({
         maxLength={8}
         onBlur={form.handleBlur}
         color={
-          form.touched[formKey] && form.errors[formKey] ? 'danger' : 'primary'
+          form.touched[formKey] && form.errors[formKey] ? "danger" : "primary"
         }
         errorMessage={
           form.touched[formKey] && form.errors[formKey]

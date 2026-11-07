@@ -2,7 +2,9 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { DemoCheckoutEvent } from "../../domain/repositories/DemoPaymentWebhookRepository";
 
-export function createSupabaseDemoPaymentWebhookDataSource(supabase: SupabaseClient) {
+export function createSupabaseDemoPaymentWebhookDataSource(
+  supabase: SupabaseClient,
+) {
   return {
     apply: async (event: DemoCheckoutEvent) => {
       const { data, error } = await supabase.rpc("apply_demo_checkout_event", {

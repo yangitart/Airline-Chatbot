@@ -1,26 +1,49 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUp, BriefcaseBusiness, Check, History, LoaderCircle, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
+import {
+  ArrowUp,
+  BriefcaseBusiness,
+  Check,
+  History,
+  LoaderCircle,
+  Luggage,
+  MessageCircle,
+  Minus,
+  Plane,
+  Plus,
+  RotateCcw,
+  Sparkles,
+  TicketCheck,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { useTravelShell } from "@/src/components/layout/TravelShellContext";
 import { supportedLanguages } from "@/src/core/locales/supportedLanguages";
-import { injector } from "@/src/ioc/utils/injector";
 import { ChatError, type ChatErrorCode } from "../../domain/models/ChatError";
 import type { ChatConversationSummary } from "../../domain/models/ChatHistory";
 import type { GroundedChatResponse } from "../../domain/models/FaqChunk";
-import type { ChatClient } from "../../domain/repositories/ChatClient";
-import { CHAT_CLIENT } from "../../ioc/ChatModule";
+import { chatServices } from "../../ioc/chatServices";
 import type { ChatMessage } from "../../domain/models/ChatMessage";
 import { ChatActionCards } from "./TripActionCards";
 import styles from "./TravelAssistantWidget.module.css";
 
-type DisplayMessage = ChatMessage & { id: string } & Partial<Pick<GroundedChatResponse, "sources" | "action">>;
+type DisplayMessage = ChatMessage & { id: string } & Partial<
+    Pick<GroundedChatResponse, "sources" | "action">
+  >;
 
 const errorKeys: Partial<Record<ChatErrorCode, string>> = {
   auth_required: "chatbot.authRequired",
@@ -42,28 +65,51 @@ function chatErrorCode(error: unknown, fallback: ChatErrorCode): ChatErrorCode {
 
 const promptKeys = ["prepare", "flightStatus", "findFlight"] as const;
 const promptIcons = [Sparkles, Plane, TicketCheck] as const;
-const topicKeys = ["newBooking", "manageBooking", "checkIn", "baggage", "flightStatus"] as const;
-const topicIcons = [Plane, BriefcaseBusiness, TicketCheck, Luggage, RotateCcw] as const;
+const topicKeys = [
+  "newBooking",
+  "manageBooking",
+  "checkIn",
+  "baggage",
+  "flightStatus",
+] as const;
+const topicIcons = [
+  Plane,
+  BriefcaseBusiness,
+  TicketCheck,
+  Luggage,
+  RotateCcw,
+] as const;
 const ASSISTANT_GREETING_STORAGE_KEY = "veyra-assistant-greeting-seen";
+const FAQ_GREETING_STORAGE_KEY = "veyra-faq-assistant-greeting-seen";
 const ASSISTANT_GREETING_DURATION_MS = 4_500;
 const ASSISTANT_GREETING_FADE_MS = 220;
 
 function newId() {
-  return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random()}`;
 }
 
 export function TravelAssistantWidget() {
   const pathname = usePathname();
   const { t, i18n } = useTranslation();
-  const selectedLanguage = supportedLanguages.find((language) => language.code === i18n.resolvedLanguage) ?? supportedLanguages[0];
+  const selectedLanguage =
+    supportedLanguages.find(
+      (language) => language.code === i18n.resolvedLanguage,
+    ) ?? supportedLanguages[0];
   const { user, authLoading, openSignIn } = useTravelShell();
-  const [client] = useState(() => injector<ChatClient>(CHAT_CLIENT));
+  const client = chatServices.client;
   const previousUserId = useRef(user?.id ?? null);
   const [open, setOpen] = useState(false);
-  const [assistantGreetingPhase, setAssistantGreetingPhase] = useState<"hidden" | "visible" | "fading">("hidden");
+  const [assistantGreetingPhase, setAssistantGreetingPhase] = useState<
+    "hidden" | "visible" | "fading"
+  >("hidden");
+  const [assistantGreetingCycle, setAssistantGreetingCycle] = useState(0);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
-  const [conversations, setConversations] = useState<ChatConversationSummary[]>([]);
+  const [conversations, setConversations] = useState<ChatConversationSummary[]>(
+    [],
+  );
   const [historyOpen, setHistoryOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -76,12 +122,20 @@ export function TravelAssistantWidget() {
   const endRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
+  const faqGreetingShown = useRef(false);
   const submitPromptRef = useRef<(prompt: string) => void>(() => undefined);
-  const assistantGreeting = assistantGreetingPhase === "visible" && !open
-    ? t("chatbot.assistantGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })
-    : "";
-  const showAssistantGreetingBubble = assistantGreetingPhase !== "hidden" && !open;
-  const activeReplyId = responding ? messages[messages.length - 1]?.id : undefined;
+  const assistantGreeting =
+    assistantGreetingPhase === "visible" && !open
+      ? t("chatbot.assistantGreeting", {
+          lngs: [selectedLanguage.code],
+          defaultValue: t("chatbot.welcome"),
+        })
+      : "";
+  const showAssistantGreetingBubble =
+    assistantGreetingPhase !== "hidden" && !open;
+  const activeReplyId = responding
+    ? messages[messages.length - 1]?.id
+    : undefined;
 
   useEffect(() => {
     try {
@@ -94,34 +148,81 @@ export function TravelAssistantWidget() {
   }, []);
 
   useEffect(() => {
+    const showFaqGreetingOnce = () => {
+      if (faqGreetingShown.current) return;
+      faqGreetingShown.current = true;
+      try {
+        if (window.sessionStorage.getItem(FAQ_GREETING_STORAGE_KEY)) return;
+        window.sessionStorage.setItem(FAQ_GREETING_STORAGE_KEY, "true");
+      } catch {
+        // Keep the FAQ greeting scoped to this mount when storage is unavailable.
+      }
+      setAssistantGreetingCycle((cycle) => cycle + 1);
+      setAssistantGreetingPhase("visible");
+    };
+
+    if (pathname.startsWith("/faqs/")) {
+      showFaqGreetingOnce();
+      return;
+    }
+    if (pathname !== "/") return;
+
+    const faqSection = document.getElementById("faqs");
+    if (!faqSection) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        showFaqGreetingOnce();
+        observer.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(faqSection);
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  useEffect(() => {
     if (assistantGreetingPhase !== "visible") return;
-    const timeout = window.setTimeout(() => setAssistantGreetingPhase("fading"), ASSISTANT_GREETING_DURATION_MS);
+    const timeout = window.setTimeout(
+      () => setAssistantGreetingPhase("fading"),
+      ASSISTANT_GREETING_DURATION_MS,
+    );
     return () => window.clearTimeout(timeout);
-  }, [assistantGreetingPhase]);
+  }, [assistantGreetingCycle, assistantGreetingPhase]);
 
   useEffect(() => {
     if (assistantGreetingPhase !== "fading") return;
-    const timeout = window.setTimeout(() => setAssistantGreetingPhase("hidden"), ASSISTANT_GREETING_FADE_MS);
+    const timeout = window.setTimeout(
+      () => setAssistantGreetingPhase("hidden"),
+      ASSISTANT_GREETING_FADE_MS,
+    );
     return () => window.clearTimeout(timeout);
   }, [assistantGreetingPhase]);
 
   const close = useCallback(() => {
-    setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+    setAssistantGreetingPhase((phase) =>
+      phase === "hidden" ? "hidden" : "fading",
+    );
     setOpen(false);
     setPendingDeleteId(null);
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
   const requestSignIn = useCallback(() => {
-    setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+    setAssistantGreetingPhase((phase) =>
+      phase === "hidden" ? "hidden" : "fading",
+    );
     launcherRef.current?.focus({ preventScroll: true });
     setOpen(false);
     openSignIn();
   }, [openSignIn]);
 
-  const registerSubmitPrompt = useCallback((submit: (prompt: string) => void) => {
-    submitPromptRef.current = submit;
-  }, []);
+  const registerSubmitPrompt = useCallback(
+    (submit: (prompt: string) => void) => {
+      submitPromptRef.current = submit;
+    },
+    [],
+  );
 
   const loadHistory = useCallback(async () => {
     if (!user) return;
@@ -149,10 +250,13 @@ export function TravelAssistantWidget() {
     return () => historyRequest.current?.abort();
   }, [loadHistory, open, historyOpen, user]);
 
-  useEffect(() => () => {
-    activeRequest.current?.abort();
-    historyRequest.current?.abort();
-  }, []);
+  useEffect(
+    () => () => {
+      activeRequest.current?.abort();
+      historyRequest.current?.abort();
+    },
+    [],
+  );
 
   const clearConversation = useCallback(() => {
     setConversationId(null);
@@ -186,7 +290,9 @@ export function TravelAssistantWidget() {
     if (!activeRequest.current) clearConversation();
   };
 
-  const changeConversation = async (run: (signal: AbortSignal) => Promise<void>) => {
+  const changeConversation = async (
+    run: (signal: AbortSignal) => Promise<void>,
+  ) => {
     if (activeRequest.current) return;
     const controller = new AbortController();
     activeRequest.current = controller;
@@ -205,14 +311,15 @@ export function TravelAssistantWidget() {
     }
   };
 
-  const openConversation = (id: string) => changeConversation(async (signal) => {
-    const conversation = await client.getConversation(id, signal);
-    signal.throwIfAborted();
-    setConversationId(conversation.id);
-    setMessages(conversation.messages.slice(-48));
-    setRequestError(null);
-    setHistoryOpen(false);
-  });
+  const openConversation = (id: string) =>
+    changeConversation(async (signal) => {
+      const conversation = await client.getConversation(id, signal);
+      signal.throwIfAborted();
+      setConversationId(conversation.id);
+      setMessages(conversation.messages.slice(-48));
+      setRequestError(null);
+      setHistoryOpen(false);
+    });
 
   const deleteConversation = async (id: string) => {
     if (activeRequest.current || changingConversation) return;
@@ -232,7 +339,9 @@ export function TravelAssistantWidget() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
       if (event.key === "Tab") {
-        const focusable = panelRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), textarea:not([disabled]), input:not([disabled]), a[href]");
+        const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), textarea:not([disabled]), input:not([disabled]), a[href]",
+        );
         if (!focusable?.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -248,7 +357,13 @@ export function TravelAssistantWidget() {
     window.addEventListener("keydown", onKeyDown);
     const oldOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("button:not([disabled]), textarea:not([disabled])")?.focus());
+    window.requestAnimationFrame(() =>
+      panelRef.current
+        ?.querySelector<HTMLElement>(
+          "button:not([disabled]), textarea:not([disabled])",
+        )
+        ?.focus(),
+    );
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = oldOverflow;
@@ -256,68 +371,101 @@ export function TravelAssistantWidget() {
   }, [close, open]);
 
   useEffect(() => {
-    if (open && !historyOpen) endRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
+    if (open && !historyOpen)
+      endRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
   }, [historyOpen, messages, open]);
 
-  const submitMessage = useCallback(async (values: { message: string }, helpers: { resetForm: () => void }) => {
-    const content = values.message.trim();
-    if (!content || activeRequest.current) return;
-    if (!user) {
-      requestSignIn();
-      return;
-    }
+  const submitMessage = useCallback(
+    async (values: { message: string }, helpers: { resetForm: () => void }) => {
+      const content = values.message.trim();
+      if (!content || activeRequest.current) return;
+      if (!user) {
+        requestSignIn();
+        return;
+      }
 
-    const controller = new AbortController();
-    activeRequest.current = controller;
-    const userMessage: DisplayMessage = { id: newId(), role: "user", content };
-    const assistantMessage: DisplayMessage = { id: newId(), role: "assistant", content: "" };
-    setMessages((current) => [...current, userMessage, assistantMessage]);
-    setRequestError(null);
-    setResponding(true);
-    let pendingText = "";
-    let pendingFrame: number | null = null;
+      const controller = new AbortController();
+      activeRequest.current = controller;
+      const userMessage: DisplayMessage = {
+        id: newId(),
+        role: "user",
+        content,
+      };
+      const assistantMessage: DisplayMessage = {
+        id: newId(),
+        role: "assistant",
+        content: "",
+      };
+      setMessages((current) => [...current, userMessage, assistantMessage]);
+      setRequestError(null);
+      setResponding(true);
+      let pendingText = "";
+      let pendingFrame: number | null = null;
 
-    try {
-      const result = await client.sendMessage(
-        { conversationId: conversationId ?? undefined, message: content, language: selectedLanguage.code },
-        {
-          signal: controller.signal,
-          onDelta: (delta) => {
-            pendingText += delta;
-            if (pendingFrame !== null) return;
-            pendingFrame = window.requestAnimationFrame(() => {
-              const text = pendingText;
-              pendingText = "";
-              pendingFrame = null;
-              if (controller.signal.aborted) return;
-              setMessages((current) => current.map((item) =>
-                item.id === assistantMessage.id ? { ...item, content: item.content + text } : item,
-              ));
-            });
+      try {
+        const result = await client.sendMessage(
+          {
+            conversationId: conversationId ?? undefined,
+            message: content,
+            language: selectedLanguage.code,
           },
-        },
-      );
-      controller.signal.throwIfAborted();
-      setConversationId(result.conversationId);
-      setMessages((current) => current.map((item) => item.id === assistantMessage.id ? {
-        ...item,
-        content: result.content,
-        sources: result.sources,
-        action: result.action,
-      } : item).slice(-48));
-      helpers.resetForm();
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      setMessages((current) => current.filter((item) => item.id !== userMessage.id && item.id !== assistantMessage.id));
-      const code = chatErrorCode(error, "unexpected_error");
-      setRequestError(code);
-      if (code === "auth_required") requestSignIn();
-    } finally {
-      if (pendingFrame !== null) window.cancelAnimationFrame(pendingFrame);
-      if (activeRequest.current === controller) activeRequest.current = null;
-      if (!controller.signal.aborted) setResponding(false);
-    }
-  }, [client, conversationId, requestSignIn, selectedLanguage.code, user]);
+          {
+            signal: controller.signal,
+            onDelta: (delta) => {
+              pendingText += delta;
+              if (pendingFrame !== null) return;
+              pendingFrame = window.requestAnimationFrame(() => {
+                const text = pendingText;
+                pendingText = "";
+                pendingFrame = null;
+                if (controller.signal.aborted) return;
+                setMessages((current) =>
+                  current.map((item) =>
+                    item.id === assistantMessage.id
+                      ? { ...item, content: item.content + text }
+                      : item,
+                  ),
+                );
+              });
+            },
+          },
+        );
+        controller.signal.throwIfAborted();
+        setConversationId(result.conversationId);
+        setMessages((current) =>
+          current
+            .map((item) =>
+              item.id === assistantMessage.id
+                ? {
+                    ...item,
+                    content: result.content,
+                    sources: result.sources,
+                    action: result.action,
+                  }
+                : item,
+            )
+            .slice(-48),
+        );
+        helpers.resetForm();
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setMessages((current) =>
+          current.filter(
+            (item) =>
+              item.id !== userMessage.id && item.id !== assistantMessage.id,
+          ),
+        );
+        const code = chatErrorCode(error, "unexpected_error");
+        setRequestError(code);
+        if (code === "auth_required") requestSignIn();
+      } finally {
+        if (pendingFrame !== null) window.cancelAnimationFrame(pendingFrame);
+        if (activeRequest.current === controller) activeRequest.current = null;
+        if (!controller.signal.aborted) setResponding(false);
+      }
+    },
+    [client, conversationId, requestSignIn, selectedLanguage.code, user],
+  );
 
   const handleTopic = (key: (typeof topicKeys)[number]) => {
     if (!user) {
@@ -344,7 +492,9 @@ export function TravelAssistantWidget() {
         aria-expanded={open}
         disabled={authLoading}
         onClick={() => {
-          setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+          setAssistantGreetingPhase((phase) =>
+            phase === "hidden" ? "hidden" : "fading",
+          );
           if (!user) {
             requestSignIn();
             return;
@@ -359,217 +509,518 @@ export function TravelAssistantWidget() {
             className={[
               "absolute bottom-2 right-[calc(100%_+_0.625rem)] w-max max-w-[8.5rem] rounded-xl rounded-br-sm border border-airline-line bg-airline-paper px-3 py-2 text-left text-xs font-medium leading-snug text-airline-forest shadow-[0_5px_18px_rgb(24_61_55_/_12%)]",
               styles.assistantGreeting,
-              assistantGreetingPhase === "visible" ? styles.assistantGreetingVisible : styles.assistantGreetingLeaving,
+              assistantGreetingPhase === "visible"
+                ? styles.assistantGreetingVisible
+                : styles.assistantGreetingLeaving,
             ].join(" ")}
           >
-            {assistantGreeting || t("chatbot.assistantGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })}
+            {assistantGreeting ||
+              t("chatbot.assistantGreeting", {
+                lngs: [selectedLanguage.code],
+                defaultValue: t("chatbot.welcome"),
+              })}
           </span>
         )}
-        <span className="relative grid size-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition-transform motion-safe:group-hover:-translate-y-1" aria-hidden="true">
+        <span
+          className="relative grid size-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition-transform motion-safe:group-hover:-translate-y-1"
+          aria-hidden="true"
+        >
           <span className="absolute inset-0 overflow-hidden rounded-full">
-            <Image src="/images/veyra-assistant-avatar.webp" alt="" width={56} height={56} priority={pathname === "/"} unoptimized className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`} />
+            <Image
+              src="/images/veyra-assistant-avatar.webp"
+              alt=""
+              width={56}
+              height={56}
+              priority={pathname === "/"}
+              unoptimized
+              className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`}
+            />
           </span>
           <MessageCircle className="absolute bottom-0.5 right-0.5 size-4 rounded-full bg-airline-paper p-0.5 text-airline-forest" />
         </span>
       </button>
 
-      {open && createPortal(
-        <div className="fixed inset-0 z-[80] flex items-end justify-end sm:p-4 lg:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-          <button type="button" aria-label={t("chatbot.close")} onClick={close} className={`${styles.backdrop} absolute inset-0 cursor-default`} />
-          <section ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="veyra-chat-title" className={`${styles.panel} relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-airline-canvas text-airline-ink sm:h-[min(820px,calc(100dvh-32px))] sm:max-w-[480px] sm:rounded-[28px] lg:max-h-[calc(100dvh-48px)]`}>
-            <header className={`${styles.brandHeader} relative flex shrink-0 items-center gap-3 px-5 pb-5 pt-5 text-white sm:px-6 sm:pb-6`}>
-              <svg className={styles.routeMotif} viewBox="0 0 220 150" aria-hidden="true">
-                <circle className={styles.arc} cx="164" cy="74" r="55" />
-                <circle className={styles.arc} cx="164" cy="74" r="43" />
-                <path d="M18 112 C64 102 69 44 111 54 S157 120 205 28" />
-                <circle cx="18" cy="112" r="2.5" />
-                <circle cx="111" cy="54" r="2.5" />
-                <circle cx="205" cy="28" r="2.5" />
-              </svg>
-              <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[17px] border border-airline-gold/70 bg-airline-forest shadow-[0_4px_14px_rgb(0_0_0_/_16%)]" aria-hidden="true">
-                <Image src="/icon.svg" alt="" width={48} height={48} className="h-full w-full object-cover" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 id="veyra-chat-title" className="truncate text-lg font-semibold tracking-tight">{t("chatbot.title")}</h2>
-                <p className="mt-0.5 text-xs text-white/75">{t("chatbot.subtitle")}</p>
-              </div>
-              <button type="button" aria-label={t("chatbot.clearChat")} title={t("chatbot.clearChat")} disabled={responding || changingConversation} onClick={startNewConversation} className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"><Plus className="h-4 w-4" /></button>
-              <button type="button" aria-label={t("chatbot.historyTitle")} title={t("chatbot.historyTitle")} disabled={responding || changingConversation} onClick={() => user ? setHistoryOpen((value) => !value) : requestSignIn()} className={`rounded-full p-2 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${historyOpen ? "bg-white/15 text-airline-gold" : "text-white/85"}`}><History className="h-4 w-4" /></button>
-              <button type="button" aria-label={t("chatbot.minimize")} onClick={close} className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"><Minus className="h-5 w-5" /></button>
-              <button type="button" aria-label={t("chatbot.close")} onClick={close} className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"><X className="h-5 w-5" /></button>
-            </header>
-
-            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5" aria-live="polite" aria-relevant="additions text">
-              {historyOpen ? (
-                <section className="mx-auto max-w-[400px]" aria-labelledby="chat-history-heading">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div><p className="text-[10px] font-semibold uppercase tracking-[.15em] text-airline-forest">VEYRA</p><h3 id="chat-history-heading" className="mt-1 font-serif text-2xl text-airline-night">{t("chatbot.historyTitle")}</h3></div>
-                    <button type="button" disabled={responding || changingConversation} onClick={startNewConversation} className="rounded-full border border-airline-line bg-white px-3 py-2 text-xs font-semibold text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">{t("chatbot.newConversation")}</button>
-                  </div>
-                  {(historyLoading || changingConversation) && (
-                    <div className="mb-3 rounded-xl border border-airline-forest/15 bg-airline-forest-soft px-4 py-3">
-                      <ChatProcessingStatus label={t("chatbot.historyLoading")} />
-                    </div>
-                  )}
-                  {historyError && <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" role="alert">{t(errorKeys[historyError] ?? "chatbot.historyError")}</p>}
-                  {!historyLoading && !changingConversation && !historyError && conversations.length === 0 && <p className="rounded-2xl border border-dashed border-airline-line bg-white p-5 text-sm leading-6 text-airline-muted">{t("chatbot.historyEmpty")}</p>}
-                  <div className="space-y-2">
-                    {conversations.map((conversation) => {
-                      const confirmingDelete = pendingDeleteId === conversation.id;
-                      const formattedDate = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(conversation.updatedAt));
-
-                      return (
-                        <div key={conversation.id} className="flex items-center gap-1 rounded-2xl border border-airline-line bg-white p-2 shadow-sm">
-                          {confirmingDelete ? (
-                            <>
-                              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
-                                <Trash2 className="size-4 shrink-0 text-airline-garnet" aria-hidden="true" />
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold text-airline-garnet">{t("chatbot.confirmDelete")}</p>
-                                  <p className="truncate text-[11px] text-airline-muted">{conversation.title}</p>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                aria-label={t("chatbot.confirmDeleteConversation", { title: conversation.title })}
-                                disabled={changingConversation}
-                                onClick={() => void deleteConversation(conversation.id)}
-                                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-airline-garnet px-2.5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-red-900 disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet"
-                              >
-                                {changingConversation
-                                  ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-                                  : <Check className="size-4" aria-hidden="true" />}
-                                <span>{t("chatbot.confirmDeleteAction")}</span>
-                              </button>
-                              <button
-                                type="button"
-                                aria-label={t("chatbot.cancelDelete")}
-                                disabled={changingConversation}
-                                onClick={() => setPendingDeleteId(null)}
-                                className="grid size-10 shrink-0 place-items-center rounded-xl text-airline-muted transition-colors hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest disabled:opacity-50"
-                              >
-                                <X className="size-4" aria-hidden="true" />
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                disabled={changingConversation}
-                                onClick={() => {
-                                  setPendingDeleteId(null);
-                                  void openConversation(conversation.id);
-                                }}
-                                className="min-w-0 flex-1 rounded-xl px-3 py-2 text-left hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-60"
-                              >
-                                <span className="block truncate text-sm font-semibold text-airline-ink">{conversation.title}</span>
-                                <time className="mt-1 block text-[11px] text-airline-muted" dateTime={conversation.updatedAt}>{formattedDate}</time>
-                              </button>
-                              <button
-                                type="button"
-                                aria-label={t("chatbot.deleteConversation", { title: conversation.title })}
-                                disabled={changingConversation}
-                                onClick={() => setPendingDeleteId(conversation.id)}
-                                className="rounded-xl p-2.5 text-airline-muted transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-50"
-                              >
-                                <Trash2 className="size-4" aria-hidden="true" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              ) : messages.length === 0 ? (
-                <div className="mx-auto max-w-[390px]">
-                  <div className="mb-6 text-center">
-                    <div className="mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full border-2 border-airline-gold/70 bg-airline-forest shadow-[0_10px_24px_rgba(24,61,55,.16)]">
-                      <Image src="/images/veyra-assistant-avatar.webp" alt="" width={64} height={64} unoptimized className={`${styles.avatarPortrait} h-full w-full object-cover`} />
-                    </div>
-                    <h3 className="font-serif text-[26px] leading-tight text-airline-night">{t("chatbot.greeting")}</h3>
-                    <p className="mt-2 text-sm leading-6 text-airline-muted">{t("chatbot.welcome")}</p>
-                  </div>
-
-                  <div className="mb-5 rounded-[22px] border border-airline-line/80 bg-white p-3 shadow-[0_10px_28px_rgba(34,30,27,.06)]">
-                    <p className="px-2 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[.14em] text-airline-muted">{t("chatbot.quickTopics")}</p>
-                    {topicKeys.map((key, index) => {
-                      const Icon = topicIcons[index];
-                      return <button key={key} type="button" onClick={() => handleTopic(key)} className="group flex w-full items-center gap-3 border-t border-airline-line/60 px-2 py-3 text-left transition hover:bg-airline-canvas/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-airline-forest-soft text-airline-forest transition group-hover:bg-airline-forest group-hover:text-white"><Icon className="h-4 w-4" aria-hidden="true" /></span>
-                        <span className="flex-1 text-sm font-medium text-airline-ink">{t(`chatbot.${key}`)}</span>
-                        <ArrowUp className="h-4 w-4 rotate-45 text-airline-muted/70 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-airline-forest" aria-hidden="true" />
-                      </button>;
-                    })}
-                  </div>
-
-                  <p className="mb-2 px-1 text-xs font-medium text-airline-muted">{t("chatbot.suggestionTitle")}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {promptKeys.map((key, index) => {
-                      const Icon = promptIcons[index];
-                      return <SuggestionChip key={key} prompt={t(`chatbot.suggestions.${index}`)} icon={<Icon className="h-3.5 w-3.5" aria-hidden="true" />} onClick={() => {
-                        if (!user) { requestSignIn(); return; }
-                        submitPromptRef.current(t(`chatbot.suggestions.${index}`));
-                      }} />;
-                    })}
-                  </div>
+      {open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[80] flex items-end justify-end sm:p-4 lg:p-6"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) close();
+            }}
+          >
+            <button
+              type="button"
+              aria-label={t("chatbot.close")}
+              onClick={close}
+              className={`${styles.backdrop} absolute inset-0 cursor-default`}
+            />
+            <section
+              ref={panelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="veyra-chat-title"
+              className={`${styles.panel} relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-airline-canvas text-airline-ink sm:h-[min(820px,calc(100dvh-32px))] sm:max-w-[480px] sm:rounded-[28px] lg:max-h-[calc(100dvh-48px)]`}
+            >
+              <header
+                className={`${styles.brandHeader} relative flex shrink-0 items-center gap-3 px-5 pb-5 pt-5 text-white sm:px-6 sm:pb-6`}
+              >
+                <svg
+                  className={styles.routeMotif}
+                  viewBox="0 0 220 150"
+                  aria-hidden="true"
+                >
+                  <circle className={styles.arc} cx="164" cy="74" r="55" />
+                  <circle className={styles.arc} cx="164" cy="74" r="43" />
+                  <path d="M18 112 C64 102 69 44 111 54 S157 120 205 28" />
+                  <circle cx="18" cy="112" r="2.5" />
+                  <circle cx="111" cy="54" r="2.5" />
+                  <circle cx="205" cy="28" r="2.5" />
+                </svg>
+                <span
+                  className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[17px] border border-airline-gold/70 bg-airline-forest shadow-[0_4px_14px_rgb(0_0_0_/_16%)]"
+                  aria-hidden="true"
+                >
+                  <Image
+                    src="/icon.svg"
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                  />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2
+                    id="veyra-chat-title"
+                    className="truncate text-lg font-semibold tracking-tight"
+                  >
+                    {t("chatbot.title")}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-white/75">
+                    {t("chatbot.subtitle")}
+                  </p>
                 </div>
-              ) : (
-                <div className="mx-auto flex max-w-[400px] flex-col gap-4">
-                  {messages.map((message) => {
-                    const isUser = message.role === "user";
-                    const isActiveReply = !isUser && message.id === activeReplyId;
-                    const isThinking = isActiveReply && !message.content.trim();
-                    const bubbleStyle = isUser
-                      ? "rounded-br-md bg-airline-forest text-white"
-                      : isThinking
-                        ? "w-fit rounded-bl-md border border-airline-forest/15 bg-airline-forest-soft"
-                        : "rounded-bl-md border border-airline-line bg-white text-airline-ink shadow-sm";
+                <button
+                  type="button"
+                  aria-label={t("chatbot.clearChat")}
+                  title={t("chatbot.clearChat")}
+                  disabled={responding || changingConversation}
+                  onClick={startNewConversation}
+                  className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("chatbot.historyTitle")}
+                  title={t("chatbot.historyTitle")}
+                  disabled={responding || changingConversation}
+                  onClick={() =>
+                    user ? setHistoryOpen((value) => !value) : requestSignIn()
+                  }
+                  className={`rounded-full p-2 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${historyOpen ? "bg-white/15 text-airline-gold" : "text-white/85"}`}
+                >
+                  <History className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("chatbot.minimize")}
+                  onClick={close}
+                  className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                >
+                  <Minus className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("chatbot.close")}
+                  onClick={close}
+                  className="rounded-full p-2 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </header>
 
-                    return (
-                      <div key={message.id} className={`${styles.messageEnter} flex ${isUser ? "justify-end" : "justify-start"}`}>
-                        {!isUser && (
-                          <span className={`mr-2 mt-1 size-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest ${isActiveReply ? "ring-2 ring-airline-forest-soft" : ""}`} aria-hidden="true">
-                            <Image src="/images/veyra-assistant-avatar.webp" alt="" width={28} height={28} unoptimized className={`h-full w-full object-cover ${isActiveReply ? styles.avatarThinking : ""}`} />
-                          </span>
-                        )}
-                        <div className={`flex min-w-0 flex-col gap-2 ${isUser ? "max-w-[84%]" : "flex-1"}`}>
-                          <div className={`rounded-[20px] px-4 py-3 text-sm leading-6 ${bubbleStyle}`}>
-                            {isThinking ? <ChatProcessingStatus label={t("chatbot.sending")} /> : (
+              <div
+                className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5"
+                aria-live="polite"
+                aria-relevant="additions text"
+              >
+                {historyOpen ? (
+                  <section
+                    className="mx-auto max-w-[400px]"
+                    aria-labelledby="chat-history-heading"
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-airline-forest">
+                          VEYRA
+                        </p>
+                        <h3
+                          id="chat-history-heading"
+                          className="mt-1 font-serif text-2xl text-airline-night"
+                        >
+                          {t("chatbot.historyTitle")}
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={responding || changingConversation}
+                        onClick={startNewConversation}
+                        className="rounded-full border border-airline-line bg-white px-3 py-2 text-xs font-semibold text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"
+                      >
+                        {t("chatbot.newConversation")}
+                      </button>
+                    </div>
+                    {(historyLoading || changingConversation) && (
+                      <div className="mb-3 rounded-xl border border-airline-forest/15 bg-airline-forest-soft px-4 py-3">
+                        <ChatProcessingStatus
+                          label={t("chatbot.historyLoading")}
+                        />
+                      </div>
+                    )}
+                    {historyError && (
+                      <p
+                        className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+                        role="alert"
+                      >
+                        {t(errorKeys[historyError] ?? "chatbot.historyError")}
+                      </p>
+                    )}
+                    {!historyLoading &&
+                      !changingConversation &&
+                      !historyError &&
+                      conversations.length === 0 && (
+                        <p className="rounded-2xl border border-dashed border-airline-line bg-white p-5 text-sm leading-6 text-airline-muted">
+                          {t("chatbot.historyEmpty")}
+                        </p>
+                      )}
+                    <div className="space-y-2">
+                      {conversations.map((conversation) => {
+                        const confirmingDelete =
+                          pendingDeleteId === conversation.id;
+                        const formattedDate = new Intl.DateTimeFormat(
+                          i18n.resolvedLanguage ?? "en",
+                          {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          },
+                        ).format(new Date(conversation.updatedAt));
+
+                        return (
+                          <div
+                            key={conversation.id}
+                            className="flex items-center gap-1 rounded-2xl border border-airline-line bg-white p-2 shadow-sm"
+                          >
+                            {confirmingDelete ? (
                               <>
-                                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] opacity-65">{t(isUser ? "chatbot.you" : "chatbot.assistant")}</p>
-                                <p className="whitespace-pre-wrap break-words">
-                                  {message.content}
-                                  {isActiveReply && <span className="ml-1 inline-block h-3.5 w-0.5 rounded-full bg-airline-forest/55 align-middle motion-safe:animate-pulse" aria-hidden="true" />}
-                                </p>
-                                {message.sources && message.sources.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5 border-t border-airline-line pt-2">
-                                  {message.sources.map((source, index) => <Link key={`${source.documentId}-${source.section}-${index}`} href={source.href} className="inline-flex max-w-full items-center gap-1 rounded-full bg-airline-forest-soft px-2.5 py-1 text-[10px] font-medium text-airline-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"><span className="shrink-0">[{source.citationNumber ?? index + 1}]</span><span className="truncate">{source.title}{source.section ? ` · ${source.section}` : ""}</span></Link>)}
-                                </div>}
+                                <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+                                  <Trash2
+                                    className="size-4 shrink-0 text-airline-garnet"
+                                    aria-hidden="true"
+                                  />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-airline-garnet">
+                                      {t("chatbot.confirmDelete")}
+                                    </p>
+                                    <p className="truncate text-[11px] text-airline-muted">
+                                      {conversation.title}
+                                    </p>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  aria-label={t(
+                                    "chatbot.confirmDeleteConversation",
+                                    { title: conversation.title },
+                                  )}
+                                  disabled={changingConversation}
+                                  onClick={() =>
+                                    void deleteConversation(conversation.id)
+                                  }
+                                  className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-airline-garnet px-2.5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-red-900 disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet"
+                                >
+                                  {changingConversation ? (
+                                    <LoaderCircle
+                                      className="size-4 animate-spin"
+                                      aria-hidden="true"
+                                    />
+                                  ) : (
+                                    <Check
+                                      className="size-4"
+                                      aria-hidden="true"
+                                    />
+                                  )}
+                                  <span>
+                                    {t("chatbot.confirmDeleteAction")}
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  aria-label={t("chatbot.cancelDelete")}
+                                  disabled={changingConversation}
+                                  onClick={() => setPendingDeleteId(null)}
+                                  className="grid size-10 shrink-0 place-items-center rounded-xl text-airline-muted transition-colors hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest disabled:opacity-50"
+                                >
+                                  <X className="size-4" aria-hidden="true" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={changingConversation}
+                                  onClick={() => {
+                                    setPendingDeleteId(null);
+                                    void openConversation(conversation.id);
+                                  }}
+                                  className="min-w-0 flex-1 rounded-xl px-3 py-2 text-left hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-60"
+                                >
+                                  <span className="block truncate text-sm font-semibold text-airline-ink">
+                                    {conversation.title}
+                                  </span>
+                                  <time
+                                    className="mt-1 block text-[11px] text-airline-muted"
+                                    dateTime={conversation.updatedAt}
+                                  >
+                                    {formattedDate}
+                                  </time>
+                                </button>
+                                <button
+                                  type="button"
+                                  aria-label={t("chatbot.deleteConversation", {
+                                    title: conversation.title,
+                                  })}
+                                  disabled={changingConversation}
+                                  onClick={() =>
+                                    setPendingDeleteId(conversation.id)
+                                  }
+                                  className="rounded-xl p-2.5 text-airline-muted transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-50"
+                                >
+                                  <Trash2
+                                    className="size-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
                               </>
                             )}
                           </div>
-                          {message.action && <ChatActionCards action={message.action} isAuthenticated={Boolean(user)} onSignIn={requestSignIn} />}
-                        </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ) : messages.length === 0 ? (
+                  <div className="mx-auto max-w-[390px]">
+                    <div className="mb-6 text-center">
+                      <div className="mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full border-2 border-airline-gold/70 bg-airline-forest shadow-[0_10px_24px_rgba(24,61,55,.16)]">
+                        <Image
+                          src="/images/veyra-assistant-avatar.webp"
+                          alt=""
+                          width={64}
+                          height={64}
+                          unoptimized
+                          className={`${styles.avatarPortrait} h-full w-full object-cover`}
+                        />
                       </div>
-                    );
-                  })}
-                  <div ref={endRef} />
-                </div>
-              )}
-              {requestError && <p role="alert" className="mx-auto mt-4 max-w-[400px] rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{t(errorKeys[requestError] ?? "chatbot.error")}</p>}
-            </div>
+                      <h3 className="font-serif text-[26px] leading-tight text-airline-night">
+                        {t("chatbot.greeting")}
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-airline-muted">
+                        {t("chatbot.welcome")}
+                      </p>
+                    </div>
 
-            <Formik initialValues={{ message: "" }} onSubmit={submitMessage}>
-              <ChatComposer disabled={!user || authLoading || historyOpen || responding || changingConversation} registerSubmitPrompt={registerSubmitPrompt} />
-            </Formik>
-            <p className="shrink-0 px-5 pb-3 pt-2 text-center text-[10px] leading-4 text-airline-muted sm:px-7">{t("chatbot.privacyNote")}</p>
-          </section>
-        </div>,
-        document.body,
-      )}
+                    <div className="mb-5 rounded-[22px] border border-airline-line/80 bg-white p-3 shadow-[0_10px_28px_rgba(34,30,27,.06)]">
+                      <p className="px-2 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[.14em] text-airline-muted">
+                        {t("chatbot.quickTopics")}
+                      </p>
+                      {topicKeys.map((key, index) => {
+                        const Icon = topicIcons[index];
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => handleTopic(key)}
+                            className="group flex w-full items-center gap-3 border-t border-airline-line/60 px-2 py-3 text-left transition hover:bg-airline-canvas/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"
+                          >
+                            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-airline-forest-soft text-airline-forest transition group-hover:bg-airline-forest group-hover:text-white">
+                              <Icon className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <span className="flex-1 text-sm font-medium text-airline-ink">
+                              {t(`chatbot.${key}`)}
+                            </span>
+                            <ArrowUp
+                              className="h-4 w-4 rotate-45 text-airline-muted/70 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-airline-forest"
+                              aria-hidden="true"
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <p className="mb-2 px-1 text-xs font-medium text-airline-muted">
+                      {t("chatbot.suggestionTitle")}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {promptKeys.map((key, index) => {
+                        const Icon = promptIcons[index];
+                        return (
+                          <SuggestionChip
+                            key={key}
+                            prompt={t(`chatbot.suggestions.${index}`)}
+                            icon={
+                              <Icon
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
+                            }
+                            onClick={() => {
+                              if (!user) {
+                                requestSignIn();
+                                return;
+                              }
+                              submitPromptRef.current(
+                                t(`chatbot.suggestions.${index}`),
+                              );
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mx-auto flex max-w-[400px] flex-col gap-4">
+                    {messages.map((message) => {
+                      const isUser = message.role === "user";
+                      const isActiveReply =
+                        !isUser && message.id === activeReplyId;
+                      const isThinking =
+                        isActiveReply && !message.content.trim();
+                      const bubbleStyle = isUser
+                        ? "rounded-br-md bg-airline-forest text-white"
+                        : isThinking
+                          ? "w-fit rounded-bl-md border border-airline-forest/15 bg-airline-forest-soft"
+                          : "rounded-bl-md border border-airline-line bg-white text-airline-ink shadow-sm";
+
+                      return (
+                        <div
+                          key={message.id}
+                          className={`${styles.messageEnter} flex ${isUser ? "justify-end" : "justify-start"}`}
+                        >
+                          {!isUser && (
+                            <span
+                              className={`mr-2 mt-1 size-7 shrink-0 overflow-hidden rounded-full border border-airline-gold/60 bg-airline-forest ${isActiveReply ? "ring-2 ring-airline-forest-soft" : ""}`}
+                              aria-hidden="true"
+                            >
+                              <Image
+                                src="/images/veyra-assistant-avatar.webp"
+                                alt=""
+                                width={28}
+                                height={28}
+                                unoptimized
+                                className={`h-full w-full object-cover ${isActiveReply ? styles.avatarThinking : ""}`}
+                              />
+                            </span>
+                          )}
+                          <div
+                            className={`flex min-w-0 flex-col gap-2 ${isUser ? "max-w-[84%]" : "flex-1"}`}
+                          >
+                            <div
+                              className={`rounded-[20px] px-4 py-3 text-sm leading-6 ${bubbleStyle}`}
+                            >
+                              {isThinking ? (
+                                <ChatProcessingStatus
+                                  label={t("chatbot.sending")}
+                                />
+                              ) : (
+                                <>
+                                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] opacity-65">
+                                    {t(
+                                      isUser
+                                        ? "chatbot.you"
+                                        : "chatbot.assistant",
+                                    )}
+                                  </p>
+                                  <p className="whitespace-pre-wrap break-words">
+                                    {message.content}
+                                    {isActiveReply && (
+                                      <span
+                                        className="ml-1 inline-block h-3.5 w-0.5 rounded-full bg-airline-forest/55 align-middle motion-safe:animate-pulse"
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                  </p>
+                                  {message.sources &&
+                                    message.sources.length > 0 && (
+                                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-airline-line pt-2">
+                                        {message.sources.map(
+                                          (source, index) => (
+                                            <Link
+                                              key={`${source.documentId}-${source.section}-${index}`}
+                                              href={source.href}
+                                              className="inline-flex max-w-full items-center gap-1 rounded-full bg-airline-forest-soft px-2.5 py-1 text-[10px] font-medium text-airline-forest hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"
+                                            >
+                                              <span className="shrink-0">
+                                                [
+                                                {source.citationNumber ??
+                                                  index + 1}
+                                                ]
+                                              </span>
+                                              <span className="truncate">
+                                                {source.title}
+                                                {source.section
+                                                  ? ` · ${source.section}`
+                                                  : ""}
+                                              </span>
+                                            </Link>
+                                          ),
+                                        )}
+                                      </div>
+                                    )}
+                                </>
+                              )}
+                            </div>
+                            {message.action && (
+                              <ChatActionCards
+                                action={message.action}
+                                isAuthenticated={Boolean(user)}
+                                onSignIn={requestSignIn}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div ref={endRef} />
+                  </div>
+                )}
+                {requestError && (
+                  <p
+                    role="alert"
+                    className="mx-auto mt-4 max-w-[400px] rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+                  >
+                    {t(errorKeys[requestError] ?? "chatbot.error")}
+                  </p>
+                )}
+              </div>
+
+              <Formik initialValues={{ message: "" }} onSubmit={submitMessage}>
+                <ChatComposer
+                  disabled={
+                    !user ||
+                    authLoading ||
+                    historyOpen ||
+                    responding ||
+                    changingConversation
+                  }
+                  registerSubmitPrompt={registerSubmitPrompt}
+                />
+              </Formik>
+              <p className="shrink-0 px-5 pb-3 pt-2 text-center text-[10px] leading-4 text-airline-muted sm:px-7">
+                {t("chatbot.privacyNote")}
+              </p>
+            </section>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
@@ -577,7 +1028,10 @@ export function TravelAssistantWidget() {
 function ChatProcessingStatus({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2.5 text-sm font-medium leading-snug text-airline-forest">
-      <span className={`${styles.processingDots} flex h-6 shrink-0 items-center gap-1 rounded-full bg-white/80 px-2`} aria-hidden="true">
+      <span
+        className={`${styles.processingDots} flex h-6 shrink-0 items-center gap-1 rounded-full bg-white/80 px-2`}
+        aria-hidden="true"
+      >
         <span className="size-1.5 rounded-full bg-current" />
         <span className="size-1.5 rounded-full bg-current" />
         <span className="size-1.5 rounded-full bg-current" />
@@ -587,31 +1041,80 @@ function ChatProcessingStatus({ label }: { label: string }) {
   );
 }
 
-function ChatComposer({ disabled, registerSubmitPrompt }: { disabled: boolean; registerSubmitPrompt: (submit: (prompt: string) => void) => void }) {
+function ChatComposer({
+  disabled,
+  registerSubmitPrompt,
+}: {
+  disabled: boolean;
+  registerSubmitPrompt: (submit: (prompt: string) => void) => void;
+}) {
   const { t } = useTranslation();
-  const { isSubmitting, submitForm, setFieldValue, values } = useFormikContext<{ message: string }>();
+  const { isSubmitting, submitForm, setFieldValue, values } = useFormikContext<{
+    message: string;
+  }>();
   const busy = isSubmitting;
   useEffect(() => {
-    const submitPrompt = (prompt: string) => { void setFieldValue("message", prompt).then(() => submitForm()); };
+    const submitPrompt = (prompt: string) => {
+      void setFieldValue("message", prompt).then(() => submitForm());
+    };
     registerSubmitPrompt(submitPrompt);
     return () => registerSubmitPrompt(() => undefined);
   }, [registerSubmitPrompt, setFieldValue, submitForm]);
 
   return (
     <Form className="mx-4 mt-auto flex shrink-0 items-end gap-2 rounded-[20px] border border-airline-line bg-white p-2 shadow-[0_8px_28px_rgba(34,30,27,.08)] sm:mx-5">
-        <Field as="textarea" name="message" rows={1} maxLength={2000} disabled={disabled || busy} placeholder={t("chatbot.placeholder")} aria-label={t("chatbot.placeholder")} className="max-h-32 min-h-[46px] flex-1 resize-y bg-transparent px-3 py-3 text-sm leading-5 text-airline-ink outline-none placeholder:text-airline-muted/75 disabled:cursor-not-allowed disabled:opacity-70" onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
+      <Field
+        as="textarea"
+        name="message"
+        rows={1}
+        maxLength={2000}
+        disabled={disabled || busy}
+        placeholder={t("chatbot.placeholder")}
+        aria-label={t("chatbot.placeholder")}
+        className="max-h-32 min-h-[46px] flex-1 resize-y bg-transparent px-3 py-3 text-sm leading-5 text-airline-ink outline-none placeholder:text-airline-muted/75 disabled:cursor-not-allowed disabled:opacity-70"
+        onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             void submitForm();
           }
-        }} />
-        <button type="submit" disabled={disabled || busy || !values.message.trim()} aria-label={t(busy ? "chatbot.sending" : "chatbot.send")} className={`mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-airline-forest text-white transition-colors enabled:hover:bg-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold ${busy ? "cursor-wait" : "disabled:cursor-not-allowed disabled:bg-airline-muted/30"}`}>
-          {busy ? <LoaderCircle className="size-5 motion-safe:animate-spin" aria-hidden="true" /> : <ArrowUp className="size-5" aria-hidden="true" />}
-        </button>
+        }}
+      />
+      <button
+        type="submit"
+        disabled={disabled || busy || !values.message.trim()}
+        aria-label={t(busy ? "chatbot.sending" : "chatbot.send")}
+        className={`mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-airline-forest text-white transition-colors enabled:hover:bg-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold ${busy ? "cursor-wait" : "disabled:cursor-not-allowed disabled:bg-airline-muted/30"}`}
+      >
+        {busy ? (
+          <LoaderCircle
+            className="size-5 motion-safe:animate-spin"
+            aria-hidden="true"
+          />
+        ) : (
+          <ArrowUp className="size-5" aria-hidden="true" />
+        )}
+      </button>
     </Form>
   );
 }
 
-function SuggestionChip({ prompt, icon, onClick }: { prompt: string; icon: ReactNode; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="inline-flex items-center gap-1.5 rounded-full border border-airline-line bg-white px-3 py-2 text-xs text-airline-ink transition hover:border-airline-gold hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">{icon}{prompt}</button>;
+function SuggestionChip({
+  prompt,
+  icon,
+  onClick,
+}: {
+  prompt: string;
+  icon: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-full border border-airline-line bg-white px-3 py-2 text-xs text-airline-ink transition hover:border-airline-gold hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"
+    >
+      {icon}
+      {prompt}
+    </button>
+  );
 }

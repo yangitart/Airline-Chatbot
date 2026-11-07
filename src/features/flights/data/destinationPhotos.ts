@@ -15,17 +15,61 @@ export type DestinationPhoto = {
 };
 
 export const destinationPhotos: Record<DemoAirportCode, DestinationPhoto> = {
-  DEL: { image: "/images/delhi-india-gate.webp", country: "IN", author: "Kamalkant0411", file: "Delhi,_India_Gate.jpg", license: "CC0" },
-  BOM: { image: "/images/mumbai-gateway.webp", country: "IN", author: "Deepak Kumar Singh", file: "Gateway_Of_India,_Mumbai,_India.jpg", license: "CC BY-SA 4.0" },
-  BLR: { image: "/images/bengaluru-vidhana-soudha.webp", country: "IN", author: "Harish.halebeed", file: "Vidhansoudha.jpg", license: "CC BY-SA 4.0" },
-  MAA: { image: "/images/chennai-marina-beach.webp", country: "IN", author: "Saiphani02", file: "Marina_beach,_Chennai_aerial_view.jpg", license: "CC BY-SA 4.0" },
-  HYD: { image: "/images/hyderabad-charminar.webp", country: "IN", author: "IcyB201299", file: "A_Landscape_shot_of_the_Charminar.jpg", license: "CC BY-SA 4.0" },
-  LHR: { image: "/images/london-tower-bridge.webp", country: "GB", author: "Pierre Blaché", file: "Tower_Bridge,_London_at_sunrise.jpg", license: "CC0" },
-  SIN: { image: "/images/singapore-marina-bay.webp", country: "SG", author: "Jakub Hałun", file: "Marina_Bay_Sands_at_night,_Singapore,_20240205_2003_6086.jpg", license: "CC BY 4.0" },
+  DEL: {
+    image: "/images/delhi-india-gate.webp",
+    country: "IN",
+    author: "Kamalkant0411",
+    file: "Delhi,_India_Gate.jpg",
+    license: "CC0",
+  },
+  BOM: {
+    image: "/images/mumbai-gateway.webp",
+    country: "IN",
+    author: "Deepak Kumar Singh",
+    file: "Gateway_Of_India,_Mumbai,_India.jpg",
+    license: "CC BY-SA 4.0",
+  },
+  BLR: {
+    image: "/images/bengaluru-vidhana-soudha.webp",
+    country: "IN",
+    author: "Harish.halebeed",
+    file: "Vidhansoudha.jpg",
+    license: "CC BY-SA 4.0",
+  },
+  MAA: {
+    image: "/images/chennai-marina-beach.webp",
+    country: "IN",
+    author: "Saiphani02",
+    file: "Marina_beach,_Chennai_aerial_view.jpg",
+    license: "CC BY-SA 4.0",
+  },
+  HYD: {
+    image: "/images/hyderabad-charminar.webp",
+    country: "IN",
+    author: "IcyB201299",
+    file: "A_Landscape_shot_of_the_Charminar.jpg",
+    license: "CC BY-SA 4.0",
+  },
+  LHR: {
+    image: "/images/london-tower-bridge.webp",
+    country: "GB",
+    author: "Pierre Blaché",
+    file: "Tower_Bridge,_London_at_sunrise.jpg",
+    license: "CC0",
+  },
+  SIN: {
+    image: "/images/singapore-marina-bay.webp",
+    country: "SG",
+    author: "Jakub Hałun",
+    file: "Marina_Bay_Sands_at_night,_Singapore,_20240205_2003_6086.jpg",
+    license: "CC BY 4.0",
+  },
 };
 
 export function getDestinationPhoto(airport: string) {
-  return Object.hasOwn(destinationPhotos, airport) ? destinationPhotos[airport as DemoAirportCode] : undefined;
+  return Object.hasOwn(destinationPhotos, airport)
+    ? destinationPhotos[airport as DemoAirportCode]
+    : undefined;
 }
 
 export function getPhotoAttribution(photo: DestinationPhoto) {

@@ -15,7 +15,8 @@ export function handleError(error: unknown): string {
   if (!error.response) return "network_error";
 
   const status = error.response.status;
-  const detail = (error.response.data as { detail?: unknown } | undefined)?.detail;
+  const detail = (error.response.data as { detail?: unknown } | undefined)
+    ?.detail;
   if (status < 500 && typeof detail === "string") return detail;
 
   switch (status) {

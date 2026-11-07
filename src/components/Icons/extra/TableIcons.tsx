@@ -1,5 +1,5 @@
 // icon:dots-vertical | Material Design Icons https://materialdesignicons.com/ | Austin Andrews
-import React from 'react';
+import React from "react";
 
 export function PlusIcon() {
   return (

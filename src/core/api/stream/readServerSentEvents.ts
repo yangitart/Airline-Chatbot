@@ -21,7 +21,8 @@ export async function* readServerSentEvents(body: ReadableStream<Uint8Array>) {
         }
         const separator = line.indexOf(":");
         const field = separator < 0 ? line : line.slice(0, separator);
-        const value = separator < 0 ? "" : line.slice(separator + 1).replace(/^ /, "");
+        const value =
+          separator < 0 ? "" : line.slice(separator + 1).replace(/^ /, "");
         if (field === "event") event = value || "message";
         if (field === "data") data.push(value);
       }
