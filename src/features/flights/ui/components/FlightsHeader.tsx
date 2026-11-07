@@ -9,7 +9,7 @@ import type { GoogleUser } from "@/src/features/authentication/domain/models/Goo
 import { LanguagePicker } from "@/src/components/navigation/LanguagePicker";
 
 export const travelNavItems = [
-  { key: "bookManage", href: "/#search" },
+  { key: "bookManage", href: "/" },
   { key: "whereFly", href: "/where-we-fly" },
   { key: "prepareTravel", href: "/prepare-to-travel" },
   { key: "faqs", href: "/faqs" },
@@ -19,8 +19,11 @@ export const travelNavItems = [
 export type TravelTab = (typeof travelNavItems)[number]["key"];
 
 export function getTravelTab(pathname: string): TravelTab | undefined {
-  return travelNavItems.find(({ href }) => href !== "/#search" && (pathname === href || pathname.startsWith(href + "/")))?.key
-    ?? (pathname === "/flight-status" ? "prepareTravel" : ["/", "/my-trips", "/profile"].includes(pathname) ? "bookManage" : undefined);
+  if (pathname === "/where-we-fly") return "whereFly";
+  if (pathname === "/prepare-to-travel" || pathname === "/flight-status") return "prepareTravel";
+  if (pathname === "/faqs" || pathname.startsWith("/faqs/")) return "faqs";
+  if (pathname === "/experience") return "experience";
+  return ["/", "/my-trips", "/profile"].includes(pathname) ? "bookManage" : undefined;
 }
 
 const focusStyle = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet";
@@ -45,9 +48,16 @@ export function FlightsHeader({ pathname = "/", user, authLoading, onSignIn, onS
 
   const selectLink = (event: MouseEvent<HTMLAnchorElement>, key: string) => {
     setMobileMenuOpen(false);
-    if (key !== "bookManage" || !onEditSearch || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    onEditSearch();
+    if (key !== "bookManage" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (onEditSearch) {
+      event.preventDefault();
+      onEditSearch();
+      return;
+    }
+    if (pathname === "/") {
+      event.preventDefault();
+      document.getElementById("book-manage")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }
   };
 
   return (

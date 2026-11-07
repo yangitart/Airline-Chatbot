@@ -1,11 +1,26 @@
 import { BrowserSupabaseClientFactory } from "@/src/core/api/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { APP_ROUTES } from "@/src/core/routes/routes";
 import { GoogleUserModel } from "../models/GoogleUserModel";
 
 export interface GoogleAuthenticationDataSource {
   signIn(): Promise<string>;
   currentUser(): Promise<GoogleUserModel | null>;
+  onAuthStateChange(listener: (user: GoogleUserModel | null) => void): () => void;
   signOut(): Promise<void>;
+}
+
+function mapSupabaseUser(user: User): GoogleUserModel {
+  const fullName = user.user_metadata.full_name;
+  const displayName = user.user_metadata.name;
+  const avatarUrl = user.user_metadata.avatar_url;
+  const picture = user.user_metadata.picture;
+  return {
+    id: user.id,
+    email: user.email ?? "",
+    name: typeof fullName === "string" ? fullName : typeof displayName === "string" ? displayName : "",
+    picture: typeof avatarUrl === "string" ? avatarUrl : typeof picture === "string" ? picture : "",
+  };
 }
 
 export const GoogleAuthenticationDataSourceImpl = (
@@ -27,18 +42,14 @@ export const GoogleAuthenticationDataSourceImpl = (
     const supabase = createSupabaseClient();
     const { data, error } = await supabase.auth.getUser();
     if (error) throw error;
-    const user = data.user;
-    if (!user) return null;
-    const fullName = user.user_metadata.full_name;
-    const displayName = user.user_metadata.name;
-    const avatarUrl = user.user_metadata.avatar_url;
-    const picture = user.user_metadata.picture;
-    return {
-      id: user.id,
-      email: user.email ?? "",
-      name: typeof fullName === "string" ? fullName : typeof displayName === "string" ? displayName : "",
-      picture: typeof avatarUrl === "string" ? avatarUrl : typeof picture === "string" ? picture : "",
-    };
+    return data.user ? mapSupabaseUser(data.user) : null;
+  },
+  onAuthStateChange: (listener) => {
+    const supabase = createSupabaseClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      listener(session?.user ? mapSupabaseUser(session.user) : null);
+    });
+    return () => subscription.unsubscribe();
   },
   signOut: async () => {
     const { error } = await createSupabaseClient().auth.signOut();

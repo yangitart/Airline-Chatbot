@@ -2,6 +2,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FlightSearchQuery } from "../../domain/models/FlightSearch";
+import type { FeaturedFlight } from "../../domain/models/FeaturedFlight";
+import { DEMO_ROUTE_PAIRS } from "../../domain/models/DemoRoutes";
 import { FlightSearchDataSource } from "./FlightSearchDataSource";
 import { FlightSearchModel } from "../models/FlightSearchModel";
 import type { AmadeusFlightOfferModel } from "../models/AmadeusFlightOfferModel";
@@ -31,6 +33,15 @@ type InventoryRow = {
   offer_payload: AmadeusFlightOfferModel;
   flight: FlightRow;
 };
+
+const flightInventorySelection = `
+  flight_instance_id,cabin_class,seats_available,fare_minor,currency,offer_id,offer_payload,
+  flight:flight_instances!inner(
+    id,flight_number,origin_code,destination_code,departure_date,departure_at,arrival_at,duration_minutes,is_demo,source_label,
+    origin_airport:airports!flight_instances_origin_code_fkey(code,city,name,time_zone),
+    destination_airport:airports!flight_instances_destination_code_fkey(code,city,name,time_zone)
+  )
+`;
 
 function formatTime(timestamp: string, timeZone: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -82,14 +93,7 @@ export const SupabaseFlightSearchDataSourceImpl = (
     const getFlights = async (origin: string, destination: string, date: string) => {
       const { data, error } = await supabase
         .from("flight_inventory")
-        .select(`
-          flight_instance_id,cabin_class,seats_available,fare_minor,currency,offer_id,offer_payload,
-          flight:flight_instances!inner(
-            id,flight_number,origin_code,destination_code,departure_date,departure_at,arrival_at,duration_minutes,is_demo,source_label,
-            origin_airport:airports!flight_instances_origin_code_fkey(code,city,name,time_zone),
-            destination_airport:airports!flight_instances_destination_code_fkey(code,city,name,time_zone)
-          )
-        `)
+        .select(flightInventorySelection)
         .eq("cabin_class", query.cabinClass)
         .gte("seats_available", query.passengers)
         .eq("flight.origin_code", origin)
@@ -122,5 +126,36 @@ export const SupabaseFlightSearchDataSourceImpl = (
       flights: outbound,
       return_flights: inbound,
     };
+  },
+  featuredFlights: async (departureDate: string): Promise<FeaturedFlight[]> => {
+    const { data, error } = await supabase
+      .from("flight_inventory")
+      .select(flightInventorySelection)
+      .eq("cabin_class", "economy")
+      .gte("seats_available", 1)
+      .eq("flight.departure_date", departureDate)
+      .eq("flight.status", "scheduled");
+
+    if (error) throw error;
+
+    const allowedRoutes = new Set(DEMO_ROUTE_PAIRS.map(({ origin, destination }) => `${origin}-${destination}`));
+    const firstFlightByRoute = new Map<string, InventoryRow>();
+    const rows = ((data ?? []) as unknown as InventoryRow[])
+      .sort((left, right) => left.flight.departure_at.localeCompare(right.flight.departure_at));
+
+    for (const row of rows) {
+      const routeKey = `${row.flight.origin_code}-${row.flight.destination_code}`;
+      if (allowedRoutes.has(routeKey) && !firstFlightByRoute.has(routeKey)) firstFlightByRoute.set(routeKey, row);
+    }
+
+    const routes = DEMO_ROUTE_PAIRS.filter((route, index, all) =>
+      all.findIndex((candidate) => candidate.destination === route.destination) === index,
+    );
+
+    return routes.flatMap(({ origin, destination }) => {
+      const row = firstFlightByRoute.get(`${origin}-${destination}`);
+      if (!row) return [];
+      return [{ origin, destination, date: row.flight.departure_date, number: mapFlight(row).flight_number }];
+    });
   },
 });

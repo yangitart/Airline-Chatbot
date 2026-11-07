@@ -4,7 +4,7 @@ import { NetWorkDataModuleSymbols } from "@/src/ioc/common/network.module";
 import { applyDependencies } from "@/src/ioc/utils/applyDependencies";
 import { FlightSearchQuery } from "../domain/models/FlightSearch";
 import { FlightSearchRepository } from "../domain/repositories/FlightSearchRepository";
-import { SearchFlightsResponse, searchFlightsUseCase } from "../domain/useCases/searchFlightsUseCase";
+import { FeaturedFlightsResponse, getFeaturedFlightsUseCase, SearchFlightsResponse, searchFlightsUseCase } from "../domain/useCases/searchFlightsUseCase";
 import { FlightSearchDataSource, FlightSearchApiDataSourceImpl } from "../data/data_sources/FlightSearchDataSource";
 import { FlightSearchRepositoryImpl } from "../data/repositories/FlightSearchRepositoryImpl";
 import { FlightSearchSymbols } from "./FlightSearchSymbols";
@@ -20,6 +20,10 @@ const initializeModule = (bind: interfaces.Bind) => {
 
   bind<IUseCase<FlightSearchQuery, SearchFlightsResponse>>(FlightSearchSymbols.searchUseCase).toConstantValue(
     applyDependencies(searchFlightsUseCase, [FlightSearchSymbols.repository]),
+  );
+
+  bind<IUseCase<string, FeaturedFlightsResponse>>(FlightSearchSymbols.featuredFlightsUseCase).toConstantValue(
+    applyDependencies(getFeaturedFlightsUseCase, [FlightSearchSymbols.repository]),
   );
 };
 

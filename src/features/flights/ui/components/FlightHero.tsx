@@ -5,16 +5,9 @@ import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { DemoAirportCode } from "../../domain/models/DemoRoutes";
+import type { FeaturedFlight } from "../../domain/models/FeaturedFlight";
 import { destinationPhotos, getDestinationPhoto } from "../../data/destinationPhotos";
 import { DestinationCountry, DestinationPhotoCredit } from "./DestinationPhotoDetails";
-
-export type FeaturedFlight = {
-  origin: DemoAirportCode;
-  destination: DemoAirportCode;
-  date: string;
-  number: string;
-};
 
 export function FlightHero({ flights, selectedDestination, onSelectRoute }: {
   flights: FeaturedFlight[];

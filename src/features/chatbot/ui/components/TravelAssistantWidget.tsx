@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUp, BriefcaseBusiness, History, LoaderCircle, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
+import { ArrowUp, BriefcaseBusiness, Check, History, LoaderCircle, Luggage, MessageCircle, Minus, Plane, Plus, RotateCcw, Sparkles, TicketCheck, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { useTravelShell } from "@/src/components/layout/TravelShellContext";
@@ -44,8 +44,9 @@ const promptKeys = ["prepare", "flightStatus", "findFlight"] as const;
 const promptIcons = [Sparkles, Plane, TicketCheck] as const;
 const topicKeys = ["newBooking", "manageBooking", "checkIn", "baggage", "flightStatus"] as const;
 const topicIcons = [Plane, BriefcaseBusiness, TicketCheck, Luggage, RotateCcw] as const;
-const FAQ_GREETING_DURATION_MS = 4_500;
-const FAQ_GREETING_FADE_MS = 220;
+const ASSISTANT_GREETING_STORAGE_KEY = "veyra-assistant-greeting-seen";
+const ASSISTANT_GREETING_DURATION_MS = 4_500;
+const ASSISTANT_GREETING_FADE_MS = 220;
 
 function newId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
@@ -57,12 +58,14 @@ export function TravelAssistantWidget() {
   const selectedLanguage = supportedLanguages.find((language) => language.code === i18n.resolvedLanguage) ?? supportedLanguages[0];
   const { user, authLoading, openSignIn } = useTravelShell();
   const [client] = useState(() => injector<ChatClient>(CHAT_CLIENT));
+  const previousUserId = useRef(user?.id ?? null);
   const [open, setOpen] = useState(false);
-  const [faqGreetingPhase, setFaqGreetingPhase] = useState<"hidden" | "visible" | "fading">("hidden");
+  const [assistantGreetingPhase, setAssistantGreetingPhase] = useState<"hidden" | "visible" | "fading">("hidden");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [conversations, setConversations] = useState<ChatConversationSummary[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<ChatErrorCode | null>(null);
   const [requestError, setRequestError] = useState<ChatErrorCode | null>(null);
@@ -74,36 +77,43 @@ export function TravelAssistantWidget() {
   const panelRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const submitPromptRef = useRef<(prompt: string) => void>(() => undefined);
-  const isFaqPage = pathname === "/faqs" || Boolean(pathname?.startsWith("/faqs/"));
-  const faqGreeting = isFaqPage && faqGreetingPhase === "visible" && !open
-    ? t("chatbot.faqGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })
+  const assistantGreeting = assistantGreetingPhase === "visible" && !open
+    ? t("chatbot.assistantGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })
     : "";
-  const showFaqGreetingBubble = isFaqPage && faqGreetingPhase !== "hidden" && !open;
+  const showAssistantGreetingBubble = assistantGreetingPhase !== "hidden" && !open;
   const activeReplyId = responding ? messages[messages.length - 1]?.id : undefined;
 
   useEffect(() => {
-    if (!isFaqPage) {
-      setFaqGreetingPhase("hidden");
-      return;
+    try {
+      if (window.sessionStorage.getItem(ASSISTANT_GREETING_STORAGE_KEY)) return;
+      window.sessionStorage.setItem(ASSISTANT_GREETING_STORAGE_KEY, "true");
+    } catch {
+      // Keep the one-time greeting scoped to this mount when storage is unavailable.
     }
-    setFaqGreetingPhase("visible");
-    const timeout = window.setTimeout(() => setFaqGreetingPhase("fading"), FAQ_GREETING_DURATION_MS);
-    return () => window.clearTimeout(timeout);
-  }, [isFaqPage]);
+    setAssistantGreetingPhase("visible");
+  }, []);
 
   useEffect(() => {
-    if (faqGreetingPhase !== "fading") return;
-    const timeout = window.setTimeout(() => setFaqGreetingPhase("hidden"), FAQ_GREETING_FADE_MS);
+    if (assistantGreetingPhase !== "visible") return;
+    const timeout = window.setTimeout(() => setAssistantGreetingPhase("fading"), ASSISTANT_GREETING_DURATION_MS);
     return () => window.clearTimeout(timeout);
-  }, [faqGreetingPhase]);
+  }, [assistantGreetingPhase]);
+
+  useEffect(() => {
+    if (assistantGreetingPhase !== "fading") return;
+    const timeout = window.setTimeout(() => setAssistantGreetingPhase("hidden"), ASSISTANT_GREETING_FADE_MS);
+    return () => window.clearTimeout(timeout);
+  }, [assistantGreetingPhase]);
 
   const close = useCallback(() => {
-    setFaqGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+    setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
     setOpen(false);
+    setPendingDeleteId(null);
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
   const requestSignIn = useCallback(() => {
+    setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
     launcherRef.current?.focus({ preventScroll: true });
     setOpen(false);
     openSignIn();
@@ -144,12 +154,33 @@ export function TravelAssistantWidget() {
     historyRequest.current?.abort();
   }, []);
 
-  const clearConversation = () => {
+  const clearConversation = useCallback(() => {
     setConversationId(null);
     setMessages([]);
     setRequestError(null);
     setHistoryOpen(false);
-  };
+    setPendingDeleteId(null);
+  }, []);
+
+  useEffect(() => {
+    const currentUserId = user?.id ?? null;
+    const previousId = previousUserId.current;
+    if (previousId === currentUserId) return;
+
+    previousUserId.current = currentUserId;
+    activeRequest.current?.abort();
+    historyRequest.current?.abort();
+    activeRequest.current = null;
+    historyRequest.current = null;
+    clearConversation();
+    setConversations([]);
+    setHistoryLoading(false);
+    setHistoryError(null);
+    setPendingDeleteId(null);
+    setChangingConversation(false);
+    setResponding(false);
+    if (previousId) setOpen(false);
+  }, [clearConversation, user?.id]);
 
   const startNewConversation = () => {
     if (!activeRequest.current) clearConversation();
@@ -169,7 +200,7 @@ export function TravelAssistantWidget() {
       setHistoryError(code);
       if (code === "auth_required") requestSignIn();
     } finally {
-      activeRequest.current = null;
+      if (activeRequest.current === controller) activeRequest.current = null;
       if (!controller.signal.aborted) setChangingConversation(false);
     }
   };
@@ -184,7 +215,7 @@ export function TravelAssistantWidget() {
   });
 
   const deleteConversation = async (id: string) => {
-    if (activeRequest.current || !window.confirm(t("chatbot.confirmDelete"))) return;
+    if (activeRequest.current || changingConversation) return;
     await changeConversation(async (signal) => {
       await client.deleteConversation(id, signal);
       signal.throwIfAborted();
@@ -192,6 +223,7 @@ export function TravelAssistantWidget() {
       setHistoryLoading(false);
       setConversations((current) => current.filter((item) => item.id !== id));
       if (conversationId === id) clearConversation();
+      setPendingDeleteId(null);
     });
   };
 
@@ -282,7 +314,7 @@ export function TravelAssistantWidget() {
       if (code === "auth_required") requestSignIn();
     } finally {
       if (pendingFrame !== null) window.cancelAnimationFrame(pendingFrame);
-      activeRequest.current = null;
+      if (activeRequest.current === controller) activeRequest.current = null;
       if (!controller.signal.aborted) setResponding(false);
     }
   }, [client, conversationId, requestSignIn, selectedLanguage.code, user]);
@@ -307,25 +339,30 @@ export function TravelAssistantWidget() {
       <button
         ref={launcherRef}
         type="button"
-        aria-label={faqGreeting || t("chatbot.launcher")}
+        aria-label={assistantGreeting || t("chatbot.launcher")}
         aria-haspopup="dialog"
         aria-expanded={open}
+        disabled={authLoading}
         onClick={() => {
-          setFaqGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+          setAssistantGreetingPhase((phase) => phase === "hidden" ? "hidden" : "fading");
+          if (!user) {
+            requestSignIn();
+            return;
+          }
           setOpen(true);
         }}
-        className="group fixed bottom-[calc(1.25rem_+_env(safe-area-inset-bottom))] right-[calc(1.25rem_+_env(safe-area-inset-right))] z-[60] flex max-w-[calc(100%_-_3rem_-_env(safe-area-inset-right)_-_env(safe-area-inset-left))] items-center gap-2.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-airline-gold sm:bottom-[calc(1.5rem_+_env(safe-area-inset-bottom))] sm:right-[calc(1.5rem_+_env(safe-area-inset-right))]"
+        className="group fixed bottom-[calc(1.25rem_+_env(safe-area-inset-bottom))] right-[calc(1.25rem_+_env(safe-area-inset-right))] z-[60] flex max-w-[calc(100%_-_3rem_-_env(safe-area-inset-right)_-_env(safe-area-inset-left))] items-center gap-2.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-airline-gold disabled:cursor-wait disabled:opacity-60 sm:bottom-[calc(1.5rem_+_env(safe-area-inset-bottom))] sm:right-[calc(1.5rem_+_env(safe-area-inset-right))]"
       >
-        {showFaqGreetingBubble && (
+        {showAssistantGreetingBubble && (
           <span
             aria-hidden="true"
             className={[
-              "absolute bottom-0 right-[calc(100%_+_0.625rem)] w-max max-w-[8.5rem] rounded-xl rounded-br-sm border border-airline-line bg-airline-paper px-3 py-2 text-left text-xs font-medium leading-snug text-airline-forest shadow-[0_5px_18px_rgb(24_61_55_/_12%)]",
-              styles.faqGreeting,
-              faqGreetingPhase === "visible" ? styles.faqGreetingVisible : styles.faqGreetingLeaving,
+              "absolute bottom-2 right-[calc(100%_+_0.625rem)] w-max max-w-[8.5rem] rounded-xl rounded-br-sm border border-airline-line bg-airline-paper px-3 py-2 text-left text-xs font-medium leading-snug text-airline-forest shadow-[0_5px_18px_rgb(24_61_55_/_12%)]",
+              styles.assistantGreeting,
+              assistantGreetingPhase === "visible" ? styles.assistantGreetingVisible : styles.assistantGreetingLeaving,
             ].join(" ")}
           >
-            {faqGreeting}
+            {assistantGreeting || t("chatbot.assistantGreeting", { lngs: [selectedLanguage.code], defaultValue: t("chatbot.welcome") })}
           </span>
         )}
         <span className="relative grid size-14 shrink-0 place-items-center rounded-full border border-white/70 bg-airline-forest shadow-[0_10px_28px_rgb(24_61_55_/_28%)] transition-transform motion-safe:group-hover:-translate-y-1" aria-hidden="true">
@@ -349,7 +386,9 @@ export function TravelAssistantWidget() {
                 <circle cx="111" cy="54" r="2.5" />
                 <circle cx="205" cy="28" r="2.5" />
               </svg>
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-airline-gold/70 bg-white/[.08] font-serif text-2xl font-semibold text-airline-gold shadow-[inset_0_0_18px_rgba(255,255,255,.06)]" aria-hidden="true">V</div>
+              <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[17px] border border-airline-gold/70 bg-airline-forest shadow-[0_4px_14px_rgb(0_0_0_/_16%)]" aria-hidden="true">
+                <Image src="/icon.svg" alt="" width={48} height={48} className="h-full w-full object-cover" />
+              </span>
               <div className="min-w-0 flex-1">
                 <h2 id="veyra-chat-title" className="truncate text-lg font-semibold tracking-tight">{t("chatbot.title")}</h2>
                 <p className="mt-0.5 text-xs text-white/75">{t("chatbot.subtitle")}</p>
@@ -375,13 +414,74 @@ export function TravelAssistantWidget() {
                   {historyError && <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" role="alert">{t(errorKeys[historyError] ?? "chatbot.historyError")}</p>}
                   {!historyLoading && !changingConversation && !historyError && conversations.length === 0 && <p className="rounded-2xl border border-dashed border-airline-line bg-white p-5 text-sm leading-6 text-airline-muted">{t("chatbot.historyEmpty")}</p>}
                   <div className="space-y-2">
-                    {conversations.map((conversation) => <div key={conversation.id} className="flex items-center gap-1 rounded-2xl border border-airline-line bg-white p-2 shadow-sm">
-                      <button type="button" disabled={changingConversation} onClick={() => void openConversation(conversation.id)} className="min-w-0 flex-1 rounded-xl px-3 py-2 text-left hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold">
-                        <span className="block truncate text-sm font-semibold text-airline-ink">{conversation.title}</span>
-                        <time className="mt-1 block text-[11px] text-airline-muted" dateTime={conversation.updatedAt}>{new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(conversation.updatedAt))}</time>
-                      </button>
-                      <button type="button" aria-label={t("chatbot.deleteConversation", { title: conversation.title })} disabled={changingConversation} onClick={() => void deleteConversation(conversation.id)} className="rounded-xl p-2.5 text-airline-muted transition hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>
-                    </div>)}
+                    {conversations.map((conversation) => {
+                      const confirmingDelete = pendingDeleteId === conversation.id;
+                      const formattedDate = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      }).format(new Date(conversation.updatedAt));
+
+                      return (
+                        <div key={conversation.id} className="flex items-center gap-1 rounded-2xl border border-airline-line bg-white p-2 shadow-sm">
+                          {confirmingDelete ? (
+                            <>
+                              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+                                <Trash2 className="size-4 shrink-0 text-airline-garnet" aria-hidden="true" />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-airline-garnet">{t("chatbot.confirmDelete")}</p>
+                                  <p className="truncate text-[11px] text-airline-muted">{conversation.title}</p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                aria-label={t("chatbot.confirmDeleteConversation", { title: conversation.title })}
+                                disabled={changingConversation}
+                                onClick={() => void deleteConversation(conversation.id)}
+                                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-airline-garnet px-2.5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-red-900 disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet"
+                              >
+                                {changingConversation
+                                  ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                                  : <Check className="size-4" aria-hidden="true" />}
+                                <span>{t("chatbot.confirmDeleteAction")}</span>
+                              </button>
+                              <button
+                                type="button"
+                                aria-label={t("chatbot.cancelDelete")}
+                                disabled={changingConversation}
+                                onClick={() => setPendingDeleteId(null)}
+                                className="grid size-10 shrink-0 place-items-center rounded-xl text-airline-muted transition-colors hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest disabled:opacity-50"
+                              >
+                                <X className="size-4" aria-hidden="true" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                disabled={changingConversation}
+                                onClick={() => {
+                                  setPendingDeleteId(null);
+                                  void openConversation(conversation.id);
+                                }}
+                                className="min-w-0 flex-1 rounded-xl px-3 py-2 text-left hover:bg-airline-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-60"
+                              >
+                                <span className="block truncate text-sm font-semibold text-airline-ink">{conversation.title}</span>
+                                <time className="mt-1 block text-[11px] text-airline-muted" dateTime={conversation.updatedAt}>{formattedDate}</time>
+                              </button>
+                              <button
+                                type="button"
+                                aria-label={t("chatbot.deleteConversation", { title: conversation.title })}
+                                disabled={changingConversation}
+                                onClick={() => setPendingDeleteId(conversation.id)}
+                                className="rounded-xl p-2.5 text-airline-muted transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-gold disabled:opacity-50"
+                              >
+                                <Trash2 className="size-4" aria-hidden="true" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
               ) : messages.length === 0 ? (
@@ -461,13 +561,6 @@ export function TravelAssistantWidget() {
               )}
               {requestError && <p role="alert" className="mx-auto mt-4 max-w-[400px] rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{t(errorKeys[requestError] ?? "chatbot.error")}</p>}
             </div>
-
-            {!user && !authLoading && (
-              <div className="mx-4 mb-3 flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-airline-gold/40 bg-white px-4 py-3 shadow-sm sm:mx-5">
-                <div className="min-w-0"><p className="text-sm font-semibold text-airline-night">{t("chatbot.signInTitle")}</p><p className="mt-0.5 text-xs leading-5 text-airline-muted">{t("chatbot.signInDescription")}</p></div>
-                <button type="button" onClick={requestSignIn} className="shrink-0 rounded-xl bg-airline-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold">{t("chatbot.signInAction")}</button>
-              </div>
-            )}
 
             <Formik initialValues={{ message: "" }} onSubmit={submitMessage}>
               <ChatComposer disabled={!user || authLoading || historyOpen || responding || changingConversation} registerSubmitPrompt={registerSubmitPrompt} />

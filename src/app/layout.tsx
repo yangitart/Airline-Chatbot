@@ -15,10 +15,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="bg-airline-canvas overscroll-y-none" suppressHydrationWarning>
+    <html lang="en" className="bg-airline-canvas scroll-smooth motion-reduce:scroll-auto overscroll-y-none" suppressHydrationWarning>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preload" as="image" href="/images/london-tower-bridge.webp" />
+        <link rel="preload" as="image" href="/images/airport-terminal-hero.webp" />
       </head>
       <body className="min-h-dvh bg-airline-canvas overscroll-y-none">
         <AppProviders><TravelAppShell>{children}</TravelAppShell></AppProviders>

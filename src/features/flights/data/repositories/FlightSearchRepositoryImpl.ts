@@ -13,4 +13,11 @@ export const FlightSearchRepositoryImpl = (
       return ErrorData(error);
     }
   },
+  featuredFlights: async (departureDate) => {
+    try {
+      return SuccessData(await dataSource.featuredFlights(departureDate));
+    } catch (error) {
+      return ErrorData(error);
+    }
+  },
 });

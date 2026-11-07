@@ -10,20 +10,18 @@ import { useTravelShell } from "@/src/components/layout/TravelShellContext";
 import type { Booking, CreateDemoBookingCommand } from "@/src/features/bookings/domain/models/Booking";
 import { BookingSymbols } from "@/src/features/bookings/ioc/BookingSymbols";
 import { FlightSearchQuery, FlightSearchResult } from "../../domain/models/FlightSearch";
+import type { FeaturedFlight } from "../../domain/models/FeaturedFlight";
 import { FlightSearchSymbols } from "../../ioc/FlightSearchSymbols";
+import { FeaturedFlightsResponse, SearchFlightsResponse } from "../../domain/useCases/searchFlightsUseCase";
 import { FlightSearchForm, localDate } from "../components/FlightSearchForm";
 import { BookingTabs } from "../components/BookingTabs";
 import { FlightResults } from "../components/FlightResults";
-import { FlightHero, type FeaturedFlight } from "../components/FlightHero";
+import { FlightHero } from "../components/FlightHero";
 import { FlightRouteFromUrl, type RoutePrefill } from "../components/FlightRouteFromUrl";
-import { DEMO_ROUTE_PAIRS } from "../../domain/models/DemoRoutes";
 
-type SearchUseCase = IUseCase<FlightSearchQuery, Promise<import("fp-ts/Either").Either<string, FlightSearchResult>>>;
+type SearchUseCase = IUseCase<FlightSearchQuery, SearchFlightsResponse>;
 type CreateBookingUseCase = IUseCase<CreateDemoBookingCommand, Promise<import("fp-ts/Either").Either<string, Booking>>>;
-
-const featuredRoutes = DEMO_ROUTE_PAIRS.filter(({ destination }, index) =>
-  DEMO_ROUTE_PAIRS.findIndex((route) => route.destination === destination) === index,
-);
+type FeaturedFlightsUseCase = IUseCase<string, FeaturedFlightsResponse>;
 
 export default function FlightSearchView() {
   const { t } = useTranslation();
@@ -37,19 +35,14 @@ export default function FlightSearchView() {
   const [featuredFlights, setFeaturedFlights] = useState<FeaturedFlight[]>([]);
   const [routePrefill, setRoutePrefill] = useState<RoutePrefill | null>(null);
   const searchUseCase = useMemo(() => injector<SearchUseCase>(FlightSearchSymbols.searchUseCase), []);
+  const featuredFlightsUseCase = useMemo(() => injector<FeaturedFlightsUseCase>(FlightSearchSymbols.featuredFlightsUseCase), []);
   useEffect(() => {
     let active = true;
-    const departureDate = localDate(1);
-    void Promise.allSettled(featuredRoutes.map(async (route) => {
-      const result = await searchUseCase.execute({ ...route, departureDate, passengers: 1, cabinClass: "economy" });
-      if (isLeft(result)) return null;
-      const flight = result.right.flights.find((option) => option.number_of_bookable_seats > 0);
-      return flight ? { ...route, date: flight.departure_date, number: flight.flight_number } : null;
-    })).then((responses) => {
-      if (active) setFeaturedFlights(responses.flatMap((response) => response.status === "fulfilled" && response.value ? [response.value] : []));
-    });
+    void featuredFlightsUseCase.execute(localDate(1)).then((result) => {
+      if (active) setFeaturedFlights(isLeft(result) ? [] : result.right);
+    }).catch(() => { if (active) setFeaturedFlights([]); });
     return () => { active = false; };
-  }, [searchUseCase]);
+  }, [featuredFlightsUseCase]);
 
   const createBookingUseCase = useMemo(() => injector<CreateBookingUseCase>(BookingSymbols.createDemoBookingUseCase), []);
 
@@ -162,7 +155,7 @@ export default function FlightSearchView() {
   }, [backToSearch, registerSearchAction, results]);
 
   return (
-    <main className="relative isolate min-h-[calc(100dvh-62px)] text-airline-ink sm:min-h-[calc(100dvh-72px)]">
+    <main id="book-manage" className="relative isolate min-h-[calc(100dvh-62px)] text-airline-ink sm:min-h-[calc(100dvh-72px)]">
       <Suspense fallback={null}><FlightRouteFromUrl onSelect={selectRoute} /></Suspense>
       <div className={`mx-auto grid max-w-[1440px] items-stretch gap-4 px-4 py-5 sm:gap-6 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-8 ${results ? "lg:hidden" : ""}`}>
       <FlightHero flights={featuredFlights} selectedDestination={results?.destination ?? routePrefill?.destination} onSelectRoute={selectRoute} />

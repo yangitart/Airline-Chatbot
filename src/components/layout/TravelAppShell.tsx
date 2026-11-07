@@ -38,16 +38,41 @@ export function TravelAppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    let initialUserLoaded = false;
+    let currentUserResolved = false;
+    let latestAuthUser: GoogleUser | null | undefined;
+    const unsubscribe = injector<IUseCase<(user: GoogleUser | null) => void, () => void>>(
+      GoogleAuthenticationSymbols.authStateUseCase,
+    ).execute((nextUser) => {
+      if (!active) return;
+      if (!initialUserLoaded) {
+        latestAuthUser = nextUser;
+        return;
+      }
+      setUser(nextUser);
+      setAuthLoading(false);
+    });
+
     const loadUser = async () => {
       try {
         const result = await injector<AuthUseCase<GoogleUser | null>>(GoogleAuthenticationSymbols.currentUserUseCase).execute();
-        if (active && !isLeft(result)) setUser(result.right);
+        if (active && !isLeft(result)) {
+          setUser(result.right);
+          currentUserResolved = true;
+        }
       } finally {
-        if (active) setAuthLoading(false);
+        if (active) {
+          if (!currentUserResolved && latestAuthUser !== undefined) setUser(latestAuthUser);
+          initialUserLoaded = true;
+          setAuthLoading(false);
+        }
       }
     };
     void loadUser().catch(() => undefined);
-    return () => { active = false; };
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const openSignIn = useCallback((beforeRedirect?: () => void) => {
@@ -90,7 +115,7 @@ export function TravelAppShell({ children }: { children: ReactNode }) {
         <div className="overflow-x-clip">
           <div key={pathname} className={styles.routeView}>{children}</div>
         </div>
-        <TravelAssistantWidget key={user?.id ?? "guest"} />
+        <TravelAssistantWidget />
         {modalOpen && <GoogleAuthModal onClose={closeSignIn} onRedirect={prepareRedirect} />}
       </div>
     </TravelShellContext.Provider>

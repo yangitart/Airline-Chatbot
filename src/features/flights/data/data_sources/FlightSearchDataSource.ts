@@ -1,10 +1,12 @@
 import type { AxiosInstance } from "axios";
 import { API_ROUTES } from "@/src/core/routes/routes";
+import type { FeaturedFlight } from "../../domain/models/FeaturedFlight";
 import { FlightSearchQuery } from "../../domain/models/FlightSearch";
 import { FlightSearchModel } from "../models/FlightSearchModel";
 
 export interface FlightSearchDataSource {
   search(query: FlightSearchQuery): Promise<FlightSearchModel>;
+  featuredFlights(departureDate: string): Promise<FeaturedFlight[]>;
 }
 
 export const FlightSearchApiDataSourceImpl = (
@@ -22,5 +24,11 @@ export const FlightSearchApiDataSourceImpl = (
       },
     });
     return data;
+  },
+  featuredFlights: async (departureDate) => {
+    const { data } = await apiClient.get<{ flights: FeaturedFlight[] }>(API_ROUTES.FEATURED_FLIGHTS, {
+      params: { departure_date: departureDate },
+    });
+    return data.flights;
   },
 });

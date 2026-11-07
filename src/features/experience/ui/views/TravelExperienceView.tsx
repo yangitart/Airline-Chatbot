@@ -22,7 +22,7 @@ export default function TravelExperienceView() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <Link href="/prepare-to-travel"
             className="group relative isolate flex min-h-[330px] flex-col justify-end overflow-hidden rounded-[28px] bg-airline-night p-6 text-white no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-airline-forest sm:p-8">
-            <Image src="/images/airport-terminal-hero.webp" alt="" fill unoptimized priority className="-z-20 object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none" />
+            <Image src="/images/airport-terminal-hero.webp" alt="" fill unoptimized loading="eager" fetchPriority="high" className="-z-20 object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none" />
             <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b2229] via-[#0b2229]/65 to-transparent" aria-hidden="true" />
             <p className="text-xs font-bold tracking-[.18em] text-airline-gold" aria-hidden="true">01</p>
             <h3 className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">{t("travelPages.experienceAreas.airport.title")}</h3>
