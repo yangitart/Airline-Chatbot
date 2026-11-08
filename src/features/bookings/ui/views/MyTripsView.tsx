@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
 import { TravelSectionLayout } from "@/src/components/layout/TravelSectionLayout";
 import type { Booking } from "../../domain/models/Booking";
+import { parseBookingLookup } from "../../domain/models/BookingReference";
 import { bookingServices } from "../../ioc/bookingServices";
 import { SkeletonBlock } from "@/src/components/feedback/SkeletonBlock";
 
@@ -14,85 +15,92 @@ export default function MyTripsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [checkInMode, setCheckInMode] = useState(false);
-
-  const refresh = useCallback(() => {
-    let active = true;
-    void bookingServices.listMyBookings
-      .execute()
-      .then((result) => {
-        if (!active) return;
-        if (isLeft(result)) setError(t("flightSearch.booking.tripsLoadFailed"));
-        else setBookings(result.right);
-      })
-      .catch(() => {
-        if (active) setError(t("flightSearch.booking.tripsLoadFailed"));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [t]);
+  const [busyId, setBusyId] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
 
   useEffect(() => {
-    const stop = refresh();
-    return stop;
-  }, [refresh]);
-  useEffect(() => {
-    setCheckInMode(
-      new URLSearchParams(window.location.search).get("check-in") === "1",
-    );
-  }, []);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
     const query = new URLSearchParams(window.location.search);
-    if (query.get("payment") === "cancelled") {
+    const payment = query.get("payment");
+    const lookup = parseBookingLookup(query.get("booking_id") ?? "");
+    const targetBookingId =
+      payment === "return" && lookup?.column === "id" ? lookup.value : null;
+    setCheckInMode(query.get("check-in") === "1");
+    if (payment === "cancelled") {
       setActionMessage(t("tripOperations.paymentCancelled"));
-      return;
+    } else if (targetBookingId) {
+      setActionMessage(t("tripOperations.paymentVerificationPending"));
     }
-    if (query.get("payment") !== "return") return;
-    const targetBookingId = query.get("booking_id");
-    setActionMessage(t("tripOperations.paymentVerificationPending"));
+
+    let active = true;
     let attempts = 0;
-    let timer: ReturnType<typeof setTimeout>;
-    let cancelled = false;
-    const poll = async () => {
-      const result = await bookingServices.listMyBookings.execute();
-      if (cancelled) return;
-      if (!isLeft(result)) {
-        setBookings(result.right);
-        const returnedBooking = result.right.find(
-          (booking) => booking.id === targetBookingId,
-        );
-        if (returnedBooking?.paymentStatus === "paid") {
-          setActionMessage(t("tripOperations.paymentVerified"));
-          return;
-        }
-        if (
-          returnedBooking?.paymentStatus === "failed" ||
-          returnedBooking?.status === "expired"
-        ) {
-          setActionMessage(
-            returnedBooking.status === "expired"
-              ? t("tripOperations.checkoutExpired")
-              : t("tripOperations.paymentFailed"),
-          );
-          return;
-        }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const reportPaymentResult = (booking?: Booking) => {
+      if (booking?.paymentStatus === "paid") {
+        setActionMessage(t("tripOperations.paymentVerified"));
+        return true;
       }
+      if (
+        booking?.paymentStatus === "failed" ||
+        booking?.status === "expired"
+      ) {
+        setActionMessage(
+          booking.status === "expired"
+            ? t("tripOperations.checkoutExpired")
+            : t("tripOperations.paymentFailed"),
+        );
+        return true;
+      }
+      return false;
+    };
+
+    const pollPayment = async (bookingId: string) => {
+      const result = await bookingServices.getMyBooking.execute(bookingId);
+      if (!active) return;
+      if (!isLeft(result) && result.right) {
+        const booking = result.right;
+        setError("");
+        setBookings((current) =>
+          current.some((item) => item.id === booking.id)
+            ? current.map((item) => (item.id === booking.id ? booking : item))
+            : [booking, ...current],
+        );
+        if (reportPaymentResult(booking)) return;
+      }
+
       attempts += 1;
-      if (attempts < 12) timer = setTimeout(() => void poll(), 2500);
+      if (attempts < 12) schedulePoll(bookingId);
       else setActionMessage(t("tripOperations.paymentStillPending"));
     };
-    void poll();
+
+    function schedulePoll(bookingId: string) {
+      timer = setTimeout(() => void pollPayment(bookingId), 2500);
+    }
+
+    const loadTrips = async () => {
+      const result = await bookingServices.listMyBookings.execute();
+      if (!active) return;
+      setLoading(false);
+      const trips = isLeft(result) ? [] : result.right;
+      if (isLeft(result)) setError(t("flightSearch.booking.tripsLoadFailed"));
+      else {
+        setError("");
+        setBookings(trips);
+      }
+      if (
+        targetBookingId &&
+        !reportPaymentResult(trips.find((trip) => trip.id === targetBookingId))
+      ) {
+        schedulePoll(targetBookingId);
+      }
+    };
+
+    void loadTrips();
     return () => {
-      cancelled = true;
+      active = false;
       clearTimeout(timer);
     };
   }, [t]);
-  const [busyId, setBusyId] = useState("");
-  const [actionMessage, setActionMessage] = useState("");
   const startPayment = async (id: string) => {
     setBusyId(id);
     setActionMessage("");
@@ -142,8 +150,13 @@ export default function MyTripsView() {
           reference: displayReference(body.boarding_pass_reference),
         }),
       );
-      const result = await bookingServices.listMyBookings.execute();
-      if (!isLeft(result)) setBookings(result.right);
+      const result = await bookingServices.getMyBooking.execute(id);
+      if (!isLeft(result) && result.right) {
+        const updated = result.right;
+        setBookings((current) =>
+          current.map((booking) => (booking.id === id ? updated : booking)),
+        );
+      }
     } catch (cause) {
       setActionMessage(
         cause instanceof Error

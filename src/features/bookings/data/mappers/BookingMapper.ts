@@ -23,3 +23,28 @@ export const mapBookingModel = (model: BookingModel): Booking => ({
   flightOrderPayload: model.flight_order_payload,
   createdAt: model.created_at,
 });
+
+export function serializeBooking(booking: Booking) {
+  return {
+    id: booking.id,
+    booking_reference: booking.bookingReference,
+    flight_instance_id: booking.flightInstanceId,
+    return_flight_instance_id: booking.returnFlightInstanceId,
+    cabin_class: booking.cabinClass,
+    passenger_count: booking.passengerCount,
+    total_fare_minor: booking.totalFareMinor,
+    currency: booking.currency,
+    status: booking.status,
+    payment_status: booking.paymentStatus,
+    demo_checkins: booking.checkIns.map((checkin) => ({
+      flight_leg: checkin.flightLeg,
+      checked_in_at: checkin.checkedInAt,
+      demo_seat: checkin.demoSeat,
+      demo_boarding_pass_reference: checkin.boardingPassReference,
+    })),
+    is_demo: true,
+    itinerary_snapshot: booking.itinerarySnapshot,
+    flight_order_payload: booking.flightOrderPayload,
+    created_at: booking.createdAt,
+  };
+}

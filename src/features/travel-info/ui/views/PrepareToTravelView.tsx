@@ -3,21 +3,51 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BookOpen,
   BriefcaseBusiness,
-  ClipboardCheck,
-  CircleHelp,
-  Radar,
+  CircleDot,
+  Clipboard,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TravelSectionLayout } from "@/src/components/layout/TravelSectionLayout";
 
-const resources = [
-  { key: "baggage", icon: BriefcaseBusiness, href: "/faqs/baggage-guidelines" },
-  { key: "checkin", icon: ClipboardCheck, href: "/faqs/online-checkin-info" },
-  { key: "flightStatus", icon: Radar, href: "/flight-status" },
-  { key: "faqs", icon: BookOpen, href: "/#faqs" },
-  { key: "help", icon: CircleHelp, href: "/faqs/customer-support" },
+const steps = [
+  {
+    key: "baggage",
+    href: "/faqs/baggage-guidelines",
+    icon: (
+      <BriefcaseBusiness
+        size={20}
+        className="motion-safe:group-hover:animate-travel-bag-lift motion-safe:group-focus-visible:animate-travel-bag-lift motion-safe:group-active:animate-travel-bag-lift"
+      />
+    ),
+  },
+  {
+    key: "checkin",
+    href: "/faqs/online-checkin-info",
+    icon: (
+      <Clipboard size={20}>
+        <path
+          d="m9 14 2 2 4-4"
+          pathLength={1}
+          strokeDasharray={1}
+          className="motion-safe:group-hover:animate-travel-check-mark motion-safe:group-focus-visible:animate-travel-check-mark motion-safe:group-active:animate-travel-check-mark"
+        />
+      </Clipboard>
+    ),
+  },
+  {
+    key: "flightStatus",
+    href: "/flight-status",
+    icon: (
+      <CircleDot size={20}>
+        <circle cx="12" cy="12" r="5.5" strokeOpacity={0.45} />
+        <path
+          d="M13 11l6-6"
+          className="origin-center motion-safe:group-hover:animate-travel-radar-sweep motion-safe:group-focus-visible:animate-travel-radar-sweep motion-safe:group-active:animate-travel-radar-sweep"
+        />
+      </CircleDot>
+    ),
+  },
 ];
 
 export default function PrepareToTravelView({
@@ -25,74 +55,63 @@ export default function PrepareToTravelView({
 }: {
   embedded?: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const stepNumber = new Intl.NumberFormat(i18n.resolvedLanguage, {
+    minimumIntegerDigits: 2,
+  });
+  const resourceText = (key: string, field: string) =>
+    t(`travelPages.resources.${key}.${field}`);
+
   return (
     <TravelSectionLayout
-      eyebrow={t("travelPages.eyebrow")}
+      eyebrow={t("travelPages.resourcesEyebrow")}
       title={t("travelPages.prepareTitle")}
       description={t("travelPages.prepareDescription")}
       embedded={embedded}
       sectionId={embedded ? "prepare-to-travel" : undefined}
     >
-      <section
-        aria-labelledby="resources-heading"
-        className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-8"
-      >
-        <div className="relative overflow-hidden rounded-[28px] bg-airline-forest p-6 text-white sm:p-8">
-          <div
-            className="pointer-events-none absolute -right-14 -top-14 h-56 w-56 rounded-full border border-white/15 shadow-[0_0_0_24px_rgb(255_255_255_/_5%),0_0_0_48px_rgb(255_255_255_/_4%)]"
-            aria-hidden="true"
-          />
-          <p className="relative text-xs font-bold uppercase tracking-[.16em] text-airline-gold">
-            {t("travelPages.resourcesEyebrow")}
-          </p>
-          <h2
-            id="resources-heading"
-            className="relative mt-2 font-serif text-3xl leading-tight sm:text-4xl"
-          >
-            {t("travelPages.resourcesTitle")}
-          </h2>
-          <p className="relative mt-4 max-w-sm text-sm leading-6 text-white/80">
-            {t("travelPages.officialInfoNote")}
-          </p>
-        </div>
-        <ol className="overflow-hidden rounded-[28px] border border-airline-line bg-airline-paper shadow-[0_12px_32px_rgb(23_40_59_/_6%)]">
-          {resources.map(({ key, icon: Icon, href }, index) => (
-            <li
-              key={key}
-              className="border-b border-airline-line last:border-b-0"
+      <ol className="grid gap-3 md:grid-cols-3">
+        {steps.map(({ key, icon, href }, index) => (
+          <li key={key} className="min-w-0">
+            <Link
+              href={href}
+              aria-labelledby={`prepare-${key}-action`}
+              aria-describedby={`prepare-${key}-description`}
+              className="group flex h-full flex-col rounded-[1.5rem] border border-airline-line bg-airline-paper p-5 no-underline hover:border-airline-forest/30 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-forest motion-safe:transition-[transform,border-color,box-shadow] motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-y-0 sm:p-6"
             >
-              <Link
-                href={href}
-                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-4 py-5 text-airline-ink no-underline transition-colors hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-airline-forest sm:gap-4 sm:px-6"
+              <div className="mb-4 flex items-center gap-3" aria-hidden="true">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-airline-forest-soft text-airline-forest">
+                  {icon}
+                </span>
+                <span className="grow border-t border-dashed border-airline-gold" />
+                <span className="font-serif text-2xl tabular-nums text-airline-garnet">
+                  {stepNumber.format(index + 1)}
+                </span>
+              </div>
+              <h3 className="font-serif text-2xl text-airline-night">
+                {resourceText(key, "title")}
+              </h3>
+              <p
+                id={`prepare-${key}-description`}
+                className="mb-4 mt-2 text-sm leading-6 text-airline-muted"
               >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-airline-forest-soft text-airline-forest group-hover:bg-airline-forest group-hover:text-white">
-                  <Icon size={18} aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span
-                    className="block text-[10px] font-bold tracking-[.18em] text-airline-garnet"
-                    aria-hidden="true"
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="mt-1 block text-base font-semibold text-airline-night">
-                    {t("travelPages.resources." + key + ".title")}
-                  </span>
-                  <span className="mt-1 block text-sm leading-6 text-airline-muted">
-                    {t("travelPages.resources." + key + ".description")}
-                  </span>
-                </span>
+                {resourceText(key, "description")}
+              </p>
+              <span
+                id={`prepare-${key}-action`}
+                className="mt-auto inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-airline-forest-soft px-3.5 py-2 text-sm font-semibold text-airline-forest group-hover:bg-airline-forest group-hover:text-white group-focus-visible:bg-airline-forest group-focus-visible:text-white motion-safe:transition-colors"
+              >
+                {resourceText(key, "action")}
                 <ArrowRight
-                  size={18}
-                  className="mt-3 text-airline-forest"
+                  size={16}
+                  className="shrink-0 motion-safe:transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5"
                   aria-hidden="true"
                 />
-              </Link>
-            </li>
-          ))}
-        </ol>
-      </section>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
     </TravelSectionLayout>
   );
 }

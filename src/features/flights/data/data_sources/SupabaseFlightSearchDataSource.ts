@@ -38,6 +38,16 @@ type InventoryRow = {
   offer_payload: AmadeusFlightOfferModel;
   flight: FlightRow;
 };
+type FeaturedInventoryRow = {
+  flight: Pick<
+    FlightRow,
+    | "flight_number"
+    | "origin_code"
+    | "destination_code"
+    | "departure_date"
+    | "departure_at"
+  >;
+};
 
 const flightInventorySelection = `
   flight_instance_id,cabin_class,seats_available,fare_minor,currency,offer_id,offer_payload,
@@ -158,7 +168,9 @@ export const SupabaseFlightSearchDataSourceImpl = (
   featuredFlights: async (departureDate: string): Promise<FeaturedFlight[]> => {
     const { data, error } = await supabase
       .from("flight_inventory")
-      .select(flightInventorySelection)
+      .select(
+        "flight:flight_instances!inner(flight_number,origin_code,destination_code,departure_date,departure_at)",
+      )
       .eq("cabin_class", "economy")
       .gte("seats_available", 1)
       .eq("flight.departure_date", departureDate)
@@ -171,8 +183,8 @@ export const SupabaseFlightSearchDataSourceImpl = (
         ({ origin, destination }) => `${origin}-${destination}`,
       ),
     );
-    const firstFlightByRoute = new Map<string, InventoryRow>();
-    const rows = ((data ?? []) as unknown as InventoryRow[]).sort(
+    const firstFlightByRoute = new Map<string, FeaturedInventoryRow>();
+    const rows = ((data ?? []) as unknown as FeaturedInventoryRow[]).sort(
       (left, right) =>
         left.flight.departure_at.localeCompare(right.flight.departure_at),
     );
@@ -198,7 +210,7 @@ export const SupabaseFlightSearchDataSourceImpl = (
           origin,
           destination,
           date: row.flight.departure_date,
-          number: mapFlight(row).flight_number,
+          number: row.flight.flight_number,
         },
       ];
     });

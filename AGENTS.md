@@ -31,6 +31,7 @@
 - New forms use Formik. Create reusable Formik field adapters in src/components/forms with Formik hooks/context, labels, validation states, and accessible errors.
 - Keep form layout and feature validation schemas inside the feature UI.
 - Prefer semantic HTML, Tailwind/CSS, and the project's own shared components for new work. Do not introduce new HeroUI imports.
+- Use Tailwind utilities for component styles and define custom animations in the Tailwind config. Do not introduce CSS Modules.
 - Existing HeroUI components are legacy. Migrate a component when it is touched and confirm its consumers before removing it; do not bulk-delete components that older feature code still imports.
 - Some inherited feature files still refer to removed Science Plan APIs/types and are not registered by the active app composition root. Do not wire those screens back in without migrating their dependencies to Airline/Supabase contracts.
 
@@ -46,7 +47,7 @@
 - Use Supabase Auth for Google sign-in. Use Supabase Postgres with RLS for application tables.
 - Chat history is private account data: RLS must scope `chat_conversations` and `chat_messages` to the authenticated owner; the server loads context from the owner's saved messages instead of trusting browser-supplied transcripts.
 - The archived Air India research corpus must never be used as Veyra guidance. Veyra FAQ records use `source_type='authored_faq'` and published versioning; retrieval filters to this type and the requested language. PDFs are review copies only; embeddings come from the canonical structured JSON.
-- Stripe keys are server-only. Accept only `sk_test_` keys for demo checkout; verify webhook signatures against the raw request body and use the Supabase server-secret client only in the webhook handler. Never store card data or mark payment complete from a browser redirect.
+- Stripe keys are server-only. Accept only `sk_test_` keys for demo checkout. Verify webhook signatures against the raw request body and reconcile the signed session, reservation, total and currency before updating payment state. Use the Supabase server-secret client only for the webhook and the server operation that attaches a Stripe session to an authenticated owner's booking. Never store card data or mark payment complete from a browser redirect.
 - Demo check-in is stored per outbound/return leg. Use the owner-scoped RPC and show only sample seats/references; Stripe expiry releases demo inventory once using the idempotent event log.
 - Owner profile data lives in `profiles` under RLS. Flight status and schedules are seeded AviationStack-shaped demo snapshots; always label them as demo and not live.
 - Do not restore the old JWT token/refresh-cookie service; Supabase SSR owns auth session storage and refresh.

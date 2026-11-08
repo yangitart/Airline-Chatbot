@@ -8,9 +8,12 @@ import {
   saveCheckoutSessionUseCase,
 } from "../domain/useCases/bookingTripOperationsUseCases";
 
-export function createServerTripOperations(supabase: SupabaseClient) {
+export function createServerTripOperations(
+  supabase: SupabaseClient,
+  checkoutWriter?: SupabaseClient,
+) {
   const repository = BookingTripOperationsRepositoryImpl(
-    createSupabaseTripOperationsDataSource(supabase),
+    createSupabaseTripOperationsDataSource(supabase, checkoutWriter),
   );
   return {
     getCheckoutBooking: getCheckoutBookingUseCase(repository),

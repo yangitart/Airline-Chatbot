@@ -17,6 +17,41 @@ import {
 import type { FaqRetriever } from "../../domain/repositories/FaqRetriever";
 import type { ChatModelProvider } from "../providers/ChatModelProvider";
 
+const socialMessages = new Set([
+  "hi",
+  "hello",
+  "hey",
+  "good morning",
+  "good afternoon",
+  "good evening",
+  "thanks",
+  "thank you",
+  "hola",
+  "buenos días",
+  "buenas tardes",
+  "buenas noches",
+  "gracias",
+  "bonjour",
+  "bonsoir",
+  "salut",
+  "merci",
+  "olá",
+  "oi",
+  "bom dia",
+  "boa tarde",
+  "boa noite",
+  "obrigado",
+  "obrigada",
+  "नमस्ते",
+  "नमस्कार",
+  "धन्यवाद",
+  "你好",
+  "您好",
+  "早上好",
+  "晚上好",
+  "谢谢",
+]);
+
 export class ProviderChatCompletionRepository implements ChatCompletionRepository {
   constructor(
     private readonly provider: ChatModelProvider,
@@ -44,17 +79,24 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
     const latestQuestion =
       [...messages].reverse().find((message) => message.role === "user")
         ?.content ?? "";
+    const normalizedQuestion = latestQuestion
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/^[\p{P}\s]+|[\p{P}\s]+$/gu, "")
+      .replace(/\s+/g, " ");
+    const retriever =
+      normalizedQuestion && !socialMessages.has(normalizedQuestion)
+        ? this.faqRetriever
+        : undefined;
     const chunks =
-      (await this.faqRetriever
-        ?.search(latestQuestion, language, signal)
-        .catch(() => {
-          signal?.throwIfAborted();
-          console.warn("[chat]", {
-            operation: "retrieve_faq",
-            code: "faq_unavailable",
-          });
-          return [];
-        })) ?? [];
+      (await retriever?.search(latestQuestion, language, signal).catch(() => {
+        signal?.throwIfAborted();
+        console.warn("[chat]", {
+          operation: "retrieve_faq",
+          code: "faq_unavailable",
+        });
+        return [];
+      })) ?? [];
     const groundingContext = chunks.length
       ? JSON.stringify(
           chunks.map((chunk, index) => ({

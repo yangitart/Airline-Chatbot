@@ -35,9 +35,9 @@ export function BookingTripOperationsRepositoryImpl(
         return left(errorMessage(error));
       }
     },
-    saveCheckoutSession: async (bookingId: string, sessionId: string) => {
+    saveCheckoutSession: async (bookingId, userId, sessionId) => {
       try {
-        await dataSource.saveCheckoutSession(bookingId, sessionId);
+        await dataSource.saveCheckoutSession(bookingId, userId, sessionId);
         return right(undefined);
       } catch (error) {
         return left(errorMessage(error));

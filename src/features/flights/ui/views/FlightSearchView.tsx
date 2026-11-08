@@ -25,7 +25,11 @@ import {
   type RoutePrefill,
 } from "../components/FlightRouteFromUrl";
 
-export default function FlightSearchView() {
+export default function FlightSearchView({
+  selectedRoute,
+}: {
+  selectedRoute?: RoutePrefill | null;
+}) {
   const { t } = useTranslation();
   const { user, authLoading, openSignIn, registerSearchAction } =
     useTravelShell();
@@ -109,6 +113,10 @@ export default function FlightSearchView() {
     });
   }, []);
 
+  useEffect(() => {
+    if (selectedRoute) selectRoute(selectedRoute);
+  }, [selectedRoute, selectRoute]);
+
   const searchFlights = useCallback(
     async (query: FlightSearchQuery) => {
       setError("");
@@ -189,33 +197,26 @@ export default function FlightSearchView() {
     <section
       id="book-manage"
       aria-label={t("flightSearch.booking.title")}
-      className="relative isolate min-h-[calc(100dvh-62px)] scroll-mt-[calc(62px_+_0.75rem)] text-airline-ink sm:min-h-[calc(100dvh-72px)] sm:scroll-mt-[calc(72px_+_1rem)]"
+      className="relative isolate scroll-mt-[calc(62px_+_0.75rem)] text-airline-ink sm:scroll-mt-[calc(72px_+_1rem)]"
     >
       <Suspense fallback={null}>
         <FlightRouteFromUrl onSelect={selectRoute} />
       </Suspense>
       <div
-        className={`mx-auto grid max-w-[1440px] items-stretch gap-4 px-4 py-5 sm:gap-6 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-8 ${results ? "lg:hidden" : ""}`}
+        className={`mx-auto max-w-[1280px] items-stretch gap-4 px-4 py-5 sm:gap-6 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-8 ${results ? "hidden" : "grid"}`}
       >
-        <FlightHero
-          flights={featuredFlights}
-          selectedDestination={
-            results?.destination ?? routePrefill?.destination
-          }
-          onSelectRoute={selectRoute}
-        />
         <section
-          className="min-w-0 scroll-mt-20 rounded-[28px] border border-airline-line bg-airline-paper p-5 shadow-[0_16px_48px_rgb(23_40_59_/_7%)] sm:p-7 lg:p-8"
+          className="min-w-0 scroll-mt-20 rounded-[28px] border border-airline-line bg-airline-paper p-4 shadow-[0_16px_48px_rgb(23_40_59_/_7%)] sm:p-7 lg:col-start-2 lg:row-start-1 lg:p-8"
           id="search"
           aria-labelledby="booking-title"
         >
-          <h2
-            className="mb-5 text-2xl font-semibold tracking-tight text-airline-night sm:text-3xl"
+          <h1
+            className="mb-4 text-2xl font-semibold tracking-tight text-airline-night sm:mb-5 sm:text-3xl"
             id="booking-title"
             tabIndex={-1}
           >
             {t("flightSearch.booking.title")}
-          </h2>
+          </h1>
           <BookingTabs
             isAuthenticated={Boolean(user)}
             authLoading={authLoading}
@@ -234,6 +235,13 @@ export default function FlightSearchView() {
             onSearch={searchFlights}
           />
         </section>
+        <div className="grid min-w-0 lg:col-start-1 lg:row-start-1">
+          <FlightHero
+            flights={featuredFlights}
+            selectedDestination={routePrefill?.destination}
+            onSelectRoute={selectRoute}
+          />
+        </div>
       </div>
       {results ? (
         <div

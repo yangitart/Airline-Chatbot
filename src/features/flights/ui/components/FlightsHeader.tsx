@@ -126,7 +126,11 @@ export function FlightsHeader({
         }
       }}
     >
-      <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between gap-2 rounded-2xl border border-airline-line bg-airline-paper px-3 shadow-sm sm:gap-4 sm:px-5">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -bottom-5 top-0 bg-airline-canvas/45 backdrop-blur-[14px] [-webkit-mask-image:linear-gradient(to_bottom,#000_68%,transparent)] [mask-image:linear-gradient(to_bottom,#000_68%,transparent)]"
+      />
+      <div className="relative mx-auto flex h-full max-w-[1440px] items-center justify-between gap-2 rounded-2xl border border-airline-line bg-airline-paper px-3 shadow-sm supports-[backdrop-filter]:bg-airline-paper/85 sm:gap-4 sm:px-5">
         <Link
           href="/"
           aria-label="Veyra"

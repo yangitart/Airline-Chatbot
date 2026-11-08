@@ -138,3 +138,24 @@ it("continues normal chat when FAQ retrieval fails", async () => {
     code: "faq_unavailable",
   });
 });
+
+it("skips FAQ retrieval for greetings but retrieves evidence for a greeting with a question", async () => {
+  const stream = vi
+    .fn<ChatModelProvider["stream"]>()
+    .mockImplementation(async function* () {
+      yield { type: "delta", content: "Hola" };
+    });
+  const search = vi.fn().mockResolvedValue([]);
+  const repository = new ProviderChatCompletionRepository(
+    { stream, complete: vi.fn() },
+    [],
+    { search },
+  );
+
+  await repository.complete([{ role: "user", content: "¡Hola!" }], "es");
+  expect(search).not.toHaveBeenCalled();
+
+  const question = "¡Hola! ¿Qué equipaje puedo llevar?";
+  await repository.complete([{ role: "user", content: question }], "es");
+  expect(search).toHaveBeenCalledWith(question, "es", undefined);
+});

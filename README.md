@@ -14,6 +14,8 @@ The seed's `offer_payload` follows Amadeus's nested `flight-offer` shape, saved 
 
 Stripe Checkout is restricted to test mode (`sk_test_...`) and demo bookings. A signed webhook records payment state; returning from Checkout alone never confirms payment. A successful demo payment is not an airline ticket. The check-in flow uses seeded schedules and creates only a sample seat and pass reference. Never enter real payment details or treat these records as travel documents.
 
+New demo fares are in USD. The catalog migration uses a fixed sample ratio of 85 INR per USD and leaves saved bookings and their Checkout Sessions in their original currency. Apply the November 8 payment and USD migrations before running the updated app against that database. For a hosted rollout, coordinate the app deployment with the migrations because they disable the old Checkout RPCs.
+
 Live ticket purchases require an authorized flight inventory/ticketing provider and a payment integration. Do not present demo bookings as purchased tickets.
 
 The linked Airline project was migrated and seeded with demo records on 2026-11-03. Its flight rows and status snapshots are invented and must not be presented as live Air India data.

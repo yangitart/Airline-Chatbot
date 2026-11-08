@@ -22,6 +22,8 @@ export const DEMO_ROUTE_PAIRS: ReadonlyArray<{
   { origin: "DEL", destination: "HYD" },
   { origin: "BOM", destination: "DEL" },
   { origin: "BLR", destination: "DEL" },
+  { origin: "MAA", destination: "DEL" },
+  { origin: "HYD", destination: "DEL" },
   { origin: "LHR", destination: "DEL" },
   { origin: "SIN", destination: "DEL" },
 ];

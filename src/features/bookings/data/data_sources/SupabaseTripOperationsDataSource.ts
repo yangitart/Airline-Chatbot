@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export function createSupabaseTripOperationsDataSource(
   supabase: SupabaseClient,
+  checkoutWriter?: SupabaseClient,
 ) {
   return {
     getOwnedCheckoutBooking: async (bookingId: string, userId: string) => {
@@ -17,11 +18,21 @@ export function createSupabaseTripOperationsDataSource(
       if (error) throw error;
       return data;
     },
-    saveCheckoutSession: async (bookingId: string, sessionId: string) => {
-      const { error } = await supabase.rpc("save_demo_checkout_session", {
-        p_booking_id: bookingId,
-        p_session_id: sessionId,
-      });
+    saveCheckoutSession: async (
+      bookingId: string,
+      userId: string,
+      sessionId: string,
+    ) => {
+      if (!checkoutWriter)
+        throw new Error("Checkout writer is not configured.");
+      const { error } = await checkoutWriter.rpc(
+        "attach_demo_checkout_session",
+        {
+          p_booking_id: bookingId,
+          p_user_id: userId,
+          p_session_id: sessionId,
+        },
+      );
       if (error) throw error;
     },
     checkInDemoBooking: async (

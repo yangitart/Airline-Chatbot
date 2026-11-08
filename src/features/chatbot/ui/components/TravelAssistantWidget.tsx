@@ -39,7 +39,6 @@ import type { GroundedChatResponse } from "../../domain/models/FaqChunk";
 import { chatServices } from "../../ioc/chatServices";
 import type { ChatMessage } from "../../domain/models/ChatMessage";
 import { ChatActionCards } from "./TripActionCards";
-import styles from "./TravelAssistantWidget.module.css";
 
 type DisplayMessage = ChatMessage & { id: string } & Partial<
     Pick<GroundedChatResponse, "sources" | "action">
@@ -508,10 +507,9 @@ export function TravelAssistantWidget() {
             aria-hidden="true"
             className={[
               "absolute bottom-2 right-[calc(100%_+_0.625rem)] w-max max-w-[8.5rem] rounded-xl rounded-br-sm border border-airline-line bg-airline-paper px-3 py-2 text-left text-xs font-medium leading-snug text-airline-forest shadow-[0_5px_18px_rgb(24_61_55_/_12%)]",
-              styles.assistantGreeting,
               assistantGreetingPhase === "visible"
-                ? styles.assistantGreetingVisible
-                : styles.assistantGreetingLeaving,
+                ? "motion-safe:animate-assistant-greeting-in"
+                : "motion-safe:animate-assistant-greeting-out",
             ].join(" ")}
           >
             {assistantGreeting ||
@@ -533,7 +531,7 @@ export function TravelAssistantWidget() {
               height={56}
               priority={pathname === "/"}
               unoptimized
-              className={`${styles.avatarPortrait} ${responding ? styles.avatarThinking : ""} h-full w-full object-cover`}
+              className={`h-full w-full origin-[center_54%] object-cover ${responding ? "motion-safe:animate-assistant-avatar-thinking" : "motion-safe:animate-assistant-avatar-idle"}`}
             />
           </span>
           <MessageCircle className="absolute bottom-0.5 right-0.5 size-4 rounded-full bg-airline-paper p-0.5 text-airline-forest" />
@@ -552,29 +550,38 @@ export function TravelAssistantWidget() {
               type="button"
               aria-label={t("chatbot.close")}
               onClick={close}
-              className={`${styles.backdrop} absolute inset-0 cursor-default`}
+              className="absolute inset-0 cursor-default bg-[rgb(19_25_25_/_34%)] backdrop-blur-[3px] motion-safe:animate-assistant-overlay-in"
             />
             <section
               ref={panelRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="veyra-chat-title"
-              className={`${styles.panel} relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-airline-canvas text-airline-ink sm:h-[min(820px,calc(100dvh-32px))] sm:max-w-[480px] sm:rounded-[28px] lg:max-h-[calc(100dvh-48px)]`}
+              className="relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-airline-canvas text-airline-ink shadow-[0_28px_90px_rgb(19_25_25_/_28%)] motion-safe:max-sm:animate-assistant-panel-mobile-in sm:h-[min(820px,calc(100dvh-32px))] sm:max-w-[480px] sm:rounded-[28px] motion-safe:sm:animate-assistant-panel-in lg:max-h-[calc(100dvh-48px)]"
             >
-              <header
-                className={`${styles.brandHeader} relative flex shrink-0 items-center gap-3 px-5 pb-5 pt-5 text-white sm:px-6 sm:pb-6`}
-              >
+              <header className="relative isolate flex shrink-0 items-center gap-3 overflow-hidden bg-airline-forest bg-[radial-gradient(ellipse_at_80%_0%,rgb(196_164_102_/_18%),transparent_43%),linear-gradient(122deg,#173832_0%,#183d37_54%,#1e3537_100%)] px-5 pb-5 pt-5 text-white sm:px-6 sm:pb-6">
                 <svg
-                  className={styles.routeMotif}
+                  className="pointer-events-none absolute -top-[34px] right-[54px] -z-[1] h-[150px] w-[220px] opacity-[.58]"
                   viewBox="0 0 220 150"
+                  fill="none"
                   aria-hidden="true"
                 >
-                  <circle className={styles.arc} cx="164" cy="74" r="55" />
-                  <circle className={styles.arc} cx="164" cy="74" r="43" />
-                  <path d="M18 112 C64 102 69 44 111 54 S157 120 205 28" />
-                  <circle cx="18" cy="112" r="2.5" />
-                  <circle cx="111" cy="54" r="2.5" />
-                  <circle cx="205" cy="28" r="2.5" />
+                  <g className="stroke-airline-paper" strokeOpacity={0.16}>
+                    <circle cx="164" cy="74" r="55" />
+                    <circle cx="164" cy="74" r="43" />
+                  </g>
+                  <path
+                    className="stroke-airline-gold"
+                    d="M18 112 C64 102 69 44 111 54 S157 120 205 28"
+                    strokeWidth={1.25}
+                    strokeDasharray="2 5"
+                    strokeLinecap="round"
+                  />
+                  <g className="fill-airline-gold">
+                    <circle cx="18" cy="112" r="2.5" />
+                    <circle cx="111" cy="54" r="2.5" />
+                    <circle cx="205" cy="28" r="2.5" />
+                  </g>
                 </svg>
                 <span
                   className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[17px] border border-airline-gold/70 bg-airline-forest shadow-[0_4px_14px_rgb(0_0_0_/_16%)]"
@@ -817,7 +824,7 @@ export function TravelAssistantWidget() {
                           width={64}
                           height={64}
                           unoptimized
-                          className={`${styles.avatarPortrait} h-full w-full object-cover`}
+                          className="h-full w-full origin-[center_54%] object-cover motion-safe:animate-assistant-avatar-idle"
                         />
                       </div>
                       <h3 className="font-serif text-[26px] leading-tight text-airline-night">
@@ -903,7 +910,7 @@ export function TravelAssistantWidget() {
                       return (
                         <div
                           key={message.id}
-                          className={`${styles.messageEnter} flex ${isUser ? "justify-end" : "justify-start"}`}
+                          className={`flex motion-safe:animate-assistant-message-in ${isUser ? "justify-end" : "justify-start"}`}
                         >
                           {!isUser && (
                             <span
@@ -916,7 +923,7 @@ export function TravelAssistantWidget() {
                                 width={28}
                                 height={28}
                                 unoptimized
-                                className={`h-full w-full object-cover ${isActiveReply ? styles.avatarThinking : ""}`}
+                                className={`h-full w-full object-cover ${isActiveReply ? "motion-safe:animate-assistant-avatar-thinking" : ""}`}
                               />
                             </span>
                           )}
@@ -1029,7 +1036,7 @@ function ChatProcessingStatus({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2.5 text-sm font-medium leading-snug text-airline-forest">
       <span
-        className={`${styles.processingDots} flex h-6 shrink-0 items-center gap-1 rounded-full bg-white/80 px-2`}
+        className="flex h-6 shrink-0 items-center gap-1 rounded-full bg-white/80 px-2 motion-safe:[&>span]:animate-assistant-processing-dot motion-safe:[&>span:nth-child(2)]:[animation-delay:150ms] motion-safe:[&>span:nth-child(3)]:[animation-delay:300ms]"
         aria-hidden="true"
       >
         <span className="size-1.5 rounded-full bg-current" />

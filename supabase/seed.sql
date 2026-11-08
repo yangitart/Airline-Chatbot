@@ -80,6 +80,7 @@ with source as (
       when 'business' then 'BUSINESS'
       else 'FIRST'
     end as amadeus_cabin,
+    -- Fixed sample ratio of 85 INR per USD, matching the catalog migration.
     round(
       (case
         when 'LHR' in (f.origin_code, f.destination_code) then 4295000
@@ -88,7 +89,7 @@ with source as (
         when f.origin_code in ('DEL', 'BLR') or f.destination_code in ('DEL', 'BLR') then 605000
         when f.origin_code in ('DEL', 'MAA') or f.destination_code in ('DEL', 'MAA') then 565000
         else 505000
-      end * class_fare.multiplier)
+      end * class_fare.multiplier) / 85.0
     )::integer as fare_minor,
     'DEMO-' || replace(f.id::text, '-', '') || '-' || upper(replace(class_fare.cabin_class, '-', '_')) as demo_offer_id
   from public.flight_instances f
@@ -125,7 +126,7 @@ with source as (
         ))
       )),
       'price', jsonb_build_object(
-        'currency', 'INR',
+        'currency', 'USD',
         'total', to_char(s.fare_minor / 100.0, 'FM99999990.00'),
         'base', to_char(s.fare_minor / 100.0, 'FM99999990.00'),
         'grandTotal', to_char(s.fare_minor / 100.0, 'FM99999990.00')
@@ -137,7 +138,7 @@ with source as (
         'fareOption', 'STANDARD',
         'travelerType', 'ADULT',
         'price', jsonb_build_object(
-          'currency', 'INR',
+          'currency', 'USD',
           'total', to_char(s.fare_minor / 100.0, 'FM99999990.00'),
           'base', to_char(s.fare_minor / 100.0, 'FM99999990.00')
         ),
@@ -156,7 +157,7 @@ with source as (
 insert into public.flight_inventory (
   offer_id, flight_instance_id, cabin_class, seats_total, seats_available, fare_minor, currency, offer_payload
 )
-select demo_offer_id, id, cabin_class, seats_total, seats_total, fare_minor, 'INR', offer_payload
+select demo_offer_id, id, cabin_class, seats_total, seats_total, fare_minor, 'USD', offer_payload
 from payloads
 on conflict (flight_instance_id, cabin_class) do update set
   seats_total = excluded.seats_total,

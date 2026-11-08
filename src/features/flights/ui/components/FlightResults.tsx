@@ -203,7 +203,7 @@ export function FlightResults({
             <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-airline-gold">
               {t("flightSearch.results.eyebrow")}
             </p>
-            <h2
+            <h1
               id="results-title"
               className="mt-1 flex items-center gap-3 font-serif text-3xl tracking-tight sm:text-4xl"
             >
@@ -214,7 +214,7 @@ export function FlightResults({
                 aria-hidden="true"
               />
               {destination}
-            </h2>
+            </h1>
           </div>
           <button
             type="button"

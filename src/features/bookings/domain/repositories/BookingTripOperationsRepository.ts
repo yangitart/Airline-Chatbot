@@ -25,6 +25,7 @@ export interface BookingTripOperationsRepository {
   ): Promise<Either<string, CheckoutBooking | null>>;
   saveCheckoutSession(
     bookingId: string,
+    userId: string,
     sessionId: string,
   ): Promise<Either<string, void>>;
   checkInDemoBooking(

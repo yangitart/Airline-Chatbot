@@ -11,8 +11,6 @@ import { createServerChatHistory } from "@/src/features/chatbot/ioc/serverChatHi
 import { authenticateChatRequest } from "@/src/features/chatbot/ioc/serverChatRequest";
 import { createServerTravelAssistant } from "@/src/features/chatbot/ioc/serverTravelAssistant";
 
-export const runtime = "nodejs";
-
 export async function POST(request: Request) {
   return chatResponse("send_message", async () => {
     const input = await readChatMessageRequest(request);

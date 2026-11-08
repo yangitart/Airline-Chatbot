@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
-  ArrowRight,
   ArrowUpRight,
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
+  ChevronDown,
   ClipboardCheck,
   CreditCard,
   Headset,
@@ -21,6 +21,7 @@ import {
   Smartphone,
   Users,
   Wifi,
+  X,
 } from "lucide-react";
 import { TravelSectionLayout } from "@/src/components/layout/TravelSectionLayout";
 import { supportedLanguages } from "@/src/core/locales/supportedLanguages";
@@ -54,6 +55,73 @@ const icons = {
   "online-checkin-info": ClipboardCheck,
 };
 
+const commonTopics = [
+  "booking",
+  "baggage",
+  "checkin",
+  "flight-status-info",
+  "payments",
+  "customer-support",
+] as const;
+
+function normalizeFaqSearch(value: string, locale: string) {
+  return value
+    .toLocaleLowerCase(locale)
+    .normalize("NFD")
+    .replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
+    .replace(/[^\p{L}\p{M}\p{N}]/gu, "");
+}
+
+function FaqSearchField({
+  id,
+  value,
+  placeholder,
+  controls,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  placeholder: string;
+  controls: string;
+  onChange: (value: string) => void;
+}) {
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="relative min-w-0 flex-1">
+      <Search
+        size={18}
+        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-airline-forest"
+        aria-hidden="true"
+      />
+      <input
+        ref={inputRef}
+        id={id}
+        type="search"
+        value={value}
+        placeholder={placeholder}
+        aria-controls={controls}
+        onChange={(event) => onChange(event.currentTarget.value)}
+        className="min-h-12 w-full rounded-xl border border-airline-line bg-airline-paper py-3 pl-11 pr-12 text-sm text-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold [&::-webkit-search-cancel-button]:appearance-none"
+      />
+      {value && (
+        <button
+          type="button"
+          aria-label={t("faqs.clearSearch")}
+          onClick={() => {
+            onChange("");
+            inputRef.current?.focus();
+          }}
+          className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-lg text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest"
+        >
+          <X size={17} aria-hidden="true" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function FaqsView({
   category,
   embedded = false,
@@ -63,6 +131,7 @@ export default function FaqsView({
 }) {
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState("");
+  const [showAllTopics, setShowAllTopics] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const activeLanguage =
     supportedLanguages.find(
@@ -83,25 +152,31 @@ export default function FaqsView({
   const description = validCategory
     ? categoryDescription(validCategory)
     : text("description");
-  const normalizedQuery = query.trim().toLocaleLowerCase(activeLanguage.code);
-  const matches = (value: string) =>
-    value.toLocaleLowerCase(activeLanguage.code).includes(normalizedQuery);
-  const visibleCategories = faqCategories.filter((item) => {
-    const article = articles[item];
-    return (
-      matches(categoryTitle(item)) ||
-      matches(categoryDescription(item)) ||
-      matches(article.overview) ||
-      article.sections.some(
-        (section) =>
-          matches(section.title) ||
-          section.entries.some(({ question, answer }) =>
-            matches(`${question} ${answer}`),
-          ),
-      )
-    );
-  });
   const activeDocument = validCategory ? articles[validCategory] : undefined;
+  const normalizedQuery = normalizeFaqSearch(query, activeLanguage.code);
+  const matches = (value: string) =>
+    !normalizedQuery ||
+    normalizeFaqSearch(value, activeLanguage.code).includes(normalizedQuery);
+  const visibleCategories =
+    !activeDocument && normalizedQuery
+      ? faqCategories.filter((item) => {
+          const article = articles[item];
+          return (
+            matches(categoryTitle(item)) ||
+            matches(categoryDescription(item)) ||
+            matches(article.overview) ||
+            article.sections.some(
+              (section) =>
+                matches(section.title) ||
+                section.entries.some(({ question, answer }) =>
+                  matches(`${question} ${answer}`),
+                ),
+            )
+          );
+        })
+      : faqCategories;
+  const displayedCategories =
+    normalizedQuery || showAllTopics ? visibleCategories : commonTopics;
   const visibleSections = (activeDocument?.sections ?? [])
     .filter((section) => !activeSection || section.id === activeSection)
     .map((section) => ({
@@ -137,13 +212,12 @@ export default function FaqsView({
                 <label className="sr-only" htmlFor="faq-question-search">
                   {text("searchQuestions")}
                 </label>
-                <input
+                <FaqSearchField
                   id="faq-question-search"
-                  type="search"
                   value={query}
-                  onChange={(event) => setQuery(event.currentTarget.value)}
+                  onChange={setQuery}
                   placeholder={text("searchQuestionsPlaceholder")}
-                  className="min-h-12 min-w-0 flex-1 rounded-xl border border-airline-line bg-white px-4 text-sm outline-none transition focus:border-airline-garnet focus:ring-2 focus:ring-airline-garnet/15"
+                  controls="faq-question-results"
                 />
                 <label className="sr-only" htmlFor="faq-section-select">
                   {text("selectSection")}
@@ -186,7 +260,11 @@ export default function FaqsView({
                 <h3 className="mt-8 text-base font-semibold text-airline-night">
                   {text("articleQuestions")}
                 </h3>
-                <div className="mt-4 grid gap-5" lang={language}>
+                <div
+                  id="faq-question-results"
+                  className="mt-4 grid gap-5"
+                  lang={language}
+                >
                   {visibleSections.map((section) => (
                     <section key={section.id}>
                       <h4 className="mb-2 text-sm font-semibold text-airline-forest">
@@ -223,60 +301,84 @@ export default function FaqsView({
           </div>
         </>
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-8">
-          <div className="rounded-[28px] bg-airline-night p-6 text-white sm:p-8 lg:sticky lg:top-24">
-            <label className="font-serif text-2xl" htmlFor="faq-search">
-              {text("search")}
-            </label>
-            <div className="relative mt-4">
-              <Search
-                size={17}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-airline-forest"
-                aria-hidden="true"
-              />
-              <input
-                id="faq-search"
-                type="search"
-                value={query}
-                placeholder={text("searchPlaceholder")}
-                onChange={(event) => setQuery(event.currentTarget.value)}
-                className="min-h-12 w-full rounded-xl border border-transparent bg-airline-paper py-3 pl-11 pr-4 text-sm text-airline-night focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold"
-              />
+        <div className="rounded-[2rem] border border-airline-line bg-airline-paper p-3 sm:p-5">
+          <div className="grid gap-4 rounded-[1.5rem] bg-airline-night px-5 py-5 text-white sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-end">
+            <div>
+              <label
+                className="font-serif text-2xl sm:text-3xl"
+                htmlFor="faq-search"
+              >
+                {text("search")}
+              </label>
+              <p className="mt-2 max-w-sm text-xs leading-5 text-white/85 sm:text-sm">
+                {text("disclaimer")}
+              </p>
             </div>
-            <p className="mt-4 text-sm text-airline-gold" role="status">
-              {t("faqs.topicCount", { count: visibleCategories.length })}
-            </p>
-            <p className="mt-4 border-t border-white/15 pt-4 text-xs leading-5 text-white/80">
-              {text("disclaimer")}
-            </p>
+            <FaqSearchField
+              id="faq-search"
+              value={query}
+              placeholder={text("searchPlaceholder")}
+              onChange={setQuery}
+              controls="faq-topic-index"
+            />
           </div>
-          <div className="overflow-hidden rounded-[28px] border border-airline-line bg-airline-paper shadow-[0_12px_32px_rgb(23_40_59_/_6%)]">
-            {visibleCategories.length ? (
-              <ul className="divide-y divide-airline-line">
-                {visibleCategories.map((item) => {
+
+          <div className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-2 py-2">
+            <p
+              className="rounded-full bg-airline-forest-soft px-3 py-1.5 text-xs font-semibold text-airline-forest"
+              role="status"
+            >
+              {normalizedQuery || showAllTopics
+                ? t("faqs.topicCount", { count: visibleCategories.length })
+                : t("faqs.topicPreviewCount", {
+                    shown: commonTopics.length,
+                    total: faqCategories.length,
+                  })}
+            </p>
+            {!normalizedQuery && (
+              <button
+                type="button"
+                aria-expanded={showAllTopics}
+                aria-controls="faq-topic-index"
+                onClick={() => setShowAllTopics((current) => !current)}
+                className="inline-flex min-h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest"
+              >
+                {text(showAllTopics ? "showCommonTopics" : "showAllTopics")}
+                <ChevronDown
+                  size={16}
+                  aria-hidden="true"
+                  className={showAllTopics ? "rotate-180" : undefined}
+                />
+              </button>
+            )}
+          </div>
+          <div id="faq-topic-index">
+            {displayedCategories.length ? (
+              <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {displayedCategories.map((item) => {
                   const Icon = icons[item];
                   return (
                     <li key={item}>
                       <Link
                         href={`/faqs/${item}`}
-                        className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-4 text-airline-ink no-underline transition-colors hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-airline-forest sm:gap-4 sm:px-6"
+                        className="group flex h-full flex-col rounded-2xl border border-airline-line bg-airline-canvas/55 px-4 py-3 text-airline-ink no-underline transition-colors hover:border-airline-forest/40 hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-airline-forest"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-xl bg-airline-forest-soft text-airline-forest">
-                          <Icon size={18} aria-hidden="true" />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-base font-semibold text-airline-night">
-                            {categoryTitle(item)}
+                        <span className="mb-2 flex items-center justify-between gap-3 text-airline-forest">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-airline-forest-soft">
+                            <Icon size={18} aria-hidden="true" />
                           </span>
-                          <span className="mt-1 block text-sm leading-5 text-airline-muted">
-                            {categoryDescription(item)}
-                          </span>
+                          <ArrowUpRight
+                            size={17}
+                            className="motion-safe:transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:-translate-y-0.5 motion-safe:group-focus-visible:translate-x-0.5"
+                            aria-hidden="true"
+                          />
                         </span>
-                        <ArrowRight
-                          size={17}
-                          className="text-airline-forest group-hover:text-airline-garnet"
-                          aria-hidden="true"
-                        />
+                        <span className="font-serif text-xl leading-tight text-airline-night">
+                          {categoryTitle(item)}
+                        </span>
+                        <span className="mt-1 text-sm leading-5 text-airline-muted">
+                          {categoryDescription(item)}
+                        </span>
                       </Link>
                     </li>
                   );
@@ -284,7 +386,7 @@ export default function FaqsView({
               </ul>
             ) : (
               <p className="p-6 text-sm text-airline-muted">
-                {text("noQuestions")}
+                {text("noTopics")}
               </p>
             )}
           </div>

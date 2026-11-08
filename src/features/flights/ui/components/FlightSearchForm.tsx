@@ -25,6 +25,11 @@ type FlightSearchValues = {
   cabinClass: string;
 };
 
+const compactSelect = "max-[359px]:gap-1 max-[359px]:px-3 max-[359px]:py-2";
+const compactTrigger = "max-[359px]:gap-1.5 max-[359px]:text-sm";
+const compactDate =
+  "max-[359px]:gap-1 max-[359px]:px-2.5 max-[359px]:py-2 max-[359px]:[&>input]:text-xs";
+
 export function localDate(daysFromToday = 0) {
   const date = new Date();
   date.setDate(date.getDate() + daysFromToday);
@@ -123,7 +128,7 @@ export function FlightSearchForm({
     >
       {(form) => (
         <Form className="animate-soft-rise motion-reduce:animate-none">
-          <div className="mb-4 mt-5 flex items-center justify-between gap-4">
+          <div className="my-4 flex items-center justify-between gap-4 max-[359px]:my-3 sm:mb-4 sm:mt-5">
             <FormikRadioGroup
               name="tripType"
               label={t("flightSearch.trip.label")}
@@ -136,16 +141,17 @@ export function FlightSearchForm({
               ]}
             />
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="grid min-w-0 grid-cols-1 items-center gap-2 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            <div className="col-span-full grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               <FormikSelect
                 name="origin"
                 label={t("flightSearch.fields.origin")}
                 options={airports}
-                inputClassName="truncate"
+                className={compactSelect}
+                inputClassName={compactTrigger}
               />
               <button
-                className="mx-auto grid h-9 w-9 rotate-90 place-items-center rounded-full border border-airline-line bg-airline-paper text-airline-forest shadow-sm transition-all duration-500 hover:rotate-[180deg] hover:border-airline-gold hover:bg-airline-forest-soft hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet motion-reduce:transform-none motion-reduce:transition-none sm:rotate-0"
+                className="col-start-2 row-span-2 row-start-1 grid size-11 place-items-center rounded-full border border-airline-line bg-airline-paper text-airline-forest transition-colors hover:border-airline-gold hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet sm:row-span-1"
                 type="button"
                 aria-label={t("flightSearch.actions.swapAirports")}
                 onClick={() => {
@@ -154,13 +160,18 @@ export function FlightSearchForm({
                   void form.setFieldValue("destination", origin);
                 }}
               >
-                <ArrowLeftRight size={19} />
+                <ArrowLeftRight
+                  size={19}
+                  className="rotate-90 sm:rotate-0"
+                  aria-hidden="true"
+                />
               </button>
               <FormikSelect
                 name="destination"
                 label={t("flightSearch.fields.destination")}
                 options={airports}
-                inputClassName="truncate"
+                className={`col-start-1 sm:col-start-3 sm:row-start-1 ${compactSelect}`}
+                inputClassName={compactTrigger}
               />
             </div>
             <FormikDateInput
@@ -168,6 +179,7 @@ export function FlightSearchForm({
               label={t("flightSearch.fields.depart")}
               min={localDate()}
               required
+              className={compactDate}
             />
             {form.values.tripType === "round-trip" && (
               <FormikDateInput
@@ -175,11 +187,14 @@ export function FlightSearchForm({
                 label={t("flightSearch.fields.return")}
                 min={form.values.departureDate}
                 required
+                className={compactDate}
               />
             )}
             <FormikSelect
               name="passengers"
               label={t("flightSearch.fields.passengers")}
+              className={compactSelect}
+              inputClassName={compactTrigger}
               options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => ({
                 value: String(count),
                 label: `${count} ${t(count === 1 ? "flightSearch.fields.adult" : "flightSearch.fields.adults")}`,
@@ -188,6 +203,8 @@ export function FlightSearchForm({
             <FormikSelect
               name="cabinClass"
               label={t("flightSearch.fields.class")}
+              className={compactSelect}
+              inputClassName={compactTrigger}
               options={[
                 { value: "economy", label: t("flightSearch.fields.economy") },
                 {
@@ -199,16 +216,16 @@ export function FlightSearchForm({
               ]}
             />
           </div>
-          <div className="mt-4 grid gap-3">
-            <p className="max-w-xl text-xs leading-5 text-[#72817c]">
-              {t("flightSearch.booking.publicSearchNote")}
-            </p>
-            <div className="flex justify-center">
+          <div className="mt-4 flex flex-col gap-3 max-[359px]:mt-3 sm:flex-row-reverse sm:items-center sm:justify-between">
+            <div className="flex sm:shrink-0">
               <FormikSubmitButton
                 label={t("flightSearch.actions.search")}
                 busyLabel={t("flightSearch.actions.searching")}
               />
             </div>
+            <p className="max-w-xs text-xs leading-5 text-airline-muted">
+              {t("flightSearch.booking.publicSearchNote")}
+            </p>
           </div>
         </Form>
       )}

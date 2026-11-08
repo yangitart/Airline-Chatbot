@@ -114,9 +114,9 @@ export function FlightHero({
             locale={i18n.resolvedLanguage ?? "en"}
           />
         </div>
-        <h1 id="hero-title" className="mb-4 font-serif text-2xl sm:text-3xl">
+        <h2 id="hero-title" className="mb-4 font-serif text-2xl sm:text-3xl">
           {t("travelPages.featuredRoutes")}
-        </h1>
+        </h2>
         {flights.length === 0 ? (
           <p className="text-sm text-white/90">{t("travelPages.routeNote")}</p>
         ) : (

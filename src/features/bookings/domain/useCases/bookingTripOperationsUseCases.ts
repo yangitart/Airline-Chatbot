@@ -19,11 +19,11 @@ export const getCheckoutBookingUseCase = (
 export const saveCheckoutSessionUseCase = (
   repository: BookingTripOperationsRepository,
 ): IUseCase<
-  { bookingId: string; sessionId: string },
+  { bookingId: string; userId: string; sessionId: string },
   Promise<Either<string, void>>
 > => ({
-  execute: ({ bookingId, sessionId }) =>
-    repository.saveCheckoutSession(bookingId, sessionId),
+  execute: ({ bookingId, userId, sessionId }) =>
+    repository.saveCheckoutSession(bookingId, userId, sessionId),
 });
 
 export const checkInDemoBookingUseCase = (

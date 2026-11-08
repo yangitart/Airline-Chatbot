@@ -14,4 +14,7 @@ export const bookingServices = {
   listMyBookings: injector<IUseCase<void, Promise<Either<string, Booking[]>>>>(
     BookingSymbols.listMyBookingsUseCase,
   ),
+  getMyBooking: injector<
+    IUseCase<string, Promise<Either<string, Booking | null>>>
+  >(BookingSymbols.getMyBookingUseCase),
 };

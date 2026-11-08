@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { createAuthenticatedSupabaseContext } from "@/src/core/api/supabase/authenticatedRequest";
+import { createSupabaseAdminClient } from "@/src/core/api/supabase/admin";
 import { jsonError, jsonResponse } from "@/src/core/api/http/jsonResponse";
 import { getStripeClient } from "@/src/core/api/stripe/server";
 import { isLeft } from "fp-ts/Either";
@@ -49,6 +50,21 @@ export async function POST(
       const existingSession = await stripe.checkout.sessions.retrieve(
         booking.stripe_checkout_session_id,
       );
+      if (
+        existingSession.livemode ||
+        existingSession.mode !== "payment" ||
+        existingSession.metadata?.demo !== "true" ||
+        existingSession.metadata.booking_id !== booking.id ||
+        existingSession.client_reference_id !== booking.id ||
+        existingSession.amount_total !== booking.total_fare_minor ||
+        existingSession.currency !== booking.currency.toLowerCase()
+      ) {
+        return jsonError(
+          "Checkout could not be verified.",
+          409,
+          "checkout_unavailable",
+        );
+      }
       if (existingSession.status === "open" && existingSession.url)
         return jsonResponse({ checkout_url: existingSession.url });
       if (existingSession.status === "expired")
@@ -63,10 +79,17 @@ export async function POST(
         "payment_verifying",
       );
     }
+    const { saveCheckoutSession } = createServerTripOperations(
+      supabase,
+      createSupabaseAdminClient(),
+    );
     const siteUrl = _request.nextUrl.origin;
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        ...(booking.currency === "USD"
+          ? { adaptive_pricing: { enabled: false } }
+          : {}),
         client_reference_id: booking.id,
         metadata: {
           booking_id: booking.id,
@@ -93,8 +116,16 @@ export async function POST(
         idempotencyKey: `demo-checkout:${booking.id}:${booking.stripe_checkout_session_id ?? "initial"}`,
       },
     );
-    const saveResult = await operations.saveCheckoutSession.execute({
+    if (session.status !== "open" || !session.url) {
+      return jsonError(
+        "Checkout is no longer available.",
+        409,
+        "checkout_unavailable",
+      );
+    }
+    const saveResult = await saveCheckoutSession.execute({
       bookingId: booking.id,
+      userId: user.id,
       sessionId: session.id,
     });
     if (isLeft(saveResult) && saveResult.left.includes("booking_not_payable")) {
@@ -105,12 +136,6 @@ export async function POST(
       );
     }
     if (isLeft(saveResult))
-      return jsonError(
-        "Checkout could not be prepared.",
-        500,
-        "checkout_unavailable",
-      );
-    if (!session.url)
       return jsonError(
         "Checkout could not be prepared.",
         500,
