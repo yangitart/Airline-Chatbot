@@ -284,7 +284,8 @@
       "checkingSession": "Verificando sessão…",
       "faqs": "Perguntas frequentes",
       "openMenu": "Abrir menu",
-      "closeMenu": "Fechar menu"
+      "closeMenu": "Fechar menu",
+      "closeAccount": "Fechar janela da conta"
     },
     "booking": {
       "title": "Buscar voos Veyra",

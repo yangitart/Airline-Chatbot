@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
-import { Menu, UserRound, X } from "lucide-react";
-import { useRef, useState, type MouseEvent } from "react";
+import { LogOut, Menu, UserRound, X } from "lucide-react";
+import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { GoogleUser } from "@/src/features/authentication/domain/models/GoogleUser";
 import { LanguagePicker } from "@/src/components/navigation/LanguagePicker";
@@ -39,6 +39,101 @@ function TabPending() {
   );
 }
 
+function AccountDialog({
+  displayName,
+  email,
+  initial,
+  onClose,
+  onSignOut,
+}: {
+  displayName: string;
+  email: string;
+  initial: string;
+  onClose: () => void;
+  onSignOut: () => void;
+}) {
+  const { t } = useTranslation();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const pressedBackdrop = useRef(false);
+  const titleId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    dialog.showModal();
+    root.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      root.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  const dismiss = () => {
+    dialogRef.current?.close();
+    onClose();
+  };
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      className="m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-sm overflow-y-auto overscroll-contain rounded-[28px] border border-airline-line bg-airline-paper p-0 text-airline-ink shadow-2xl backdrop:bg-airline-night/60 backdrop:backdrop-blur-sm motion-safe:animate-soft-rise motion-safe:[animation-duration:240ms]"
+      onCancel={(event) => {
+        event.preventDefault();
+        dismiss();
+      }}
+      onPointerDown={(event) => {
+        pressedBackdrop.current = event.target === event.currentTarget;
+      }}
+      onClick={(event) => {
+        if (pressedBackdrop.current && event.target === event.currentTarget)
+          dismiss();
+      }}
+    >
+      <div className="relative border-b border-airline-line bg-gradient-to-br from-airline-forest-soft to-airline-canvas px-6 pb-6 pt-8 text-center">
+        <button
+          type="button"
+          aria-label={t("flightSearch.nav.closeAccount")}
+          onClick={dismiss}
+          className={`absolute right-3 top-3 grid size-10 place-items-center rounded-full text-airline-forest transition-colors hover:bg-airline-forest/10 ${focusStyle}`}
+        >
+          <X size={18} aria-hidden="true" />
+        </button>
+        <div
+          aria-hidden="true"
+          className="mx-auto grid size-[72px] place-items-center rounded-full border-4 border-airline-paper bg-airline-forest font-serif text-3xl font-bold text-white shadow-md ring-1 ring-airline-gold/50"
+        >
+          {initial || <UserRound size={28} />}
+        </div>
+        <h2
+          id={titleId}
+          className="mt-4 break-words font-serif text-2xl font-bold text-airline-night"
+        >
+          {displayName || email || "Veyra"}
+        </h2>
+        {displayName && email && (
+          <p className="mt-1 break-words text-sm text-airline-ink/75">{email}</p>
+        )}
+      </div>
+      <div className="p-5">
+        <button
+          type="button"
+          onClick={() => {
+            dismiss();
+            onSignOut();
+          }}
+          className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-airline-garnet px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-airline-garnet/90 ${focusStyle}`}
+        >
+          <LogOut size={18} aria-hidden="true" />
+          {t("flightSearch.nav.signOut")}
+        </button>
+      </div>
+    </dialog>
+  );
+}
+
 export function FlightsHeader({
   pathname = "/",
   activeTab,
@@ -58,9 +153,14 @@ export function FlightsHeader({
 }) {
   const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountDialogOpen, setAccountDialogOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const scrollFrame = useRef<number | null>(null);
   const activeKey = activeTab ?? getTravelTab(pathname);
+  const displayName = user?.name?.trim() ?? "";
+  const initial = (displayName || user?.email || "")
+    .charAt(0)
+    .toLocaleUpperCase(i18n.resolvedLanguage ?? "en");
 
   const selectLink = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -187,19 +287,16 @@ export function FlightsHeader({
               </Link>
               <button
                 type="button"
-                onClick={onSignOut}
-                title={t("flightSearch.nav.signOut")}
-                aria-label={t("flightSearch.nav.signOut")}
-                className={
-                  "grid h-9 w-9 shrink-0 place-items-center rounded-full bg-airline-forest text-sm font-bold text-white " +
-                  focusStyle
-                }
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAccountDialogOpen(true);
+                }}
+                title={displayName || user.email}
+                aria-label={displayName || user.email || "Veyra"}
+                aria-haspopup="dialog"
+                className={`grid size-10 shrink-0 place-items-center rounded-full border-2 border-airline-paper bg-airline-forest text-sm font-bold text-white ring-1 ring-airline-gold/60 transition-colors hover:bg-airline-forest/85 ${focusStyle}`}
               >
-                <span aria-hidden="true">
-                  {(user.name?.trim() || user.email.split("@")[0])
-                    .charAt(0)
-                    .toLocaleUpperCase(i18n.resolvedLanguage ?? "en")}
-                </span>
+                <span aria-hidden="true">{initial || <UserRound size={16} />}</span>
               </button>
             </>
           ) : (
@@ -242,6 +339,16 @@ export function FlightsHeader({
           </button>
         </div>
       </div>
+
+      {accountDialogOpen && user && (
+        <AccountDialog
+          displayName={displayName}
+          email={user.email}
+          initial={initial}
+          onClose={() => setAccountDialogOpen(false)}
+          onSignOut={onSignOut}
+        />
+      )}
 
       {mobileMenuOpen && (
         <nav

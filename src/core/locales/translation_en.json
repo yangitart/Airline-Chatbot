@@ -284,7 +284,8 @@
       "checkingSession": "Checking…",
       "faqs": "FAQs",
       "openMenu": "Open menu",
-      "closeMenu": "Close menu"
+      "closeMenu": "Close menu",
+      "closeAccount": "Close account dialog"
     },
     "booking": {
       "title": "Search Veyra flights",

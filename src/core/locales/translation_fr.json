@@ -284,7 +284,8 @@
       "checkingSession": "Vérification de la session…",
       "faqs": "FAQ",
       "openMenu": "Ouvrir le menu",
-      "closeMenu": "Fermer le menu"
+      "closeMenu": "Fermer le menu",
+      "closeAccount": "Fermer la fenêtre du compte"
     },
     "booking": {
       "title": "Rechercher des vols Veyra",

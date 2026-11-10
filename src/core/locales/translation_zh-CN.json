@@ -283,7 +283,8 @@
       "checkingSession": "正在检查登录状态…",
       "faqs": "常见问题",
       "openMenu": "打开菜单",
-      "closeMenu": "关闭菜单"
+      "closeMenu": "关闭菜单",
+      "closeAccount": "关闭账户窗口"
     },
     "booking": {
       "title": "搜索 Veyra 航班",

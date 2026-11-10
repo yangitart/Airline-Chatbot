@@ -283,7 +283,8 @@
       "checkingSession": "सत्र जाँचा जा रहा है…",
       "faqs": "सामान्य प्रश्न",
       "openMenu": "मेनू खोलें",
-      "closeMenu": "मेनू बंद करें"
+      "closeMenu": "मेनू बंद करें",
+      "closeAccount": "खाते की विंडो बंद करें"
     },
     "booking": {
       "title": "Veyra की उड़ानें खोजें",
