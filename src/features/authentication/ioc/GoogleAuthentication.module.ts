@@ -5,7 +5,7 @@ import { NetWorkDataModuleSymbols } from "@/src/ioc/common/network.module";
 import { applyDependencies } from "@/src/ioc/utils/applyDependencies";
 import { GoogleUser } from "../domain/models/GoogleUser";
 import { GoogleAuthenticationRepository } from "../domain/repositories/GoogleAuthenticationRepository";
-import { googleSignInUseCase } from "../domain/useCases/googleSignInUseCase";
+import { emailSignInUseCase, emailSignUpUseCase, googleSignInUseCase, requestPasswordResetUseCase, updatePasswordUseCase } from "../domain/useCases/googleSignInUseCase";
 import { getGoogleCurrentUserUseCase } from "../domain/useCases/getGoogleCurrentUserUseCase";
 import { watchGoogleAuthStateUseCase } from "../domain/useCases/watchGoogleAuthStateUseCase";
 import { googleSignOutUseCase } from "../domain/useCases/googleSignOutUseCase";
@@ -40,6 +40,30 @@ const initializeModule = (bind: interfaces.Bind) => {
     applyDependencies(googleSignInUseCase, [
       GoogleAuthenticationSymbols.repository,
     ]),
+  );
+
+  bind<IUseCase<{ email: string; password: string }, Promise<Either<string, void>>>>(
+    GoogleAuthenticationSymbols.emailSignInUseCase,
+  ).toConstantValue(
+    applyDependencies(emailSignInUseCase, [GoogleAuthenticationSymbols.repository]),
+  );
+
+  bind<IUseCase<{ email: string; password: string }, Promise<Either<string, boolean>>>>(
+    GoogleAuthenticationSymbols.emailSignUpUseCase,
+  ).toConstantValue(
+    applyDependencies(emailSignUpUseCase, [GoogleAuthenticationSymbols.repository]),
+  );
+
+  bind<IUseCase<string, Promise<Either<string, void>>>>(
+    GoogleAuthenticationSymbols.requestPasswordResetUseCase,
+  ).toConstantValue(
+    applyDependencies(requestPasswordResetUseCase, [GoogleAuthenticationSymbols.repository]),
+  );
+
+  bind<IUseCase<string, Promise<Either<string, void>>>>(
+    GoogleAuthenticationSymbols.updatePasswordUseCase,
+  ).toConstantValue(
+    applyDependencies(updatePasswordUseCase, [GoogleAuthenticationSymbols.repository]),
   );
 
   bind<IUseCase<void, Promise<Either<string, GoogleUser | null>>>>(

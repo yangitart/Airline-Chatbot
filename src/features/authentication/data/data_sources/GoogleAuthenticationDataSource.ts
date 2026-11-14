@@ -5,6 +5,10 @@ import { GoogleUserModel } from "../models/GoogleUserModel";
 
 export interface GoogleAuthenticationDataSource {
   signIn(): Promise<string>;
+  signInWithPassword(email: string, password: string): Promise<void>;
+  signUpWithPassword(email: string, password: string): Promise<boolean>;
+  requestPasswordReset(email: string): Promise<void>;
+  updatePassword(password: string): Promise<void>;
   currentUser(): Promise<GoogleUserModel | null>;
   onAuthStateChange(
     listener: (user: GoogleUserModel | null) => void,
@@ -56,6 +60,37 @@ export const GoogleAuthenticationDataSourceImpl = (
     if (!data.url)
       throw new Error("Supabase did not return a Google OAuth URL.");
     return data.url;
+  },
+  signInWithPassword: async (email, password) => {
+    const { error } = await createSupabaseClient().auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+  },
+  signUpWithPassword: async (email, password) => {
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", "/?signedIn=1");
+    const { data, error } = await createSupabaseClient().auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: callbackUrl.toString() },
+    });
+    if (error) throw error;
+    return Boolean(data.session);
+  },
+  requestPasswordReset: async (email) => {
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", "/auth/reset-password");
+    const { error } = await createSupabaseClient().auth.resetPasswordForEmail(
+      email,
+      { redirectTo: callbackUrl.toString() },
+    );
+    if (error) throw error;
+  },
+  updatePassword: async (password) => {
+    const { error } = await createSupabaseClient().auth.updateUser({ password });
+    if (error) throw error;
   },
   currentUser: async () => {
     const supabase = createSupabaseClient();

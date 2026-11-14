@@ -3,24 +3,8 @@ import { createAuthenticatedSupabaseContext } from "@/src/core/api/supabase/auth
 import { jsonError, jsonResponse } from "@/src/core/api/http/jsonResponse";
 import { isLeft } from "fp-ts/Either";
 import { createServerTravelProfile } from "@/src/features/users/ioc/serverTravelProfile";
-import {
-  isSupportedLanguage,
-  type SupportedLanguage,
-} from "@/src/core/locales/supportedLanguages";
-
-function serializeProfile(profile: {
-  displayName: string;
-  phone: string;
-  preferredLanguage: SupportedLanguage;
-  updatedAt: string;
-}) {
-  return {
-    display_name: profile.displayName,
-    phone: profile.phone,
-    preferred_language: profile.preferredLanguage,
-    updated_at: profile.updatedAt,
-  };
-}
+import { serializeTravelProfile } from "@/src/features/users/data/mappers/TravelProfileMapper";
+import { isSupportedLanguage } from "@/src/core/locales/supportedLanguages";
 
 export async function GET() {
   const { supabase, user } = await createAuthenticatedSupabaseContext();
@@ -33,7 +17,7 @@ export async function GET() {
       500,
       "profile_load_failed",
     );
-  return jsonResponse(serializeProfile(result.right));
+  return jsonResponse(serializeTravelProfile(result.right));
 }
 
 export async function PATCH(request: NextRequest) {
@@ -77,7 +61,7 @@ export async function PATCH(request: NextRequest) {
         500,
         "profile_save_failed",
       );
-    return jsonResponse(serializeProfile(result.right));
+    return jsonResponse(serializeTravelProfile(result.right));
   } catch {
     return jsonError("Profile could not be saved.", 500, "profile_save_failed");
   }

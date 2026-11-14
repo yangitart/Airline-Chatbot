@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { isLeft } from "fp-ts/Either";
 import { LoaderCircle, X } from "lucide-react";
 import Image from "next/image";
@@ -22,6 +22,10 @@ export function GoogleAuthModal({
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [message, setMessage] = useState("");
+  const [resetMode, setResetMode] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [mode, setMode] = useState<AuthMode>("signin");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressedBackdrop = useRef(false);
@@ -38,6 +42,7 @@ export function GoogleAuthModal({
     if (busy) return;
     setBusy(true);
     setHasError(false);
+    setMessage("");
     try {
       const result = await googleAuthenticationServices.signIn.execute();
       // The traveler may dismiss the dialog while OAuth is being prepared.
@@ -48,6 +53,37 @@ export function GoogleAuthModal({
     } catch {
       if (!dialogRef.current?.open) return;
       setHasError(true);
+      setBusy(false);
+    }
+  };
+
+  const submitEmail = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setHasError(false);
+    setMessage("");
+    try {
+      const credentials = { email: email.trim(), password };
+      const result = signingIn
+        ? resetMode
+          ? await googleAuthenticationServices.requestPasswordReset.execute(credentials.email)
+          : await googleAuthenticationServices.emailSignIn.execute(credentials)
+        : await googleAuthenticationServices.emailSignUp.execute(credentials);
+      if (isLeft(result)) throw new Error(result.left);
+      if (resetMode) {
+        setMessage(t("flightSearch.auth.resetEmailSent"));
+        return;
+      }
+      if (signingIn || result.right) {
+        onRedirect();
+        window.location.assign("/?signedIn=1");
+        return;
+      }
+      setMessage(t("flightSearch.auth.confirmEmail"));
+    } catch {
+      setHasError(true);
+    } finally {
       setBusy(false);
     }
   };
@@ -104,9 +140,11 @@ export function GoogleAuthModal({
           id={titleId}
         >
           {t(
-            signingIn
-              ? "flightSearch.auth.welcome"
-              : "flightSearch.auth.createAccount",
+            resetMode
+              ? "flightSearch.auth.resetTitle"
+              : signingIn
+                ? "flightSearch.auth.welcome"
+                : "flightSearch.auth.createAccount",
           )}
         </h2>
         <p
@@ -114,66 +152,148 @@ export function GoogleAuthModal({
           id={descriptionId}
         >
           {t(
-            signingIn
-              ? "flightSearch.auth.signInDescription"
-              : "flightSearch.auth.signUpDescription",
+            resetMode
+              ? "flightSearch.auth.resetDescription"
+              : signingIn
+                ? "flightSearch.auth.signInDescription"
+                : "flightSearch.auth.signUpDescription",
           )}
         </p>
       </header>
 
       <div className="space-y-4 px-6 pb-6 pt-5 sm:px-8 sm:pb-7 sm:pt-6">
-        <div
-          className="grid grid-cols-2 gap-1 rounded-xl bg-airline-canvas p-1"
-          role="group"
-          aria-label={t("flightSearch.auth.accountAccess")}
-        >
-          {(
-            [
-              { value: "signin", label: t("flightSearch.nav.signIn") },
-              { value: "signup", label: t("flightSearch.auth.signUp") },
-            ] as const
-          ).map(({ value, label }) => (
-            <button
-              key={value}
-              className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-sm font-semibold leading-snug transition-colors disabled:opacity-60 ${focusStyle} ${mode === value ? "bg-white text-airline-forest shadow-sm" : "text-airline-forest/80 enabled:hover:text-airline-forest"}`}
-              type="button"
-              aria-pressed={mode === value}
-              disabled={busy}
-              onClick={() => {
-                setMode(value);
-                setHasError(false);
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {!resetMode && (
+          <div
+            className="grid grid-cols-2 gap-1 rounded-xl bg-airline-canvas p-1"
+            role="group"
+            aria-label={t("flightSearch.auth.accountAccess")}
+          >
+            {(
+              [
+                { value: "signin", label: t("flightSearch.nav.signIn") },
+                { value: "signup", label: t("flightSearch.auth.signUp") },
+              ] as const
+            ).map(({ value, label }) => (
+              <button
+                key={value}
+                className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-sm font-semibold leading-snug transition-colors disabled:opacity-60 ${focusStyle} ${mode === value ? "bg-white text-airline-forest shadow-sm" : "text-airline-forest/80 enabled:hover:text-airline-forest"}`}
+                type="button"
+                aria-pressed={mode === value}
+                disabled={busy}
+                onClick={() => {
+                  setMode(value);
+                  setResetMode(false);
+                  setHasError(false);
+                  setMessage("");
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
-        <button
-          className={`flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-airline-forest/25 bg-white px-4 py-3 text-sm font-semibold text-airline-forest shadow-sm transition-colors enabled:hover:border-airline-forest/50 enabled:hover:bg-airline-forest-soft disabled:cursor-wait disabled:bg-airline-canvas disabled:shadow-none ${focusStyle}`}
-          type="button"
-          aria-busy={busy}
-          disabled={busy}
-          onClick={() => void startGoogleSignIn()}
+        <form
+          className="space-y-3"
+          onSubmit={(event) => void submitEmail(event)}
         >
-          {busy ? (
-            <LoaderCircle
-              aria-hidden="true"
-              className="size-5 shrink-0 motion-safe:animate-spin"
+          <label className="block space-y-1.5 text-sm font-medium text-airline-forest">
+            <span>{t("flightSearch.auth.email")}</span>
+            <input
+              className="min-h-11 w-full rounded-xl border border-airline-line bg-white px-3 text-airline-ink outline-none focus-visible:border-airline-forest focus-visible:ring-2 focus-visible:ring-airline-forest/20"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
-          ) : (
-            <FcGoogle aria-hidden="true" className="size-5 shrink-0" />
+          </label>
+          {!resetMode && (
+            <label className="block space-y-1.5 text-sm font-medium text-airline-forest">
+              <span>{t("flightSearch.auth.password")}</span>
+              <input
+                className="min-h-11 w-full rounded-xl border border-airline-line bg-white px-3 text-airline-ink outline-none focus-visible:border-airline-forest focus-visible:ring-2 focus-visible:ring-airline-forest/20"
+                type="password"
+                autoComplete={signingIn ? "current-password" : "new-password"}
+                minLength={signingIn ? undefined : 8}
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </label>
           )}
-          <span className="leading-snug">
+          <button
+            className={`min-h-12 w-full rounded-xl bg-airline-forest px-4 py-3 text-sm font-semibold text-white transition-colors enabled:hover:bg-airline-forest/90 disabled:cursor-wait disabled:opacity-60 ${focusStyle}`}
+            type="submit"
+            disabled={busy}
+          >
             {t(
-              busy
-                ? "flightSearch.auth.connecting"
-                : "flightSearch.auth.continueGoogle",
+              resetMode
+                ? "flightSearch.auth.sendResetLink"
+                : signingIn
+                  ? "flightSearch.auth.emailSignIn"
+                  : "flightSearch.auth.emailSignUp",
             )}
-          </span>
-        </button>
+          </button>
+        </form>
+        {signingIn && !resetMode && (
+          <button
+            className={`w-full text-sm font-medium text-airline-forest underline underline-offset-4 ${focusStyle}`}
+            type="button"
+            onClick={() => {
+              setResetMode(true);
+              setMessage("");
+              setHasError(false);
+            }}
+          >
+            {t("flightSearch.auth.forgotPassword")}
+          </button>
+        )}
+        {resetMode && (
+          <button
+            className={`w-full text-sm font-medium text-airline-forest underline underline-offset-4 ${focusStyle}`}
+            type="button"
+            onClick={() => {
+              setResetMode(false);
+              setMessage("");
+            }}
+          >
+            {t("flightSearch.auth.backToSignIn")}
+          </button>
+        )}
+        {!resetMode && (
+          <>
+            <p className="text-center text-xs font-semibold uppercase tracking-wide text-airline-muted">
+              {t("flightSearch.auth.or")}
+            </p>
+
+            <button
+              className={`flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-airline-forest/25 bg-white px-4 py-3 text-sm font-semibold text-airline-forest shadow-sm transition-colors enabled:hover:border-airline-forest/50 enabled:hover:bg-airline-forest-soft disabled:cursor-wait disabled:bg-airline-canvas disabled:shadow-none ${focusStyle}`}
+              type="button"
+              aria-busy={busy}
+              disabled={busy}
+              onClick={() => void startGoogleSignIn()}
+            >
+              {busy ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-5 shrink-0 motion-safe:animate-spin"
+                />
+              ) : (
+                <FcGoogle aria-hidden="true" className="size-5 shrink-0" />
+              )}
+              <span className="leading-snug">
+                {t(
+                  busy
+                    ? "flightSearch.auth.working"
+                    : "flightSearch.auth.continueGoogle",
+                )}
+              </span>
+            </button>
+          </>
+        )}
         <span className="sr-only" role="status">
-          {busy ? t("flightSearch.auth.connecting") : ""}
+          {busy ? t("flightSearch.auth.working") : ""}
         </span>
         {hasError && (
           <p
@@ -181,6 +301,14 @@ export function GoogleAuthModal({
             role="alert"
           >
             {t("flightSearch.errors.signInFailed")}
+          </p>
+        )}
+        {message && (
+          <p
+            className="rounded-lg bg-airline-forest-soft px-3 py-2.5 text-sm text-airline-forest"
+            role="status"
+          >
+            {message}
           </p>
         )}
         <p className="text-center text-xs leading-5 text-airline-muted">
