@@ -398,6 +398,11 @@ export function FlightResults({
                     ),
                   })}
                 </p>
+                {booking.status === "demo_saved" && (
+                  <p className="max-w-sm text-xs leading-5 text-airline-muted">
+                    {t("flightSearch.booking.holdNotice")}
+                  </p>
+                )}
                 <Link
                   href={{
                     pathname: "/my-trips",

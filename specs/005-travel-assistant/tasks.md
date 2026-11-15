@@ -23,6 +23,7 @@
 - [ ] T017 [setup] Apply the pending FAQ migrations, publish the bilingual Veyra corpus, enable RAG locally and in Vercel, and review grounded answers and abstention.
 
 ## Verification
+- Widget refactor (2026-11-15): extracted conversation and greeting hooks plus header, welcome, history and message components. Focused UI tests cover streaming, overlapping sends, account-change cancellation, expired-session recovery, history deletion and greeting timing. Browser/Supabase end-to-end checks remain under T014.
 - FAQ coverage: 21 local categories with three question and answer pairs in English and Spanish. Original Veyra authored FAQ is disconnected from the archived Air India source set.
 - Validation: the FAQ catalog check covers 21 local categories with three Q&A pairs per topic in English and Spanish. Scroll bounce is backed by the HTML and body canvas colors plus overscroll containment; the removed route-map and experience links no longer point outside Veyra.
 - Trip tests cover exact booking lookup, flight query validation, and confirmation before checkout or check-in.

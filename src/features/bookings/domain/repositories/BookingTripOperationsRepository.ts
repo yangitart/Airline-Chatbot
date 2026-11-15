@@ -9,6 +9,7 @@ export type CheckoutBooking = {
   status: string;
   payment_status: "unpaid" | "checkout_pending" | "paid" | "failed";
   stripe_checkout_session_id: string | null;
+  hold_expires_at: string;
   is_demo: boolean;
 };
 

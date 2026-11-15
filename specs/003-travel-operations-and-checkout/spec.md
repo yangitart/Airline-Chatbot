@@ -11,6 +11,7 @@ Finish the current flight journey so a traveler can review a saved booking, pay 
 - Stripe test-mode Checkout session for an authenticated user's demo booking. The server calculates the amount from the stored booking; the browser never supplies the charge amount.
 - Verify Stripe webhook signatures and match the signed test session, booking ID, total, and currency before updating payment status. Apply each event once and allow Stripe to retry if it arrives before the session is linked. A successful test payment marks a demo booking paid; it never means an airline ticket was issued.
 - Price new demo reservations in USD while honoring the currency stored on earlier reservations.
+- Reject new bookings for departed flights. Hold seats for unstarted demo reservations for up to 30 minutes, capped at departure; a minute Supabase Cron job expires these holds and restores both itinerary legs exactly once. Paid and Stripe-linked bookings are excluded. Checkout checks the deadline before creating and when attaching a Stripe session, and never returns a rejected session URL.
 - Profile view and editing of basic contact/display fields under Supabase RLS.
 - Demo check-in for each eligible paid itinerary leg, returning a clearly labeled demo pass reference and seat.
 - Flight-status lookup from stored AviationStack-shaped demo status records.

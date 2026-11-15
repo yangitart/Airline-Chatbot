@@ -30,6 +30,13 @@ export async function POST(
   if (!booking)
     return jsonError("Booking not found.", 404, "booking_not_found");
   if (
+    booking.status === "expired" ||
+    (booking.status === "demo_saved" &&
+      Date.parse(booking.hold_expires_at) <= Date.now())
+  ) {
+    return jsonError("This booking expired. Search again to choose a flight.", 409, "checkout_expired");
+  }
+  if (
     !booking.is_demo ||
     booking.payment_status === "paid" ||
     !["demo_saved", "pending_payment", "failed"].includes(booking.status)
@@ -126,6 +133,15 @@ export async function POST(
       userId: user.id,
       sessionId: session.id,
     });
+    if (isLeft(saveResult)) {
+      // The hold may expire while Stripe creates the session. Do not leave
+      // an open Checkout for a booking the database refused to attach.
+      try {
+        await stripe.checkout.sessions.expire(session.id);
+      } catch {
+        // A completed/expired session cannot be expired again. Never return its URL.
+      }
+    }
     if (isLeft(saveResult) && saveResult.left.includes("booking_not_payable")) {
       return jsonError(
         "This booking cannot be paid.",

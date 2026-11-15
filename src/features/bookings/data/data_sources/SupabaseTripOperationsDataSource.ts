@@ -10,7 +10,7 @@ export function createSupabaseTripOperationsDataSource(
       const { data, error } = await supabase
         .from("bookings")
         .select(
-          "id,booking_reference,user_id,total_fare_minor,currency,status,payment_status,stripe_checkout_session_id,is_demo",
+          "id,booking_reference,user_id,total_fare_minor,currency,status,payment_status,stripe_checkout_session_id,hold_expires_at,is_demo",
         )
         .eq("id", bookingId)
         .eq("user_id", userId)

@@ -6,6 +6,8 @@ I originally planned Railway + FastAPI, but I ran out of Railway credits, so I r
 
 The travel assistant streams model responses in the selected site language and saves account-scoped chat history in Supabase. Search and trip actions use existing services and require explicit traveler confirmation. When RAG is enabled, FAQ evidence comes only from the bilingual, locally authored Veyra catalog; archived airline research is never used as answer evidence.
 
+`TravelAssistantWidget` composes the launcher and dialog. Its feature UI hooks manage conversation requests/history and session-scoped greetings; separate components render the header, welcome topics, history and messages. Request cancellation, account-change cleanup and streaming updates stay together in `useAssistantConversation`.
+
 ## Current flight data and booking limits
 
 Flight rows are stored in Supabase and searched from the database. The included seed data is **demo inventory**; it is not live airline availability, cannot issue a ticket, and does not charge a payment method. Saved bookings are marked demo and reduce demo seat availability atomically.
@@ -13,6 +15,14 @@ Flight rows are stored in Supabase and searched from the database. The included 
 The seed's `offer_payload` follows Amadeus's nested `flight-offer` shape, saved `flight_order_payload` follows the `flight-order` shape, and `flight_status_snapshots.status_payload` follows AviationStack's nested flight record. The app maps those payloads into its own UI model. No calls to either provider are made by the current demo adapter.
 
 Stripe Checkout is restricted to test mode (`sk_test_...`) and demo bookings. A signed webhook records payment state; returning from Checkout alone never confirms payment. A successful demo payment is not an airline ticket. The check-in flow uses seeded schedules and creates only a sample seat and pass reference. Never enter real payment details or treat these records as travel documents.
+
+The UI distinguishes saving a demo booking, paying through test Checkout, and checking in each paid flight leg. Payment success notifications require a server-reported `paid` status and appear once per booking during a visit. Check-in opens 48 hours before departure and closes 60 minutes before departure; the owner-scoped database RPC enforces that window and reuses an existing check-in for the same leg.
+
+Unstarted demo bookings hold seats for up to 30 minutes, capped at outbound departure. The November 15 migrations add `hold_expires_at`, reject departed flights in the booking RPC, and register the Supabase Cron job `expire-unstarted-demo-bookings` every minute. Each run releases up to 100 expired bookings atomically, restores both legs and the offer seat count, and marks the booking expired. Existing holds use their original creation time, so overdue unstarted reservations become eligible immediately after deployment. Linked Stripe sessions and paid reservations are excluded; linked sessions still rely on signed Stripe events for inventory release.
+
+Apply `202611150001_demo_booking_hold_expiry.sql` and `202611150002_schedule_demo_booking_expiry.sql` before deploying the updated app. The second migration requires Supabase's [pg_cron extension](https://supabase.com/docs/guides/cron/install); migration failure must be resolved rather than skipping the scheduler. Confirm the named job and successful runs in Supabase Cron. Checkout checks the deadline before creating a Stripe session; the database checks it again when attaching that session. If attachment fails, the route attempts to expire the new session and never returns its URL.
+
+The rollback-only regression script `tests/features/bookings/data/demoBookingLifecycle.sql` runs with `psql -v ON_ERROR_STOP=1 -f tests/features/bookings/data/demoBookingLifecycle.sql` against a disposable migrated database. It checks rejected past flights, hold deadlines, round-trip release, repeated expiry, protected paid/linked bookings, webhook expiry, and sweep permissions. Local SQL, route and component checks do not verify deployed migrations, Cron scheduling, or Stripe event delivery.
 
 New demo fares are in USD. The catalog migration uses a fixed sample ratio of 85 INR per USD and leaves saved bookings and their Checkout Sessions in their original currency. Apply the November 8 payment and USD migrations before running the updated app against that database. For a hosted rollout, coordinate the app deployment with the migrations because they disable the old Checkout RPCs.
 

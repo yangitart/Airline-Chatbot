@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import { useTravelShell } from "@/src/components/layout/TravelShellContext";
 import type {
@@ -83,6 +84,11 @@ export default function FlightSearchView({
           return;
         }
         setBooking(result.right);
+        toast.success(
+          t("flightSearch.booking.saved", {
+            reference: result.right.bookingReference.replace(/^DEMO-/i, "AI-"),
+          }),
+        );
         lastBookingRequest.current = null;
       } catch {
         setBookingError("flightSearch.booking.saveFailed");
@@ -91,7 +97,7 @@ export default function FlightSearchView({
         setBookingBusy(false);
       }
     },
-    [],
+    [t],
   );
 
   useEffect(() => {

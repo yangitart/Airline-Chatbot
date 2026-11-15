@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import {
   CircleCheck,
   ArrowLeft,
@@ -71,6 +72,12 @@ export default function MyTripsView({
   const [paymentMessage, setPaymentMessage] = useState("");
   const [checkingPaymentId, setCheckingPaymentId] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const notifiedPayments = useRef(new Set<string>());
+  const notifyPaymentConfirmed = useCallback((id: string) => {
+    if (notifiedPayments.current.has(id)) return;
+    notifiedPayments.current.add(id);
+    toast.success(t("tripOperations.paymentVerified"), { id: `payment-paid:${id}` });
+  }, [t]);
   const locale = i18n.resolvedLanguage ?? "en";
   const formatters = useMemo(() => {
     const dates = new Map<string, Intl.DateTimeFormat>();
@@ -113,6 +120,8 @@ export default function MyTripsView({
       setPaymentMessage("tripOperations.paymentCancelled");
     } else if (targetBookingId) {
       setPaymentMessage("tripOperations.paymentVerificationPending");
+    } else {
+      setPaymentMessage("");
     }
 
     let active = true;
@@ -124,6 +133,7 @@ export default function MyTripsView({
     const reportPaymentResult = (booking?: BookingPayment) => {
       if (booking?.paymentStatus === "paid") {
         setPaymentMessage("tripOperations.paymentVerified");
+        if (targetBookingId) notifyPaymentConfirmed(targetBookingId);
         return true;
       }
       if (
@@ -217,7 +227,7 @@ export default function MyTripsView({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [bookingId, loadAttempt, payment]);
+  }, [bookingId, loadAttempt, payment, notifyPaymentConfirmed]);
   const startPayment = async (id: string) => {
     if (busyId) return;
     setBusyId(id);
@@ -324,6 +334,8 @@ export default function MyTripsView({
               ? "tripOperations.paymentFailed"
               : "tripOperations.paymentStillPending",
       );
+      if (updated.paymentStatus === "paid")
+        notifyPaymentConfirmed(id);
     } catch {
       setPaymentMessage("tripOperations.genericError");
     } finally {
@@ -631,6 +643,11 @@ export default function MyTripsView({
                   <p className="mt-1 text-xs text-[#755f34]">
                     {t("flightSearch.booking.demoNoTicket")}
                   </p>
+                  {booking.status === "demo_saved" && (
+                    <p className="mt-2 max-w-lg text-xs leading-5 text-airline-muted">
+                      {t("flightSearch.booking.holdNotice")}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <strong className="mr-1 text-lg">
