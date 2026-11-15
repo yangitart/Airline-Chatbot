@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { createSupabaseServerClient } from "@/src/core/api/supabase/server";
+import { createPublicSupabaseServerClient } from "@/src/core/api/supabase/publicServer";
 import { isLeft } from "fp-ts/Either";
 import { createServerFlightStatus } from "@/src/features/flights/ioc/serverFlightStatus";
 import { parseFlightStatusQuery } from "@/src/features/flights/domain/models/FlightStatusLookup";
@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
       "invalid_status_query",
     );
   }
-  const supabase = await createSupabaseServerClient();
+  const supabase = createPublicSupabaseServerClient();
+  const started = performance.now();
   const result = await createServerFlightStatus(supabase).execute(query);
   if (isLeft(result))
     return jsonError(
@@ -32,19 +33,27 @@ export async function GET(request: NextRequest) {
       "status_not_found",
     );
   const status = result.right;
-  return jsonResponse({
-    flight_number: status.flightNumber,
-    flight_date: status.flightDate,
-    status: status.status,
-    source: status.source,
-    is_demo: status.isDemo,
-    updated_at: status.updatedAt,
-    payload: status.payload,
-    schedule: {
-      origin_code: status.schedule.originCode,
-      destination_code: status.schedule.destinationCode,
-      departure_at: status.schedule.departureAt,
-      arrival_at: status.schedule.arrivalAt,
+  return jsonResponse(
+    {
+      flight_number: status.flightNumber,
+      flight_date: status.flightDate,
+      status: status.status,
+      source: status.source,
+      is_demo: status.isDemo,
+      updated_at: status.updatedAt,
+      payload: status.payload,
+      schedule: {
+        origin_code: status.schedule.originCode,
+        destination_code: status.schedule.destinationCode,
+        departure_at: status.schedule.departureAt,
+        arrival_at: status.schedule.arrivalAt,
+      },
     },
-  });
+    {
+      headers: {
+        "Cache-Control": "public, max-age=15, s-maxage=30",
+        "Server-Timing": `flight_status;dur=${Math.round(performance.now() - started)}`,
+      },
+    },
+  );
 }

@@ -28,12 +28,14 @@ export default function TravelProfileView() {
   const [busy, setBusy] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [loadError, setLoadError] = useState("");
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: profile,
     onSubmit: async (values) => {
       setBusy(true);
       setMessage("");
+      setLoadError("");
       try {
         const response = await fetch("/api/v1/profile", {
           method: "PATCH",
@@ -67,23 +69,21 @@ export default function TravelProfileView() {
   });
   useEffect(() => {
     let live = true;
-    fetch("/api/v1/profile")
+    const controller = new AbortController();
+    fetch("/api/v1/profile", { signal: controller.signal })
       .then(async (response) => {
         const body = await response.json();
-        if (!response.ok)
-          throw new Error(
-            body.error_code
-              ? t(`tripOperations.errors.${body.error_code}`)
-              : t("tripOperations.genericError"),
-          );
+        if (!response.ok) throw new Error(body.error_code || "");
         if (live) setProfile(body);
       })
       .catch((error: unknown) => {
         if (live)
-          setMessage(
-            error instanceof Error
-              ? error.message
-              : t("tripOperations.genericError"),
+          setLoadError(
+            error instanceof Error &&
+              (error.message === "auth_required" ||
+                error.message === "profile_load_failed")
+              ? `tripOperations.errors.${error.message}`
+              : "tripOperations.genericError",
           );
       })
       .finally(() => {
@@ -94,8 +94,9 @@ export default function TravelProfileView() {
       });
     return () => {
       live = false;
+      controller.abort();
     };
-  }, [t]);
+  }, []);
   return (
     <FormikProvider value={formik}>
       <TravelSectionLayout
@@ -110,12 +111,12 @@ export default function TravelProfileView() {
           >
             ← {t("tripOperations.backTrips")}
           </Link>
-          {message && (
+          {(message || loadError) && (
             <p
               className="mt-5 animate-soft-rise rounded-2xl border border-airline-line bg-[#f7f6f1] p-4 text-sm motion-reduce:animate-none"
               role="status"
             >
-              {message}
+              {message || t(loadError)}
             </p>
           )}
           {profileLoading ? (

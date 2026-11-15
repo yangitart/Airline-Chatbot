@@ -109,3 +109,25 @@ it("rejects requests without a Stripe signature", async () => {
   expect(response.status).toBe(400);
   expect(webhook.execute).not.toHaveBeenCalled();
 });
+
+it("distinguishes events that were not applied from persistence failures", async () => {
+  webhook.execute.mockResolvedValueOnce({ _tag: "Right", right: false });
+  const ignored = await POST(request());
+  expect(ignored.status).toBe(200);
+  expect(await ignored.json()).toEqual({ received: true, applied: false });
+
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    webhook.execute.mockResolvedValueOnce({
+      _tag: "Left",
+      left: "write_failed",
+    });
+    expect((await POST(request())).status).toBe(500);
+    expect(log).toHaveBeenCalledWith(expect.any(String), {
+      eventId: "evt_test_123",
+      eventType: "checkout.session.completed",
+    });
+  } finally {
+    log.mockRestore();
+  }
+});

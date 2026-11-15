@@ -7,10 +7,7 @@ import { SupabaseChatHistoryDataSource } from "@/src/features/chatbot/data/data_
 vi.mock("server-only", () => ({}));
 
 function createDataSource(rows: unknown[]) {
-  const fetch = vi.fn(
-    async (_input: string | URL | Request, _init?: RequestInit) =>
-      Response.json(rows),
-  );
+  const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(rows));
   const supabase = createClient("https://example.test", "public-key-for-test", {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { fetch },

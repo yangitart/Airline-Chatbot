@@ -28,6 +28,7 @@ export function GoogleAuthModal({
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<AuthMode>("signin");
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const pressedBackdrop = useRef(false);
   const titleId = useId();
   const descriptionId = useId();
@@ -95,6 +96,7 @@ export function GoogleAuthModal({
     const previousOverflow = root.style.overflow;
 
     dialog.showModal();
+    titleRef.current?.focus({ preventScroll: true });
     root.style.overflow = "hidden";
     return () => {
       dialog.close();
@@ -107,7 +109,7 @@ export function GoogleAuthModal({
       ref={dialogRef}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
-      className="m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto overscroll-contain rounded-[28px] border border-airline-line bg-airline-paper p-0 text-airline-ink shadow-[0_24px_80px_rgb(13_29_41_/_28%)] backdrop:bg-airline-night/60 backdrop:backdrop-blur-sm motion-safe:animate-soft-rise motion-safe:[animation-duration:240ms]"
+      className="scrollbar-hide m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto overscroll-contain rounded-[28px] border border-airline-line bg-airline-paper p-0 text-airline-ink shadow-[0_24px_80px_rgb(13_29_41_/_28%)] backdrop:bg-airline-night/60 backdrop:backdrop-blur-sm motion-safe:animate-soft-rise motion-safe:[animation-duration:240ms]"
       onCancel={(event) => {
         event.preventDefault();
         dismiss();
@@ -127,7 +129,7 @@ export function GoogleAuthModal({
             <span>{t("flightSearch.auth.brand")}</span>
           </div>
           <button
-            className={`grid size-11 shrink-0 place-items-center rounded-full text-airline-forest transition-colors hover:bg-airline-forest/10 ${focusStyle}`}
+            className="grid size-11 shrink-0 place-items-center rounded-full text-airline-forest transition-colors hover:bg-airline-forest/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-airline-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-airline-forest-soft"
             type="button"
             aria-label={t("flightSearch.auth.close")}
             onClick={dismiss}
@@ -136,6 +138,8 @@ export function GoogleAuthModal({
           </button>
         </div>
         <h2
+          ref={titleRef}
+          tabIndex={-1}
           className="mt-4 font-serif text-[clamp(1.75rem,6vw,2.125rem)] font-semibold leading-tight tracking-tight text-airline-forest"
           id={titleId}
         >

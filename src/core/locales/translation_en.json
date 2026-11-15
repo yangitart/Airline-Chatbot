@@ -177,6 +177,9 @@
     "footer": "Plan your journey with confidence."
   },
   "tripOperations": {
+    "demoFlightStatus": "Demo flight status",
+    "retryTrips": "Try again",
+    "refreshPayment": "Refresh payment status",
     "genericError": "Something went wrong. Please try again.",
     "paymentVerificationPending": "Payment is being verified by Stripe. This may take a few seconds.",
     "paymentVerified": "Payment confirmed.",
@@ -288,6 +291,7 @@
       "closeAccount": "Close account dialog"
     },
     "booking": {
+      "offerChanged": "The fare or availability changed. Search again to see the latest options.",
       "title": "Search Veyra flights",
       "servicesLabel": "Travel services",
       "searchFlights": "Search flights",
@@ -402,6 +406,9 @@
       "confirmPassword": "Confirm new password",
       "updatePassword": "Update password",
       "passwordMismatch": "The passwords do not match.",
+      "passwordMinLength": "Use at least 8 characters.",
+      "passwordLengthValid": "Password length is valid.",
+      "passwordsMatch": "Passwords match.",
       "continueGoogle": "Continue with Google",
       "connecting": "Connecting to Google…",
       "terms": "By continuing, you agree to the applicable terms and privacy notice.",

@@ -129,6 +129,7 @@ export function BookingActionCard({
     new Intl.NumberFormat(locale, {
       style: "currency",
       currency: booking.currency,
+      currencyDisplay: "code",
     }).format(booking.totalFareMinor / 100);
 
   return (

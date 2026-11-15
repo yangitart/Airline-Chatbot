@@ -11,6 +11,8 @@ export function createSupabaseFlightStatusDataSource(supabase: SupabaseClient) {
         )
         .eq("flight_date", date)
         .eq("flight_instances.flight_number", flightNumber)
+        .order("fetched_at", { ascending: false })
+        .order("id")
         .limit(1)
         .maybeSingle();
       if (error) throw error;

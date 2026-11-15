@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       event.type !== "checkout.session.async_payment_failed" &&
       event.type !== "checkout.session.expired")
   ) {
-    return jsonResponse({ received: true });
+    return jsonResponse({ received: true, applied: false });
   }
   const session = event.data.object;
   const bookingId = session.metadata?.booking_id;
@@ -48,13 +48,13 @@ export async function POST(request: NextRequest) {
     !session.currency ||
     !/^[a-z]{3}$/.test(session.currency)
   ) {
-    return jsonResponse({ received: true });
+    return jsonResponse({ received: true, applied: false });
   }
   const isSuccess =
     event.type === "checkout.session.completed" ||
     event.type === "checkout.session.async_payment_succeeded";
   if (isSuccess !== (session.payment_status === "paid"))
-    return jsonResponse({ received: true });
+    return jsonResponse({ received: true, applied: false });
   try {
     const result = await createServerDemoPaymentWebhook().execute({
       eventId: event.id,
@@ -69,8 +69,12 @@ export async function POST(request: NextRequest) {
           : null,
     });
     if (isLeft(result)) throw new Error(result.left);
-    return jsonResponse({ received: true });
+    return jsonResponse({ received: true, applied: result.right });
   } catch {
+    console.error("Verified Stripe event could not be recorded", {
+      eventId: event.id,
+      eventType: event.type,
+    });
     return jsonError("Payment event could not be recorded.", 500);
   }
 }

@@ -75,7 +75,11 @@ function bookingResult(
       })),
     },
     modelResult: {
-      bookings: trips.map(({ id: _id, ...trip }) => trip),
+      bookings: trips.map(({ id, ...trip }) => {
+        // The model uses the booking reference, while cards use the internal ID.
+        void id;
+        return trip;
+      }),
       hasMore,
     },
   };

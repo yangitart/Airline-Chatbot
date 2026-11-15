@@ -17,9 +17,11 @@ import {
 } from "./DestinationPhotoDetails";
 
 const formatFare = (locale: string, currency: string, minor: number) =>
-  new Intl.NumberFormat(locale, { style: "currency", currency }).format(
-    minor / 100,
-  );
+  new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    currencyDisplay: "code",
+  }).format(minor / 100);
 
 const formatDate = (locale: string, date: string) =>
   new Intl.DateTimeFormat(locale, {
@@ -117,6 +119,7 @@ export function FlightResults({
   bookingBusy,
   booking,
   bookingError,
+  offerChanged,
   onBook,
   onBack,
 }: {
@@ -125,6 +128,7 @@ export function FlightResults({
   bookingBusy: boolean;
   booking: Booking | null;
   bookingError: string;
+  offerChanged?: boolean;
   onBook: (
     flightInstanceId: string,
     returnFlightInstanceId: string | undefined,
@@ -144,8 +148,11 @@ export function FlightResults({
   const destination = isReturn ? result.origin : result.destination;
   const photo = getDestinationPhoto(destination);
   const flights = isReturn ? result.return_flights : result.flights;
+  const currencyMismatch = Boolean(
+    outbound && inbound && outbound.currency !== inbound.currency,
+  );
   const total =
-    outbound && (!hasReturn || inbound)
+    outbound && (!hasReturn || inbound) && !currencyMismatch
       ? formatFare(
           locale,
           outbound.currency,
@@ -279,9 +286,11 @@ export function FlightResults({
                   destination={destination}
                   selected={flight.id === (isReturn ? inbound : outbound)?.id}
                   perPassengerLabel={t("flightSearch.results.perAdult")}
-                  onSelect={() =>
-                    isReturn ? setInbound(flight) : setOutbound(flight)
-                  }
+                  onSelect={() => {
+                    if (bookingBusy || booking) return;
+                    if (isReturn) setInbound(flight);
+                    else setOutbound(flight);
+                  }}
                 />
               ))
             ) : (
@@ -320,7 +329,21 @@ export function FlightResults({
               </div>
             ))}
           </dl>
-          <div className="mt-4 space-y-3 pr-16">
+          <div className="mt-4 space-y-3">
+            {currencyMismatch && (
+              <p role="status" className="text-sm text-airline-garnet">
+                {t("chatbot.currencyMismatch")}
+              </p>
+            )}
+            {outbound && hasReturn && !inbound && !isReturn && (
+              <button
+                type="button"
+                onClick={() => setLeg("return")}
+                className="min-h-11 w-full rounded-xl border border-airline-forest px-4 py-2 text-sm font-semibold text-airline-forest hover:bg-airline-forest-soft focus-visible:outline focus-visible:outline-2"
+              >
+                {t("flightSearch.results.return")}
+              </button>
+            )}
             {total && (
               <p
                 className="text-lg font-semibold text-airline-night"
@@ -331,7 +354,9 @@ export function FlightResults({
             )}
             <button
               type="button"
-              disabled={!total || bookingBusy || Boolean(booking)}
+              disabled={
+                !total || bookingBusy || Boolean(booking) || offerChanged
+              }
               onClick={() => {
                 if (outbound)
                   onBook(
@@ -354,6 +379,15 @@ export function FlightResults({
                 {bookingError}
               </p>
             )}
+            {offerChanged && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="text-sm font-semibold text-airline-forest underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
+              >
+                {t("flightSearch.booking.backToSearch")}
+              </button>
+            )}
             {booking && (
               <div className="mt-3 space-y-1 text-sm text-airline-forest">
                 <p className="font-semibold" role="status">
@@ -364,7 +398,13 @@ export function FlightResults({
                     ),
                   })}
                 </p>
-                <Link href="/my-trips" className="underline underline-offset-2">
+                <Link
+                  href={{
+                    pathname: "/my-trips",
+                    query: { booking_id: booking.id },
+                  }}
+                  className="inline-flex min-h-11 items-center rounded-xl bg-airline-forest px-4 text-white hover:bg-airline-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
                   {t("flightSearch.booking.myTrips")}
                 </Link>
               </div>

@@ -10,17 +10,16 @@ export default function ResetPasswordView() {
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState(false);
-  const [mismatch, setMismatch] = useState(false);
   const [busy, setBusy] = useState(false);
+  const passwordTooShort = password.length > 0 && password.length < 8;
+  const passwordsMatch = confirmation.length > 0 && password === confirmation;
+  const passwordsMismatch = confirmation.length > 0 && password !== confirmation;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (busy) return;
     setError(false);
-    setMismatch(false);
-    if (password !== confirmation) {
-      setMismatch(true);
-      return;
-    }
+    if (password.length < 8 || password !== confirmation) return;
 
     setBusy(true);
     try {
@@ -49,11 +48,22 @@ export default function ResetPasswordView() {
               className="min-h-11 w-full rounded-xl border border-airline-line px-3 text-airline-ink outline-none focus-visible:border-airline-forest focus-visible:ring-2 focus-visible:ring-airline-forest/20"
               type="password"
               autoComplete="new-password"
-              minLength={8}
               required
+              aria-invalid={passwordTooShort}
+              aria-describedby="new-password-requirement"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setError(false);
+              }}
             />
+            <span
+              id="new-password-requirement"
+              className={`block text-xs font-normal ${passwordTooShort ? "text-airline-garnet" : passwordsMatch ? "text-airline-forest" : "text-airline-muted"}`}
+              aria-live="polite"
+            >
+              {t(password.length >= 8 ? "flightSearch.auth.passwordLengthValid" : "flightSearch.auth.passwordMinLength")}
+            </span>
           </label>
           <label className="block space-y-1.5 text-sm font-medium text-airline-forest">
             <span>{t("flightSearch.auth.confirmPassword")}</span>
@@ -61,11 +71,24 @@ export default function ResetPasswordView() {
               className="min-h-11 w-full rounded-xl border border-airline-line px-3 text-airline-ink outline-none focus-visible:border-airline-forest focus-visible:ring-2 focus-visible:ring-airline-forest/20"
               type="password"
               autoComplete="new-password"
-              minLength={8}
               required
+              aria-invalid={passwordsMismatch}
+              aria-describedby={confirmation.length ? "password-match-status" : undefined}
               value={confirmation}
-              onChange={(event) => setConfirmation(event.target.value)}
+              onChange={(event) => {
+                setConfirmation(event.target.value);
+                setError(false);
+              }}
             />
+            {confirmation.length > 0 && (
+              <span
+                id="password-match-status"
+                className={`block text-xs font-normal ${passwordsMatch ? "text-airline-forest" : "text-airline-garnet"}`}
+                aria-live="polite"
+              >
+                {t(passwordsMatch ? "flightSearch.auth.passwordsMatch" : "flightSearch.auth.passwordMismatch")}
+              </span>
+            )}
           </label>
           <button
             className="min-h-12 w-full rounded-xl bg-airline-forest px-4 py-3 text-sm font-semibold text-white transition-colors enabled:hover:bg-airline-forest/90 disabled:cursor-wait disabled:opacity-60"
@@ -75,8 +98,11 @@ export default function ResetPasswordView() {
             {t("flightSearch.auth.updatePassword")}
           </button>
         </form>
-        {mismatch && <p className="mt-4 text-sm text-airline-garnet" role="alert">{t("flightSearch.auth.passwordMismatch")}</p>}
-        {error && <p className="mt-4 text-sm text-airline-garnet" role="alert">{t("flightSearch.errors.signInFailed")}</p>}
+        {error && (
+          <p className="mt-4 text-sm text-airline-garnet" role="alert">
+            {t("flightSearch.errors.signInFailed")}
+          </p>
+        )}
       </section>
     </main>
   );

@@ -3,6 +3,25 @@ export type FlightStatusLookupQuery = {
   flightDate: string;
 };
 
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+
+export function getFlightStatusDate(instant: string, timeZone: string): string {
+  let formatter = dateFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("en", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    dateFormatters.set(timeZone, formatter);
+  }
+  const parts = formatter.formatToParts(new Date(instant));
+  const part = (type: "year" | "month" | "day") =>
+    parts.find((entry) => entry.type === type)?.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
 export function parseFlightStatusQuery(
   number: unknown,
   date: unknown,

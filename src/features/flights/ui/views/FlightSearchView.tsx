@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -16,7 +16,8 @@ import {
 } from "../../domain/models/FlightSearch";
 import type { FeaturedFlight } from "../../domain/models/FeaturedFlight";
 import { flightSearchServices } from "../../ioc/flightSearchServices";
-import { FlightSearchForm, localDate } from "../components/FlightSearchForm";
+import { FlightSearchForm } from "../components/FlightSearchForm";
+import { localDate } from "@/src/core/common/dates/localDate";
 import { BookingTabs } from "../components/BookingTabs";
 import { FlightResults } from "../components/FlightResults";
 import { FlightHero } from "../components/FlightHero";
@@ -38,6 +39,11 @@ export default function FlightSearchView({
   const [booking, setBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState("");
   const [bookingBusy, setBookingBusy] = useState(false);
+  const bookingInFlight = useRef(false);
+  const lastBookingRequest = useRef<{ selection: string; key: string } | null>(
+    null,
+  );
+  const searchRevision = useRef(0);
   const [routeRevision, setRouteRevision] = useState(0);
   const [featuredFlights, setFeaturedFlights] = useState<FeaturedFlight[]>([]);
   const [routePrefill, setRoutePrefill] = useState<RoutePrefill | null>(null);
@@ -58,22 +64,34 @@ export default function FlightSearchView({
 
   const submitDemoBooking = useCallback(
     async (command: CreateDemoBookingCommand) => {
+      if (bookingInFlight.current) return;
+      bookingInFlight.current = true;
       setBookingBusy(true);
       setBookingError("");
       try {
         const result = await bookingServices.createDemoBooking.execute(command);
         if (isLeft(result)) {
-          setBookingError(t("flightSearch.booking.saveFailed"));
+          setBookingError(
+            [
+              "fare_changed",
+              "inventory_changed",
+              "flight_unavailable",
+            ].includes(result.left)
+              ? "flightSearch.booking.offerChanged"
+              : "flightSearch.booking.saveFailed",
+          );
           return;
         }
         setBooking(result.right);
+        lastBookingRequest.current = null;
       } catch {
-        setBookingError(t("flightSearch.booking.saveFailed"));
+        setBookingError("flightSearch.booking.saveFailed");
       } finally {
+        bookingInFlight.current = false;
         setBookingBusy(false);
       }
     },
-    [t],
+    [],
   );
 
   useEffect(() => {
@@ -97,13 +115,15 @@ export default function FlightSearchView({
   useEffect(() => {
     const url = new URL(window.location.href);
     if (url.searchParams.has("authError")) {
-      setError(t("flightSearch.errors.signInFailed"));
+      setError("flightSearch.errors.signInFailed");
       url.searchParams.delete("authError");
       window.history.replaceState(window.history.state, "", url);
     }
-  }, [t]);
+  }, []);
 
   const selectRoute = useCallback((route: RoutePrefill) => {
+    if (bookingInFlight.current) return;
+    searchRevision.current++;
     setResults(null);
     setRoutePrefill(route);
     setRouteRevision((revision) => revision + 1);
@@ -117,30 +137,31 @@ export default function FlightSearchView({
     if (selectedRoute) selectRoute(selectedRoute);
   }, [selectedRoute, selectRoute]);
 
-  const searchFlights = useCallback(
-    async (query: FlightSearchQuery) => {
-      setError("");
-      setBooking(null);
-      setBookingError("");
-      setResults(null);
-      try {
-        const result = await flightSearchServices.search.execute(query);
-        if (isLeft(result)) {
-          setError(t("flightSearch.errors.searchFailed"));
-          return;
-        }
-        setResults(result.right);
-        requestAnimationFrame(() => {
-          const panel = document.getElementById("flight-search-results");
-          panel?.focus({ preventScroll: true });
-          panel?.scrollIntoView({ block: "start" });
-        });
-      } catch {
-        setError(t("flightSearch.errors.searchFailed"));
+  const searchFlights = useCallback(async (query: FlightSearchQuery) => {
+    if (bookingInFlight.current) return;
+    const revision = ++searchRevision.current;
+    setError("");
+    setBooking(null);
+    setBookingError("");
+    setResults(null);
+    try {
+      const result = await flightSearchServices.search.execute(query);
+      if (revision !== searchRevision.current) return;
+      if (isLeft(result)) {
+        setError("flightSearch.errors.searchFailed");
+        return;
       }
-    },
-    [t],
-  );
+      setResults(result.right);
+      requestAnimationFrame(() => {
+        const panel = document.getElementById("flight-search-results");
+        panel?.focus({ preventScroll: true });
+        panel?.scrollIntoView({ block: "start" });
+      });
+    } catch {
+      if (revision === searchRevision.current)
+        setError("flightSearch.errors.searchFailed");
+    }
+  }, []);
 
   const bookFlight = useCallback(
     (
@@ -149,7 +170,20 @@ export default function FlightSearchView({
       expectedOutboundFareMinor: number,
       expectedReturnFareMinor?: number,
     ) => {
-      if (!results) return;
+      if (!results || authLoading || bookingInFlight.current) return;
+      const selection = JSON.stringify([
+        flightInstanceId,
+        returnFlightInstanceId,
+        expectedOutboundFareMinor,
+        expectedReturnFareMinor,
+        results.cabin_class,
+        results.passengers,
+      ]);
+      if (lastBookingRequest.current?.selection !== selection)
+        lastBookingRequest.current = {
+          selection,
+          key: window.crypto.randomUUID(),
+        };
       const command: CreateDemoBookingCommand = {
         flightInstanceId,
         returnFlightInstanceId,
@@ -157,12 +191,12 @@ export default function FlightSearchView({
         passengerCount: results.passengers,
         expectedOutboundFareMinor,
         expectedReturnFareMinor,
-        idempotencyKey: window.crypto.randomUUID(),
+        idempotencyKey: lastBookingRequest.current.key,
       };
       setBooking(null);
       setBookingError("");
       if (!user) {
-        setBookingError(t("flightSearch.booking.signInRequired"));
+        setBookingError("flightSearch.booking.signInRequired");
         openSignIn(() => {
           try {
             window.sessionStorage.setItem(
@@ -177,10 +211,11 @@ export default function FlightSearchView({
       }
       void submitDemoBooking(command);
     },
-    [openSignIn, results, submitDemoBooking, t, user],
+    [authLoading, openSignIn, results, submitDemoBooking, user],
   );
 
   const backToSearch = useCallback(() => {
+    if (bookingInFlight.current) return;
     setResults(null);
     requestAnimationFrame(() => {
       const heading = document.getElementById("booking-title");
@@ -252,9 +287,10 @@ export default function FlightSearchView({
           <FlightResults
             result={results}
             isAuthenticated={Boolean(user)}
-            bookingBusy={bookingBusy}
+            bookingBusy={bookingBusy || authLoading}
             booking={booking}
-            bookingError={bookingError}
+            bookingError={bookingError ? t(bookingError) : ""}
+            offerChanged={bookingError === "flightSearch.booking.offerChanged"}
             onBook={bookFlight}
             onBack={backToSearch}
           />
@@ -264,13 +300,13 @@ export default function FlightSearchView({
           className="mx-auto my-4 w-[min(96%,1500px)] text-[#b42318]"
           role="alert"
         >
-          {error}
+          {t(error)}
         </p>
       ) : null}
       {!results && (bookingBusy || booking || bookingError) && (
         <div className="mx-auto my-4 max-w-[1180px] px-4">
           <p role={bookingError ? "alert" : "status"}>
-            {bookingError ||
+            {(bookingError && t(bookingError)) ||
               (booking
                 ? t("flightSearch.booking.saved", {
                     reference: booking.bookingReference.replace(
@@ -281,7 +317,13 @@ export default function FlightSearchView({
                 : t("flightSearch.booking.saving"))}
           </p>
           {booking && (
-            <Link className="text-airline-forest underline" href="/my-trips">
+            <Link
+              className="text-airline-forest underline"
+              href={{
+                pathname: "/my-trips",
+                query: { booking_id: booking.id },
+              }}
+            >
               {t("flightSearch.booking.myTrips")}
             </Link>
           )}

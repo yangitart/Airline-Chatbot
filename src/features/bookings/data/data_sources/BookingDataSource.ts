@@ -1,4 +1,4 @@
-import type { AxiosInstance } from "axios";
+import { isAxiosError, type AxiosInstance } from "axios";
 import type { CreateDemoBookingCommand } from "../../domain/models/Booking";
 import type { BookingModel } from "../models/BookingModel";
 
@@ -12,20 +12,33 @@ export const BookingApiDataSourceImpl = (
   client: AxiosInstance,
 ): BookingDataSource => ({
   createDemoBooking: async (command) => {
-    const { data } = await client.post<BookingModel>(
-      "/api/v1/bookings",
-      {
-        flight_instance_id: command.flightInstanceId,
-        return_flight_instance_id: command.returnFlightInstanceId ?? null,
-        cabin_class: command.cabinClass,
-        passenger_count: command.passengerCount,
-        expected_outbound_fare_minor: command.expectedOutboundFareMinor,
-        expected_return_fare_minor: command.expectedReturnFareMinor ?? null,
-        idempotency_key: command.idempotencyKey,
-      },
-      { headers: { "Idempotency-Key": command.idempotencyKey } },
-    );
-    return data;
+    try {
+      const { data } = await client.post<BookingModel>(
+        "/api/v1/bookings",
+        {
+          flight_instance_id: command.flightInstanceId,
+          return_flight_instance_id: command.returnFlightInstanceId ?? null,
+          cabin_class: command.cabinClass,
+          passenger_count: command.passengerCount,
+          expected_outbound_fare_minor: command.expectedOutboundFareMinor,
+          expected_return_fare_minor: command.expectedReturnFareMinor ?? null,
+          idempotency_key: command.idempotencyKey,
+        },
+        { headers: { "Idempotency-Key": command.idempotencyKey } },
+      );
+      return data;
+    } catch (error) {
+      if (isAxiosError<{ error_code?: unknown }>(error)) {
+        const code = error.response?.data?.error_code;
+        if (
+          code === "inventory_changed" ||
+          code === "fare_changed" ||
+          code === "flight_unavailable"
+        )
+          throw new Error(code);
+      }
+      throw error;
+    }
   },
   listMyBookings: async () => {
     const { data } = await client.get<BookingModel[]>("/api/v1/bookings");

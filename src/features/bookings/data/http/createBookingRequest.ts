@@ -101,17 +101,27 @@ export function mapCreateBookingError(error: string) {
   if (error.includes("inventory_changed")) {
     return {
       status: 409,
+      code: "inventory_changed",
       detail: "Availability changed. Search again before booking.",
     };
   }
   if (error.includes("fare_changed")) {
     return {
       status: 409,
+      code: "fare_changed",
       detail: "The fare changed. Review the current offer before booking.",
     };
   }
   if (error.includes("flight_unavailable")) {
-    return { status: 404, detail: "That flight is no longer available." };
+    return {
+      status: 404,
+      code: "flight_unavailable",
+      detail: "That flight is no longer available.",
+    };
   }
-  return { status: 500, detail: "The booking could not be saved." };
+  return {
+    status: 500,
+    code: "booking_create_failed",
+    detail: "The booking could not be saved.",
+  };
 }

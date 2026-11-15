@@ -15,6 +15,7 @@ function money(locale: string, flight: FlightOption, passengers: number) {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: flight.currency,
+    currencyDisplay: "code",
   }).format((flight.fare_minor * passengers) / 100);
 }
 
@@ -120,6 +121,7 @@ export function FlightSearchActionCard({
   const total = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    currencyDisplay: "code",
   }).format(totalMinor / 100);
   useEffect(() => () => checkoutRequest.current?.abort(), []);
 

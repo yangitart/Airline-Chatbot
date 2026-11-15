@@ -177,6 +177,9 @@
     "footer": "Planeje sua viagem com tranquilidade."
   },
   "tripOperations": {
+    "demoFlightStatus": "Status de demonstração",
+    "retryTrips": "Tentar novamente",
+    "refreshPayment": "Atualizar status do pagamento",
     "genericError": "Algo deu errado. Tente novamente.",
     "paymentVerificationPending": "A Stripe está verificando o pagamento. Isso pode levar alguns segundos.",
     "paymentVerified": "Pagamento confirmado.",
@@ -288,6 +291,7 @@
       "closeAccount": "Fechar janela da conta"
     },
     "booking": {
+      "offerChanged": "A tarifa ou a disponibilidade mudou. Pesquise novamente para ver as opções atualizadas.",
       "title": "Buscar voos Veyra",
       "servicesLabel": "Serviços de viagem",
       "searchFlights": "Buscar voos",
@@ -402,6 +406,9 @@
       "confirmPassword": "Confirme a nova senha",
       "updatePassword": "Atualizar senha",
       "passwordMismatch": "As senhas não correspondem.",
+      "passwordMinLength": "Use pelo menos 8 caracteres.",
+      "passwordLengthValid": "O tamanho da senha está válido.",
+      "passwordsMatch": "As senhas correspondem.",
       "continueGoogle": "Continuar com Google",
       "connecting": "Conectando ao Google…",
       "terms": "Ao continuar, você aceita os termos e o aviso de privacidade aplicáveis.",

@@ -176,6 +176,9 @@
     "footer": "आत्मविश्वास के साथ अपनी यात्रा की योजना बनाएँ।"
   },
   "tripOperations": {
+    "demoFlightStatus": "डेमो उड़ान स्थिति",
+    "retryTrips": "फिर कोशिश करें",
+    "refreshPayment": "भुगतान की स्थिति अपडेट करें",
     "genericError": "कुछ गड़बड़ हुई। कृपया फिर से कोशिश करें।",
     "paymentVerificationPending": "Stripe भुगतान की पुष्टि कर रहा है। इसमें कुछ सेकंड लग सकते हैं।",
     "paymentVerified": "भुगतान की पुष्टि हो गई है।",
@@ -287,6 +290,7 @@
       "closeAccount": "खाते की विंडो बंद करें"
     },
     "booking": {
+      "offerChanged": "किराया या उपलब्धता बदल गई है। नए विकल्प देखने के लिए दोबारा खोजें।",
       "title": "Veyra की उड़ानें खोजें",
       "servicesLabel": "यात्रा सेवाएँ",
       "searchFlights": "उड़ानें खोजें",
@@ -401,6 +405,9 @@
       "confirmPassword": "नए पासवर्ड की पुष्टि करें",
       "updatePassword": "पासवर्ड अपडेट करें",
       "passwordMismatch": "दोनों पासवर्ड मेल नहीं खाते।",
+      "passwordMinLength": "कम से कम 8 अक्षर इस्तेमाल करें।",
+      "passwordLengthValid": "पासवर्ड की लंबाई सही है।",
+      "passwordsMatch": "दोनों पासवर्ड मेल खाते हैं।",
       "continueGoogle": "Google से जारी रखें",
       "connecting": "Google से कनेक्ट हो रहा है…",
       "terms": "जारी रखकर आप लागू शर्तों और गोपनीयता सूचना से सहमत होते हैं।",

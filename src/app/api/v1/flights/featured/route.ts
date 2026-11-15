@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { isLeft } from "fp-ts/Either";
-import { createSupabaseServerClient } from "@/src/core/api/supabase/server";
+import { createPublicSupabaseServerClient } from "@/src/core/api/supabase/publicServer";
 import { createServerFeaturedFlights } from "@/src/features/flights/ioc/serverFeaturedFlights";
 import { jsonError, jsonResponse } from "@/src/core/api/http/jsonResponse";
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     return jsonError("A valid departure date is required.", 400);
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createPublicSupabaseServerClient();
   const featuredFlights =
     await createServerFeaturedFlights(supabase).execute(departureDate);
   if (isLeft(featuredFlights)) {

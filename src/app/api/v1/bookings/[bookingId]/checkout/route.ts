@@ -87,9 +87,7 @@ export async function POST(
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
-        ...(booking.currency === "USD"
-          ? { adaptive_pricing: { enabled: false } }
-          : {}),
+        adaptive_pricing: { enabled: false },
         client_reference_id: booking.id,
         metadata: {
           booking_id: booking.id,
@@ -109,7 +107,7 @@ export async function POST(
             },
           },
         ],
-        success_url: `${siteUrl}/my-trips?payment=return&booking_id=${booking.id}&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${siteUrl}/my-trips?payment=return&booking_id=${booking.id}`,
         cancel_url: `${siteUrl}/my-trips?payment=cancelled`,
       },
       {

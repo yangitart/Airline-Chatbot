@@ -9,6 +9,7 @@ import { FormikDateInput } from "@/src/components/forms/FormikDateInput";
 import { FormikRadioGroup } from "@/src/components/forms/FormikRadioGroup";
 import { FormikSelect } from "@/src/components/forms/FormikSelect";
 import { FormikSubmitButton } from "@/src/components/forms/FormikSubmitButton";
+import { localDate } from "@/src/core/common/dates/localDate";
 import { FlightSearchQuery } from "../../domain/models/FlightSearch";
 import {
   DEMO_AIRPORT_CODES,
@@ -29,15 +30,6 @@ const compactSelect = "max-[359px]:gap-1 max-[359px]:px-3 max-[359px]:py-2";
 const compactTrigger = "max-[359px]:gap-1.5 max-[359px]:text-sm";
 const compactDate =
   "max-[359px]:gap-1 max-[359px]:px-2.5 max-[359px]:py-2 max-[359px]:[&>input]:text-xs";
-
-export function localDate(daysFromToday = 0) {
-  const date = new Date();
-  date.setDate(date.getDate() + daysFromToday);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 export function FlightSearchForm({
   onSearch,

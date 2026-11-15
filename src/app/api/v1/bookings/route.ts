@@ -10,14 +10,21 @@ import {
 } from "@/src/features/bookings/data/http/createBookingRequest";
 
 export async function GET() {
+  const started = performance.now();
   const { supabase, user } = await createAuthenticatedSupabaseContext();
   if (!user) return jsonError("Sign in to view your trips.", 401);
+  const authenticatedAt = performance.now();
 
   const { listMyBookings } = createServerBookings(supabase);
   const result = await listMyBookings.execute();
   if (isLeft(result))
     return jsonError("Trips are temporarily unavailable.", 500);
-  return jsonResponse(result.right.map(serializeBooking));
+  return jsonResponse(result.right.map(serializeBooking), {
+    headers: {
+      "Cache-Control": "private, no-store",
+      "Server-Timing": `auth;dur=${Math.round(authenticatedAt - started)}, bookings;dur=${Math.round(performance.now() - authenticatedAt)}`,
+    },
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -41,7 +48,7 @@ export async function POST(request: NextRequest) {
   const result = await createDemoBooking.execute(parsed.command);
   if (isLeft(result)) {
     const error = mapCreateBookingError(result.left);
-    return jsonError(error.detail, error.status);
+    return jsonError(error.detail, error.status, error.code);
   }
 
   const booking = result.right;

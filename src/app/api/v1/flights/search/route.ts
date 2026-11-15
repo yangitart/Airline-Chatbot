@@ -2,7 +2,7 @@ import { isLeft } from "fp-ts/Either";
 import { NextRequest } from "next/server";
 import { FlightSearchQuery } from "@/src/features/flights/domain/models/FlightSearch";
 import { createServerSearchFlights } from "@/src/features/flights/ioc/serverSearchFlights";
-import { createSupabaseServerClient } from "@/src/core/api/supabase/server";
+import { createPublicSupabaseServerClient } from "@/src/core/api/supabase/publicServer";
 import { jsonError, jsonResponse } from "@/src/core/api/http/jsonResponse";
 
 function isValidDate(value: string) {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     passengers,
     cabinClass,
   };
-  const supabase = await createSupabaseServerClient();
+  const supabase = createPublicSupabaseServerClient();
   const searchFlights = createServerSearchFlights(supabase);
   const result = await searchFlights.execute(query);
 

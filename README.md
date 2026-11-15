@@ -40,6 +40,10 @@ The original Veyra FAQ catalogs live in `src/features/faqs/data/veyra-faq.en.jso
 
 For demo Checkout, add `STRIPE_SECRET_KEY` (`sk_test_...`), `STRIPE_WEBHOOK_SECRET` (`whsec_...`), and server-only `SUPABASE_SECRET_KEY` to the local environment. Forward Stripe test events to `/api/v1/stripe/webhook` with Stripe CLI. Configure these values in Vercel only when deploying the demo. Do not use a live Stripe key.
 
+For Vercel, point a **test-mode** Stripe webhook at the public production URL plus `/api/v1/stripe/webhook`. Subscribe to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, and `checkout.session.expired`. Use that endpoint's signing secret, which differs from the Stripe CLI secret. Apply the Supabase migrations to the same project the deployment uses.
+
+If a trip remains in **Payment pending**, open its Checkout event in Stripe's event deliveries. A Vercel 401/redirect can mean Deployment Protection is blocking Stripe; a route 400 indicates a signature/configuration issue; 500 means the payment event could not be recorded. With the current handler, `200` and `applied: false` means the database did not apply a change (for example, it was already paid or the session/amount/currency did not match). Once the delivery issue is fixed, resend the original event and refresh payment status in My trips.
+
 The CLI project config is `supabase/config.toml`. Optional Studio, storage, realtime, SMTP, edge runtime, analytics, and vector bucket services are disabled to reduce local image downloads; Postgres, Auth, and the API remain enabled. Google OAuth in the local stack needs its own local Auth provider setup. The hosted Google configuration is separate.
 
 ## Apply migrations to the hosted project

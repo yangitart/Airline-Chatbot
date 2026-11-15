@@ -9,6 +9,21 @@ export const DEMO_AIRPORT_CODES = [
 ] as const;
 export type DemoAirportCode = (typeof DEMO_AIRPORT_CODES)[number];
 
+const airportTimeZones: Readonly<Record<DemoAirportCode, string>> = {
+  DEL: "Asia/Kolkata",
+  BOM: "Asia/Kolkata",
+  BLR: "Asia/Kolkata",
+  MAA: "Asia/Kolkata",
+  HYD: "Asia/Kolkata",
+  LHR: "Europe/London",
+  SIN: "Asia/Singapore",
+};
+
+export function getDemoAirportTimeZone(code: string): string | undefined {
+  const airport = DEMO_AIRPORT_CODES.find((airport) => airport === code);
+  return airport ? airportTimeZones[airport] : undefined;
+}
+
 /** Only route pairs present in the seeded demo inventory. */
 export const DEMO_ROUTE_PAIRS: ReadonlyArray<{
   origin: DemoAirportCode;

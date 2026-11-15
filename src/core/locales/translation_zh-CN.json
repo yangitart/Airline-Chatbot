@@ -176,6 +176,9 @@
     "footer": "安心规划您的旅程。"
   },
   "tripOperations": {
+    "demoFlightStatus": "演示航班状态",
+    "retryTrips": "重试",
+    "refreshPayment": "刷新付款状态",
     "genericError": "出现问题，请重试。",
     "paymentVerificationPending": "Stripe 正在验证付款，可能需要几秒钟。",
     "paymentVerified": "付款已确认。",
@@ -287,6 +290,7 @@
       "closeAccount": "关闭账户窗口"
     },
     "booking": {
+      "offerChanged": "票价或余位已变更。请重新搜索以查看最新选项。",
       "title": "搜索 Veyra 航班",
       "servicesLabel": "旅行服务",
       "searchFlights": "搜索航班",
@@ -401,6 +405,9 @@
       "confirmPassword": "确认新密码",
       "updatePassword": "更新密码",
       "passwordMismatch": "两次输入的密码不一致。",
+      "passwordMinLength": "请至少使用 8 个字符。",
+      "passwordLengthValid": "密码长度符合要求。",
+      "passwordsMatch": "两次输入的密码一致。",
       "continueGoogle": "使用 Google 继续",
       "connecting": "正在连接 Google…",
       "terms": "继续即表示您同意适用的条款和隐私声明。",

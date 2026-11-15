@@ -1,53 +1,139 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { isLeft } from "fp-ts/Either";
 import { useTranslation } from "react-i18next";
+import {
+  CircleCheck,
+  ArrowLeft,
+  ClipboardCheck,
+  Clock3,
+  LoaderCircle,
+  Plane,
+  Radar,
+} from "lucide-react";
 import { TravelSectionLayout } from "@/src/components/layout/TravelSectionLayout";
 import type { Booking } from "../../domain/models/Booking";
-import { parseBookingLookup } from "../../domain/models/BookingReference";
 import { bookingServices } from "../../ioc/bookingServices";
 import { SkeletonBlock } from "@/src/components/feedback/SkeletonBlock";
+import { getDemoAirportTimeZone } from "@/src/features/flights/domain/models/DemoRoutes";
+import { getFlightStatusDate } from "@/src/features/flights/domain/models/FlightStatusLookup";
 
-export default function MyTripsView() {
+type BookingPayment = Pick<Booking, "status" | "paymentStatus">;
+
+function mergeBookingPayment(
+  booking: Booking,
+  payment: BookingPayment,
+): Booking {
+  return {
+    ...booking,
+    ...payment,
+    // A response started before check-in can still report "confirmed".
+    status:
+      booking.status === "checked_in" && payment.status === "confirmed"
+        ? booking.status
+        : payment.status,
+  };
+}
+
+async function getBookingPayment(
+  id: string,
+  signal?: AbortSignal,
+): Promise<BookingPayment> {
+  const response = await fetch(
+    `/api/v1/bookings/${encodeURIComponent(id)}?fields=payment`,
+    { signal },
+  );
+  if (!response.ok) throw new Error("payment_status_unavailable");
+  const payment: {
+    status: Booking["status"];
+    payment_status: Booking["paymentStatus"];
+  } = await response.json();
+  return { status: payment.status, paymentStatus: payment.payment_status };
+}
+
+export default function MyTripsView({
+  checkInMode,
+  payment,
+  bookingId,
+}: {
+  checkInMode: boolean;
+  payment: "return" | "cancelled" | null;
+  bookingId: string | null;
+}) {
   const { t, i18n } = useTranslation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [checkInMode, setCheckInMode] = useState(false);
   const [busyId, setBusyId] = useState("");
   const [actionMessage, setActionMessage] = useState("");
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [checkingPaymentId, setCheckingPaymentId] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const locale = i18n.resolvedLanguage ?? "en";
+  const formatters = useMemo(() => {
+    const dates = new Map<string, Intl.DateTimeFormat>();
+    const currencies = new Map<string, Intl.NumberFormat>();
+    return {
+      dateTime(value: string, airport: string) {
+        const timeZone = getDemoAirportTimeZone(airport);
+        const key = timeZone ?? "";
+        let formatter = dates.get(key);
+        if (!formatter) {
+          formatter = new Intl.DateTimeFormat(locale, {
+            dateStyle: "medium",
+            timeStyle: "short",
+            timeZone,
+          });
+          dates.set(key, formatter);
+        }
+        return formatter.format(new Date(value));
+      },
+      money(minor: number, currency: string) {
+        let formatter = currencies.get(currency);
+        if (!formatter) {
+          formatter = new Intl.NumberFormat(locale, {
+            style: "currency",
+            currency,
+            currencyDisplay: "code",
+          });
+          currencies.set(currency, formatter);
+        }
+        return formatter.format(minor / 100);
+      },
+    };
+  }, [locale]);
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const payment = query.get("payment");
-    const lookup = parseBookingLookup(query.get("booking_id") ?? "");
-    const targetBookingId =
-      payment === "return" && lookup?.column === "id" ? lookup.value : null;
-    setCheckInMode(query.get("check-in") === "1");
+    setLoading(true);
+    setError("");
+    const targetBookingId = payment === "return" ? bookingId : null;
     if (payment === "cancelled") {
-      setActionMessage(t("tripOperations.paymentCancelled"));
+      setPaymentMessage("tripOperations.paymentCancelled");
     } else if (targetBookingId) {
-      setActionMessage(t("tripOperations.paymentVerificationPending"));
+      setPaymentMessage("tripOperations.paymentVerificationPending");
     }
 
     let active = true;
+    let hasTargetBooking = false;
+    const controller = new AbortController();
     let attempts = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
-    const reportPaymentResult = (booking?: Booking) => {
+    const reportPaymentResult = (booking?: BookingPayment) => {
       if (booking?.paymentStatus === "paid") {
-        setActionMessage(t("tripOperations.paymentVerified"));
+        setPaymentMessage("tripOperations.paymentVerified");
         return true;
       }
       if (
         booking?.paymentStatus === "failed" ||
         booking?.status === "expired"
       ) {
-        setActionMessage(
+        setPaymentMessage(
           booking.status === "expired"
-            ? t("tripOperations.checkoutExpired")
-            : t("tripOperations.paymentFailed"),
+            ? "tripOperations.checkoutExpired"
+            : "tripOperations.paymentFailed",
         );
         return true;
       }
@@ -55,26 +141,44 @@ export default function MyTripsView() {
     };
 
     const pollPayment = async (bookingId: string) => {
-      const result = await bookingServices.getMyBooking.execute(bookingId);
-      if (!active) return;
-      if (!isLeft(result) && result.right) {
-        const booking = result.right;
-        setError("");
-        setBookings((current) =>
-          current.some((item) => item.id === booking.id)
-            ? current.map((item) => (item.id === booking.id ? booking : item))
-            : [booking, ...current],
-        );
-        if (reportPaymentResult(booking)) return;
+      try {
+        if (hasTargetBooking) {
+          const payment = await getBookingPayment(bookingId, controller.signal);
+          if (!active) return;
+          setBookings((current) =>
+            current.map((item) =>
+              item.id === bookingId ? mergeBookingPayment(item, payment) : item,
+            ),
+          );
+          if (reportPaymentResult(payment)) return;
+        } else {
+          const result = await bookingServices.getMyBooking.execute(bookingId);
+          if (!active) return;
+          if (!isLeft(result) && result.right) {
+            const booking = result.right;
+            hasTargetBooking = true;
+            setBookings((current) => [
+              booking,
+              ...current.filter((item) => item.id !== booking.id),
+            ]);
+            if (reportPaymentResult(booking)) return;
+          }
+        }
+      } catch {
+        // A transient status error follows the same retry schedule.
       }
 
+      if (!active) return;
       attempts += 1;
-      if (attempts < 12) schedulePoll(bookingId);
-      else setActionMessage(t("tripOperations.paymentStillPending"));
+      if (attempts < 6) schedulePoll(bookingId);
+      else setPaymentMessage("tripOperations.paymentStillPending");
     };
 
     function schedulePoll(bookingId: string) {
-      timer = setTimeout(() => void pollPayment(bookingId), 2500);
+      timer = setTimeout(
+        () => void pollPayment(bookingId),
+        Math.min(2000 * 2 ** attempts, 8000),
+      );
     }
 
     const loadTrips = async () => {
@@ -82,10 +186,16 @@ export default function MyTripsView() {
       if (!active) return;
       setLoading(false);
       const trips = isLeft(result) ? [] : result.right;
-      if (isLeft(result)) setError(t("flightSearch.booking.tripsLoadFailed"));
+      if (isLeft(result)) setError("flightSearch.booking.tripsLoadFailed");
       else {
         setError("");
-        setBookings(trips);
+        const selected = trips.find((trip) => trip.id === bookingId);
+        hasTargetBooking = Boolean(selected);
+        setBookings(
+          selected
+            ? [selected, ...trips.filter((trip) => trip.id !== selected.id)]
+            : trips,
+        );
       }
       if (
         targetBookingId &&
@@ -95,13 +205,21 @@ export default function MyTripsView() {
       }
     };
 
-    void loadTrips();
+    void loadTrips().catch(() => {
+      if (!active) return;
+      setLoading(false);
+      setError("flightSearch.booking.tripsLoadFailed");
+      if (targetBookingId)
+        setPaymentMessage("tripOperations.paymentStillPending");
+    });
     return () => {
       active = false;
+      controller.abort();
       clearTimeout(timer);
     };
-  }, [t]);
+  }, [bookingId, loadAttempt, payment]);
   const startPayment = async (id: string) => {
+    if (busyId) return;
     setBusyId(id);
     setActionMessage("");
     try {
@@ -109,6 +227,10 @@ export default function MyTripsView() {
         method: "POST",
       });
       const body = await response.json();
+      if (body.error_code === "payment_verifying") {
+        await refreshPayment(id);
+        return;
+      }
       if (body.error_code === "checkout_expired")
         throw new Error(t("tripOperations.checkoutExpired"));
       if (!response.ok)
@@ -129,6 +251,7 @@ export default function MyTripsView() {
     }
   };
   const checkIn = async (id: string, flightLeg: "outbound" | "return") => {
+    if (busyId) return;
     setBusyId(id);
     setActionMessage("");
     try {
@@ -150,13 +273,27 @@ export default function MyTripsView() {
           reference: displayReference(body.boarding_pass_reference),
         }),
       );
-      const result = await bookingServices.getMyBooking.execute(id);
-      if (!isLeft(result) && result.right) {
-        const updated = result.right;
-        setBookings((current) =>
-          current.map((booking) => (booking.id === id ? updated : booking)),
-        );
-      }
+      setBookings((current) =>
+        current.map((booking) =>
+          booking.id !== id
+            ? booking
+            : {
+                ...booking,
+                status: "checked_in",
+                checkIns: [
+                  ...booking.checkIns.filter(
+                    (item) => item.flightLeg !== flightLeg,
+                  ),
+                  {
+                    flightLeg,
+                    checkedInAt: body.checked_in_at,
+                    demoSeat: body.demo_seat,
+                    boardingPassReference: body.boarding_pass_reference,
+                  },
+                ],
+              },
+        ),
+      );
     } catch (cause) {
       setActionMessage(
         cause instanceof Error
@@ -168,13 +305,35 @@ export default function MyTripsView() {
     }
   };
 
-  const money = (minor: number, currency: string) =>
-    new Intl.NumberFormat(i18n.resolvedLanguage ?? "en", {
-      style: "currency",
-      currency,
-    }).format(minor / 100);
+  const refreshPayment = async (id: string) => {
+    setCheckingPaymentId(id);
+    setActionMessage("");
+    try {
+      const updated = await getBookingPayment(id);
+      setBookings((current) =>
+        current.map((booking) =>
+          booking.id === id ? mergeBookingPayment(booking, updated) : booking,
+        ),
+      );
+      setPaymentMessage(
+        updated.paymentStatus === "paid"
+          ? "tripOperations.paymentVerified"
+          : updated.status === "expired"
+            ? "tripOperations.checkoutExpired"
+            : updated.paymentStatus === "failed"
+              ? "tripOperations.paymentFailed"
+              : "tripOperations.paymentStillPending",
+      );
+    } catch {
+      setPaymentMessage("tripOperations.genericError");
+    } finally {
+      setCheckingPaymentId("");
+    }
+  };
+
   const displayReference = (reference: string) =>
     reference.replace(/^DEMO-/i, "AI-");
+  const now = Date.now();
 
   return (
     <TravelSectionLayout
@@ -189,18 +348,27 @@ export default function MyTripsView() {
           ? t("tripOperations.checkInPageDescription")
           : t("flightSearch.booking.demoOnly")
       }
+      headingIcon={
+        checkInMode ? (
+          <ClipboardCheck size={45} strokeWidth={1.35} />
+        ) : undefined
+      }
     >
       {checkInMode && (
-        <div className="mb-6 animate-soft-rise rounded-2xl border border-airline-gold/30 bg-airline-gold/10 px-5 py-4 text-sm leading-6 text-[#6c5428] motion-reduce:animate-none">
-          {t("tripOperations.checkInPageHint")}
-        </div>
+        <Link
+          href="/my-trips"
+          className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-airline-forest underline decoration-transparent underline-offset-4 hover:decoration-current focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+          {t("tripOperations.backTrips")}
+        </Link>
       )}
-      {actionMessage && (
+      {(actionMessage || paymentMessage) && (
         <p
           className="mb-4 animate-soft-rise rounded-2xl border border-airline-line bg-airline-paper p-4 text-sm shadow-sm motion-reduce:animate-none"
           role="status"
         >
-          {actionMessage}
+          {actionMessage || t(paymentMessage)}
         </p>
       )}
       {loading && (
@@ -234,17 +402,27 @@ export default function MyTripsView() {
         </div>
       )}
       {error && (
-        <p
-          className="animate-soft-rise rounded-2xl border border-[#f1d4cd] bg-[#fff8f6] p-4 text-[#b42318] motion-reduce:animate-none"
-          role="alert"
-        >
-          {error}
-        </p>
+        <div className="animate-soft-rise rounded-2xl border border-[#f1d4cd] bg-[#fff8f6] p-4 text-[#b42318] motion-reduce:animate-none">
+          <p role="alert">{t(error)}</p>
+          <button
+            type="button"
+            onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+            className="mt-2 inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
+          >
+            {t("tripOperations.retryTrips")}
+          </button>
+        </div>
       )}
       {!loading && !error && bookings.length === 0 && (
-        <p className="animate-soft-rise rounded-2xl border border-dashed border-airline-line bg-airline-paper p-6 text-airline-muted motion-reduce:animate-none">
-          {t("flightSearch.booking.noTrips")}
-        </p>
+        <div className="rounded-2xl border border-dashed border-airline-line bg-airline-paper p-6 text-airline-muted">
+          <p>{t("flightSearch.booking.noTrips")}</p>
+          <Link
+            href="/#search"
+            className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-airline-forest px-4 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {t("tripOperations.backSearch")}
+          </Link>
+        </div>
       )}
       <div className="grid gap-4">
         {bookings.map((booking, index) => {
@@ -257,18 +435,15 @@ export default function MyTripsView() {
           const inbound = returnSegments[0];
           const inboundArrival = returnSegments.at(-1)?.arrival;
           if (!outbound) return null;
-          const dateTime = (value: string) =>
-            new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            }).format(new Date(value));
           return (
             <article
               key={booking.id}
               style={{ animationDelay: `${Math.min(index * 70, 350)}ms` }}
-              className="animate-soft-rise overflow-hidden rounded-[24px] border border-airline-line bg-airline-paper shadow-[0_12px_36px_rgb(23_40_59_/_6%)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgb(23_40_59_/_10%)] motion-reduce:animate-none motion-reduce:transform-none"
+              className={`animate-soft-rise overflow-hidden rounded-[24px] border bg-airline-paper shadow-[0_12px_36px_rgb(23_40_59_/_6%)] motion-reduce:animate-none ${booking.id === bookingId ? "border-airline-forest/55 ring-1 ring-airline-forest/15" : "border-airline-line"}`}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-airline-line/70 px-5 py-4 sm:px-7">
+              <div
+                className={`flex flex-wrap items-center justify-between gap-3 border-b border-airline-line/70 px-5 py-4 sm:px-7 ${checkInMode ? "bg-airline-forest-soft" : ""}`}
+              >
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-airline-garnet">
                     {t("flightSearch.booking.demoBooking")}
@@ -283,7 +458,9 @@ export default function MyTripsView() {
                   {t(`tripOperations.paymentStates.${booking.paymentStatus}`)}
                 </span>
               </div>
-              <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-6">
+              <div
+                className={`grid gap-3 p-4 sm:p-6 ${inbound ? "sm:grid-cols-2" : ""}`}
+              >
                 {[
                   {
                     label: t("tripOperations.outbound"),
@@ -305,70 +482,140 @@ export default function MyTripsView() {
                   const checkedIn = booking.checkIns.find(
                     (checkin) => checkin.flightLeg === leg.flightLeg,
                   );
+                  const untilDeparture =
+                    Date.parse(leg.segment.departure.at) - now;
+                  const departureTimeZone = getDemoAirportTimeZone(
+                    leg.segment.departure.iataCode,
+                  );
+                  const flightNumber = `${leg.segment.carrierCode} ${leg.segment.number}`;
+                  const flightStatusQuery =
+                    departureTimeZone && Number.isFinite(untilDeparture)
+                      ? {
+                          flight_number: flightNumber,
+                          date: getFlightStatusDate(
+                            leg.segment.departure.at,
+                            departureTimeZone,
+                          ),
+                        }
+                      : null;
+                  const checkInWindowClosed =
+                    untilDeparture > 48 * 60 * 60_000 ||
+                    untilDeparture < 60 * 60_000;
                   return (
                     <section
-                      key={leg.label}
-                      className="group rounded-2xl border border-airline-line/60 bg-[#f7f6f1] p-4 transition-all duration-300 hover:border-airline-gold/60 hover:bg-white sm:p-5"
+                      key={leg.flightLeg}
+                      className={`flex min-w-0 flex-col rounded-2xl border border-airline-line p-4 sm:p-5 ${checkInMode ? "bg-airline-canvas/60" : "bg-[#f7f6f1]"}`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-bold uppercase tracking-wider text-airline-muted">
                           {leg.label}
                         </span>
-                        <span className="text-xs font-semibold text-airline-muted">
-                          {leg.segment.carrierCode} {leg.segment.number}
+                        <span className="rounded-full border border-airline-line bg-airline-paper px-2.5 py-1 text-xs font-semibold text-airline-forest">
+                          {flightNumber}
                         </span>
                       </div>
-                      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                        <div>
-                          <p className="text-2xl font-semibold text-airline-night">
+                      <div className="my-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-4">
+                        <div className="min-w-0">
+                          <p className="font-serif text-3xl text-airline-night sm:text-4xl">
                             {leg.segment.departure.iataCode}
                           </p>
-                          <p className="mt-1 text-xs text-airline-muted">
-                            {dateTime(leg.segment.departure.at)}
-                          </p>
+                          <time
+                            dateTime={leg.segment.departure.at}
+                            className="mt-1 block text-xs leading-5 text-airline-muted sm:text-sm"
+                          >
+                            {formatters.dateTime(
+                              leg.segment.departure.at,
+                              leg.segment.departure.iataCode,
+                            )}
+                          </time>
                         </div>
                         <span
                           aria-hidden="true"
-                          className="px-2 text-airline-gold transition-transform duration-500 group-hover:translate-x-1"
+                          className="rounded-full border border-airline-line bg-airline-paper p-2.5 text-airline-forest"
                         >
-                          →
+                          <Plane size={16} />
                         </span>
                         <div className="text-right">
-                          <p className="text-2xl font-semibold text-airline-night">
+                          <p className="font-serif text-3xl text-airline-night sm:text-4xl">
                             {leg.arrival?.iataCode ??
                               leg.segment.arrival.iataCode}
                           </p>
-                          <p className="mt-1 text-xs text-airline-muted">
+                          <time
+                            dateTime={(leg.arrival ?? leg.segment.arrival).at}
+                            className="mt-1 block text-xs leading-5 text-airline-muted sm:text-sm"
+                          >
                             {leg.arrival
-                              ? dateTime(leg.arrival.at)
-                              : dateTime(leg.segment.arrival.at)}
-                          </p>
+                              ? formatters.dateTime(
+                                  leg.arrival.at,
+                                  leg.arrival.iataCode,
+                                )
+                              : formatters.dateTime(
+                                  leg.segment.arrival.at,
+                                  leg.segment.arrival.iataCode,
+                                )}
+                          </time>
                         </div>
                       </div>
-                      {checkedIn ? (
-                        <p className="mt-4 animate-soft-rise rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 motion-reduce:animate-none">
-                          {t("tripOperations.boardingPass", {
-                            seat: checkedIn.demoSeat,
-                            reference: displayReference(
-                              checkedIn.boardingPassReference,
-                            ),
-                          })}
-                        </p>
-                      ) : (
-                        booking.paymentStatus === "paid" && (
-                          <button
-                            disabled={busyId === booking.id}
-                            onClick={() =>
-                              void checkIn(booking.id, leg.flightLeg)
-                            }
-                            className="mt-4 rounded-full border border-airline-forest px-4 py-2 text-xs font-semibold text-airline-forest transition-all duration-300 hover:-translate-y-0.5 hover:bg-airline-forest-soft hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-garnet disabled:opacity-50 motion-reduce:transform-none"
+                      <div className="mt-auto border-t border-airline-line pt-3">
+                        {checkedIn ? (
+                          <p className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm font-medium leading-5 text-emerald-900">
+                            <CircleCheck
+                              size={16}
+                              className="shrink-0"
+                              aria-hidden="true"
+                            />
+                            {t("tripOperations.boardingPass", {
+                              seat: checkedIn.demoSeat,
+                              reference: displayReference(
+                                checkedIn.boardingPassReference,
+                              ),
+                            })}
+                          </p>
+                        ) : booking.paymentStatus === "paid" ? (
+                          checkInWindowClosed ? (
+                            <p className="flex items-start gap-2 rounded-xl border border-airline-line bg-airline-paper px-3 py-3 text-sm leading-5 text-airline-muted">
+                              <Clock3
+                                size={15}
+                                className="mt-0.5 shrink-0"
+                                aria-hidden="true"
+                              />
+                              {t("tripOperations.errors.checkin_window_closed")}
+                            </p>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={Boolean(busyId)}
+                              onClick={() =>
+                                void checkIn(booking.id, leg.flightLeg)
+                              }
+                              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-airline-forest px-4 py-2 text-sm font-semibold text-white hover:bg-[#24564d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-forest disabled:opacity-50 sm:w-auto"
+                            >
+                              <ClipboardCheck size={17} aria-hidden="true" />
+                              {busyId === booking.id
+                                ? t("tripOperations.working")
+                                : t("tripOperations.checkIn")}
+                            </button>
+                          )
+                        ) : checkInMode &&
+                          !["expired", "cancelled"].includes(booking.status) ? (
+                          <p className="rounded-xl bg-airline-gold/10 px-3 py-3 text-sm leading-5 text-[#6c5428]">
+                            {t("tripOperations.errors.payment_required")}
+                          </p>
+                        ) : null}
+                        {flightStatusQuery && (
+                          <Link
+                            href={{
+                              pathname: "/flight-status",
+                              query: flightStatusQuery,
+                            }}
+                            prefetch={false}
+                            className="mt-3 flex min-h-10 w-fit items-center gap-2 rounded-lg text-xs font-semibold text-airline-forest underline decoration-transparent underline-offset-4 hover:decoration-current focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                           >
-                            {busyId === booking.id
-                              ? t("tripOperations.working")
-                              : t("tripOperations.checkIn")}
-                          </button>
-                        )
-                      )}
+                            <Radar size={16} aria-hidden="true" />
+                            {t("tripOperations.flightStatus")}
+                          </Link>
+                        )}
+                      </div>
                     </section>
                   );
                 })}
@@ -387,12 +634,12 @@ export default function MyTripsView() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <strong className="mr-1 text-lg">
-                    {money(booking.totalFareMinor, booking.currency)}
+                    {formatters.money(booking.totalFareMinor, booking.currency)}
                   </strong>
                   {booking.paymentStatus !== "paid" &&
                     !["expired", "cancelled"].includes(booking.status) && (
                       <button
-                        disabled={busyId === booking.id}
+                        disabled={Boolean(busyId)}
                         onClick={() => void startPayment(booking.id)}
                         className="rounded-full bg-airline-forest px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgb(24_61_55_/_15%)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#24564d] hover:shadow-[0_10px_20px_rgb(24_61_55_/_22%)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airline-gold disabled:opacity-50 motion-reduce:transform-none"
                       >
@@ -401,6 +648,27 @@ export default function MyTripsView() {
                           : t("tripOperations.payTest")}
                       </button>
                     )}
+                  {booking.paymentStatus === "checkout_pending" && (
+                    <button
+                      type="button"
+                      disabled={
+                        Boolean(checkingPaymentId) ||
+                        paymentMessage ===
+                          "tripOperations.paymentVerificationPending"
+                      }
+                      onClick={() => void refreshPayment(booking.id)}
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-airline-line bg-white px-4 text-xs font-semibold text-airline-forest hover:bg-airline-forest-soft disabled:opacity-60"
+                    >
+                      {checkingPaymentId === booking.id && (
+                        <LoaderCircle
+                          size={14}
+                          className="animate-spin motion-reduce:animate-none"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {t("tripOperations.refreshPayment")}
+                    </button>
+                  )}
                 </div>
               </div>
             </article>

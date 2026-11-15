@@ -120,3 +120,59 @@ it("shows the photo of the arrival city for both legs in flight results", () => 
   ).toBeTruthy();
   expect(container.querySelector('img[src="/flags/in.svg"]')).toBeTruthy();
 });
+
+it("blocks saving a stale offer and lets the traveler return to search", () => {
+  const onBack = vi.fn();
+  render(
+    <FlightResults
+      result={{
+        origin: "DEL",
+        destination: "LHR",
+        departure_date: "2026-11-10",
+        return_date: null,
+        passengers: 1,
+        cabin_class: "economy",
+        is_mock: true,
+        notice: "",
+        flights: [
+          {
+            id: "flight-1",
+            offer_id: "offer-1",
+            flight_number: "AI 901",
+            departure: "09:10",
+            arrival: "14:30",
+            duration: "9h",
+            departure_date: "2026-11-10",
+            arrival_date: "2026-11-10",
+            fare_minor: 12500,
+            currency: "USD",
+            number_of_bookable_seats: 2,
+            is_demo: true,
+            source_label: "demo",
+          },
+        ],
+        return_flights: [],
+      }}
+      isAuthenticated
+      bookingBusy={false}
+      booking={null}
+      bookingError="Offer changed"
+      offerChanged
+      onBook={vi.fn()}
+      onBack={onBack}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: /AI 901/ }));
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "flightSearch.booking.saveDemo",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  const links = screen.getAllByRole("button", {
+    name: "flightSearch.booking.backToSearch",
+  });
+  fireEvent.click(links[1]);
+  expect(onBack).toHaveBeenCalledOnce();
+});
