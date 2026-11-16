@@ -1,83 +1,24 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SaveChatTurnCommand } from "../../domain/models/ChatHistory";
 import type {
-  ChatConversation,
-  ChatConversationSummary,
-  SaveChatTurnCommand,
-  SavedChatMessage,
-} from "../../domain/models/ChatHistory";
-import type { ChatMessage } from "../../domain/models/ChatMessage";
-import type { ChatHistoryRepository } from "../../domain/repositories/ChatHistoryRepository";
-import { ChatError } from "../../domain/models/ChatError";
-import { readChatAction } from "../mappers/readChatAction";
+  ChatContextRow,
+  ChatConversationRow,
+  ChatConversationWithMessages,
+  ChatMessageRow,
+} from "../models/ChatHistoryModel";
 
-type ConversationRow = { id: string; title: string; updated_at: string };
-type MessageRow = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources: unknown;
-  action: unknown;
-  created_at: string;
-};
-
-function mapSources(value: unknown) {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => {
-    if (!item || typeof item !== "object") return [];
-    const source = item as Record<string, unknown>;
-    if (
-      typeof source.documentId !== "string" ||
-      typeof source.title !== "string" ||
-      typeof source.section !== "string" ||
-      typeof source.href !== "string"
-    )
-      return [];
-    if (!/^\/faqs\/[a-z0-9-]+$/.test(source.href)) return [];
-    return [
-      {
-        documentId: source.documentId,
-        title: source.title,
-        section: source.section,
-        href: source.href,
-        citationNumber:
-          typeof source.citationNumber === "number"
-            ? source.citationNumber
-            : undefined,
-      },
-    ];
-  });
-}
-
-export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
-  constructor(private readonly supabase: SupabaseClient) {}
-
-  private async query<T>(
-    run: () => PromiseLike<{
-      data: T;
-      error: { code: string; message: string } | null;
-    }>,
-  ) {
-    try {
-      const { data, error } = await run();
-      if (
-        error?.code === "42501" &&
-        error.message === "conversation_not_found"
-      ) {
-        throw new ChatError("conversation_not_found");
-      }
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      if (error instanceof ChatError) throw error;
-      throw new ChatError("history_unavailable", error);
-    }
+export const SupabaseChatHistoryDataSourceImpl = (supabase: SupabaseClient) => {
+  async function query<T>(run: () => PromiseLike<{ data: T; error: unknown }>) {
+    const { data, error } = await run();
+    if (error) throw error;
+    return data;
   }
 
-  async listConversations(userId: string): Promise<ChatConversationSummary[]> {
-    const data = await this.query(() =>
-      this.supabase
+  async function listConversations(userId: string) {
+    const data = await query(() =>
+      supabase
         .from("chat_conversations")
         .select("id,title,updated_at")
         .eq("owner_id", userId)
@@ -85,14 +26,10 @@ export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
         .limit(50)
         .abortSignal(AbortSignal.timeout(10_000)),
     );
-    return ((data ?? []) as ConversationRow[]).map((row) => ({
-      id: row.id,
-      title: row.title,
-      updatedAt: row.updated_at,
-    }));
+    return (data ?? []) as ChatConversationRow[];
   }
 
-  private async readConversation<Message extends ChatMessage>(
+  async function readConversation<Row>(
     conversationId: string,
     messageColumns: string,
     limit: number,
@@ -100,8 +37,8 @@ export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
   ) {
     const timeout = AbortSignal.timeout(10_000);
     const referencedTable = "chat_messages";
-    const data = await this.query(() =>
-      this.supabase
+    const data = await query(() =>
+      supabase
         .from("chat_conversations")
         .select(`id,title,updated_at,chat_messages(${messageColumns})`)
         .eq("id", conversationId)
@@ -112,54 +49,33 @@ export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
         .abortSignal(signal ? AbortSignal.any([signal, timeout]) : timeout)
         .maybeSingle(),
     );
-    return data as (ConversationRow & { chat_messages: Message[] }) | null;
+    return data as ChatConversationWithMessages<Row> | null;
   }
 
-  async getConversationContext(
+  function getConversationContext(
     conversationId: string,
     limit: number,
     signal?: AbortSignal,
-  ): Promise<ChatMessage[] | null> {
-    const conversation = await this.readConversation<ChatMessage>(
+  ) {
+    return readConversation<ChatContextRow>(
       conversationId,
       "role,content",
       limit,
       signal,
     );
-    return conversation ? conversation.chat_messages.reverse() : null;
   }
 
-  async getConversation(
-    conversationId: string,
-  ): Promise<ChatConversation | null> {
-    const conversation = await this.readConversation<MessageRow>(
+  function getConversation(conversationId: string) {
+    return readConversation<ChatMessageRow>(
       conversationId,
       "id,role,content,sources,action,created_at",
       100,
     );
-    if (!conversation) return null;
-
-    const messages = conversation.chat_messages.reverse().map(
-      (row): SavedChatMessage => ({
-        id: row.id,
-        role: row.role,
-        content: row.content,
-        sources: mapSources(row.sources),
-        action: readChatAction(row.action),
-        createdAt: row.created_at,
-      }),
-    );
-    return {
-      id: conversation.id,
-      title: conversation.title,
-      updatedAt: conversation.updated_at,
-      messages,
-    };
   }
 
-  async deleteConversation(conversationId: string) {
-    await this.query(() =>
-      this.supabase
+  async function deleteConversation(conversationId: string) {
+    await query(() =>
+      supabase
         .from("chat_conversations")
         .delete()
         .eq("id", conversationId)
@@ -167,9 +83,9 @@ export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
     );
   }
 
-  async saveTurn(command: SaveChatTurnCommand) {
-    const data = await this.query(() =>
-      this.supabase
+  function saveTurn(command: SaveChatTurnCommand) {
+    return query(() =>
+      supabase
         .rpc("save_chat_turn", {
           p_conversation_id: command.conversationId ?? null,
           p_title: command.title,
@@ -180,7 +96,16 @@ export class SupabaseChatHistoryDataSource implements ChatHistoryRepository {
         })
         .abortSignal(AbortSignal.timeout(10_000)),
     );
-    if (typeof data !== "string") throw new ChatError("history_unavailable");
-    return data;
   }
-}
+  return {
+    listConversations,
+    getConversationContext,
+    getConversation,
+    deleteConversation,
+    saveTurn,
+  };
+};
+
+export type SupabaseChatHistoryDataSource = ReturnType<
+  typeof SupabaseChatHistoryDataSourceImpl
+>;

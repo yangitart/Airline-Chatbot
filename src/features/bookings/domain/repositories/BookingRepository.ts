@@ -6,5 +6,8 @@ export interface BookingRepository {
     command: CreateDemoBookingCommand,
   ): Promise<Either<string, Booking>>;
   listMyBookings(): Promise<Either<string, Booking[]>>;
-  getMyBooking(id: string): Promise<Either<string, Booking | null>>;
+  getMyBooking(
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<Either<string, Booking | null>>;
 }

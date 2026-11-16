@@ -1,7 +1,9 @@
 import "server-only";
 
+import { ChatHistoryRepositoryImpl } from "../data/repositories/ChatHistoryRepositoryImpl";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { SupabaseChatHistoryDataSource } from "../data/data_sources/SupabaseChatHistoryDataSource";
+import { SupabaseChatHistoryDataSourceImpl } from "../data/data_sources/SupabaseChatHistoryDataSource";
 import {
   deleteChatConversationUseCase,
   getChatConversationContextUseCase,
@@ -11,7 +13,9 @@ import {
 } from "../domain/useCases/manageChatHistoryUseCases";
 
 export function createServerChatHistory(supabase: SupabaseClient) {
-  const repository = new SupabaseChatHistoryDataSource(supabase);
+  const repository = ChatHistoryRepositoryImpl(
+    SupabaseChatHistoryDataSourceImpl(supabase),
+  );
   return {
     listConversations: listChatConversationsUseCase(repository),
     getConversation: getChatConversationUseCase(repository),

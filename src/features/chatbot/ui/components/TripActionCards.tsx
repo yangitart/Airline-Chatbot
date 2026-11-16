@@ -9,9 +9,9 @@ import type {
   ChatAction,
   ChatBookingChoice,
 } from "../../domain/models/ChatAction";
-import { ChatError } from "../../domain/models/ChatError";
-import { TripOperationError } from "../../domain/repositories/ChatClient";
-import { chatServices } from "../../ioc/chatServices";
+import { TripOperationError } from "@/src/features/bookings/domain/models/TripOperationError";
+import { readBookingResult } from "../utils/readBookingResult";
+import { bookingServices } from "@/src/features/bookings/ioc/bookingServices";
 import { FlightSearchActionCard } from "./FlightSearchActionCard";
 
 type Confirmation = "checkout" | "outbound" | "return";
@@ -45,7 +45,6 @@ export function BookingActionCard({
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? "en";
-  const client = chatServices.bookingClient;
   const [booking, setBooking] = useState<Booking | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [busy, setBusy] = useState(false);
@@ -64,7 +63,10 @@ export function BookingActionCard({
       await operation(controller.signal);
     } catch (error) {
       if (controller.signal.aborted) return;
-      if (error instanceof ChatError && error.code === "auth_required") {
+      if (
+        error instanceof TripOperationError &&
+        error.code === "auth_required"
+      ) {
         onSignIn();
         return;
       }
@@ -87,7 +89,10 @@ export function BookingActionCard({
     void run(async (signal) => {
       setBooking(null);
       setConfirmation(null);
-      const result = await client.getBooking(id, signal);
+      const result = readBookingResult(
+        await bookingServices.getMyBooking.execute(id, signal),
+      );
+      if (!result) throw new TripOperationError("booking_not_found");
       if (!signal.aborted) setBooking(result);
     });
   }
@@ -97,11 +102,15 @@ export function BookingActionCard({
     void run(async (signal) => {
       setConfirmation(null);
       if (confirmation === "checkout") {
-        const url = await client.createCheckout(booking.id);
+        const url = readBookingResult(
+          await bookingServices.createCheckout.execute(booking.id),
+        );
         if (!signal.aborted) window.location.assign(url);
         return;
       }
-      const checkIn = await client.checkIn(booking.id, confirmation);
+      const checkIn = readBookingResult(
+        await bookingServices.checkIn.execute(booking.id, confirmation),
+      );
       if (!signal.aborted) {
         setBooking({
           ...booking,
@@ -317,7 +326,7 @@ export function BookingActionCard({
       )}
       {errorKey && (
         <p role="alert" className="text-red-700">
-          {t(errorKey)}
+          {t(errorKey, { defaultValue: t("tripOperations.genericError") })}
         </p>
       )}
     </section>

@@ -1,3 +1,4 @@
+import type { ChatModelProvider } from "./ChatModelProvider";
 import type {
   ChatToolDefinition,
   ModelMessage,
@@ -12,20 +13,18 @@ import {
   toGeminiTools,
 } from "./ChatModelProvider";
 
-export class GeminiChatModelProvider {
-  constructor(
-    private readonly apiKey: string,
-    private readonly model: string,
-  ) {}
-
-  async complete(
+export function GeminiChatModelProvider(
+  apiKey: string,
+  model: string,
+): ChatModelProvider {
+  async function complete(
     messages: ModelMessage[],
     signal: AbortSignal,
     groundingContext?: string,
     tools: ChatToolDefinition[] = [],
     responseLanguage = "en",
   ) {
-    if (!this.apiKey.trim()) throw new ChatError("assistant_unavailable");
+    if (!apiKey.trim()) throw new ChatError("assistant_unavailable");
     const normalizedMessages = modelMessages(
       messages,
       groundingContext,
@@ -33,16 +32,16 @@ export class GeminiChatModelProvider {
     );
     const systemInstruction = normalizedMessages[0].content;
     const response = await requestAi(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.model)}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
       {
         method: "POST",
         signal,
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey,
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify(
-          this.requestBody(normalizedMessages, systemInstruction, tools),
+          requestBody(normalizedMessages, systemInstruction, tools),
         ),
         cache: "no-store",
       },
@@ -50,14 +49,14 @@ export class GeminiChatModelProvider {
     return readGeminiResult(response);
   }
 
-  async *stream(
+  async function* stream(
     messages: ModelMessage[],
     signal: AbortSignal,
     groundingContext?: string,
     tools: ChatToolDefinition[] = [],
     responseLanguage = "en",
   ) {
-    if (!this.apiKey.trim()) throw new ChatError("assistant_unavailable");
+    if (!apiKey.trim()) throw new ChatError("assistant_unavailable");
     const normalizedMessages = modelMessages(
       messages,
       groundingContext,
@@ -65,16 +64,16 @@ export class GeminiChatModelProvider {
     );
     const systemInstruction = normalizedMessages[0].content;
     const response = await requestAi(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.model)}:streamGenerateContent?alt=sse`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`,
       {
         method: "POST",
         signal,
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey,
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify(
-          this.requestBody(normalizedMessages, systemInstruction, tools),
+          requestBody(normalizedMessages, systemInstruction, tools),
         ),
         cache: "no-store",
       },
@@ -82,7 +81,7 @@ export class GeminiChatModelProvider {
     yield* readGeminiStream(response, signal);
   }
 
-  private requestBody(
+  function requestBody(
     messages: ModelMessage[],
     systemInstruction: string,
     tools: ChatToolDefinition[],
@@ -94,4 +93,5 @@ export class GeminiChatModelProvider {
       generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
     };
   }
+  return { complete, stream };
 }

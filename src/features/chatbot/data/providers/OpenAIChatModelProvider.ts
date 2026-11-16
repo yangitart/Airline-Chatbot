@@ -1,3 +1,4 @@
+import type { ChatModelProvider } from "./ChatModelProvider";
 import type {
   ChatToolDefinition,
   ModelMessage,
@@ -12,31 +13,29 @@ import {
   toOpenAIMessages,
 } from "./ChatModelProvider";
 
-export class OpenAIChatModelProvider {
-  constructor(
-    private readonly apiKey: string,
-    private readonly model: string,
-  ) {}
-
-  async complete(
+export function OpenAIChatModelProvider(
+  apiKey: string,
+  model: string,
+): ChatModelProvider {
+  async function complete(
     messages: ModelMessage[],
     signal: AbortSignal,
     groundingContext?: string,
     tools: ChatToolDefinition[] = [],
     responseLanguage = "en",
   ) {
-    if (!this.apiKey.trim()) throw new ChatError("assistant_unavailable");
+    if (!apiKey.trim()) throw new ChatError("assistant_unavailable");
     const response = await requestAi(
       "https://api.openai.com/v1/chat/completions",
       {
         method: "POST",
         signal,
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          this.requestBody(
+          requestBody(
             messages,
             groundingContext,
             tools,
@@ -50,25 +49,25 @@ export class OpenAIChatModelProvider {
     return readOpenAIResult(response);
   }
 
-  async *stream(
+  async function* stream(
     messages: ModelMessage[],
     signal: AbortSignal,
     groundingContext?: string,
     tools: ChatToolDefinition[] = [],
     responseLanguage = "en",
   ) {
-    if (!this.apiKey.trim()) throw new ChatError("assistant_unavailable");
+    if (!apiKey.trim()) throw new ChatError("assistant_unavailable");
     const response = await requestAi(
       "https://api.openai.com/v1/chat/completions",
       {
         method: "POST",
         signal,
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          this.requestBody(
+          requestBody(
             messages,
             groundingContext,
             tools,
@@ -82,7 +81,7 @@ export class OpenAIChatModelProvider {
     yield* readOpenAIStream(response, signal);
   }
 
-  private requestBody(
+  function requestBody(
     messages: ModelMessage[],
     groundingContext: string | undefined,
     tools: ChatToolDefinition[],
@@ -90,7 +89,7 @@ export class OpenAIChatModelProvider {
     responseLanguage: string,
   ) {
     return {
-      model: this.model,
+      model: model,
       messages: toOpenAIMessages(
         modelMessages(messages, groundingContext, responseLanguage),
       ),
@@ -102,4 +101,5 @@ export class OpenAIChatModelProvider {
         : {}),
     };
   }
+  return { complete, stream };
 }

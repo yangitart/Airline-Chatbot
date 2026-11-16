@@ -1,3 +1,13 @@
+import type { BookingActionsRepository } from "../domain/repositories/BookingActionsRepository";
+import {
+  BookingActionsApiDataSourceImpl,
+  type BookingActionsDataSource,
+} from "../data/data_sources/BookingActionsDataSource";
+import { BookingActionsRepositoryImpl } from "../data/repositories/BookingActionsRepositoryImpl";
+import {
+  createCheckoutUseCase,
+  checkInBookingUseCase,
+} from "../domain/useCases/clientBookingActionsUseCases";
 import { ContainerModule, interfaces } from "inversify";
 import type { IUseCase } from "@/src/core/interfaces/IUseCase";
 import type { Either } from "fp-ts/Either";
@@ -19,6 +29,34 @@ import { BookingRepositoryImpl } from "../data/repositories/BookingRepositoryImp
 import { BookingSymbols } from "./BookingSymbols";
 
 const initializeModule = (bind: interfaces.Bind) => {
+  bind<BookingActionsDataSource>(
+    BookingSymbols.actionsDataSource,
+  ).toConstantValue(
+    applyDependencies(BookingActionsApiDataSourceImpl, [
+      NetWorkDataModuleSymbols.REST_CLIENT,
+    ]),
+  );
+  bind<BookingActionsRepository>(
+    BookingSymbols.actionsRepository,
+  ).toConstantValue(
+    applyDependencies(BookingActionsRepositoryImpl, [
+      BookingSymbols.actionsDataSource,
+    ]),
+  );
+  bind<ReturnType<typeof createCheckoutUseCase>>(
+    BookingSymbols.createCheckoutUseCase,
+  ).toConstantValue(
+    applyDependencies(createCheckoutUseCase, [
+      BookingSymbols.actionsRepository,
+    ]),
+  );
+  bind<ReturnType<typeof checkInBookingUseCase>>(
+    BookingSymbols.checkInUseCase,
+  ).toConstantValue(
+    applyDependencies(checkInBookingUseCase, [
+      BookingSymbols.actionsRepository,
+    ]),
+  );
   bind<BookingDataSource>(BookingSymbols.dataSource).toConstantValue(
     applyDependencies(BookingApiDataSourceImpl, [
       NetWorkDataModuleSymbols.REST_CLIENT,
@@ -37,7 +75,7 @@ const initializeModule = (bind: interfaces.Bind) => {
   ).toConstantValue(
     applyDependencies(listMyBookingsUseCase, [BookingSymbols.repository]),
   );
-  bind<IUseCase<string, Promise<Either<string, Booking | null>>>>(
+  bind<ReturnType<typeof getMyBookingUseCase>>(
     BookingSymbols.getMyBookingUseCase,
   ).toConstantValue(
     applyDependencies(getMyBookingUseCase, [BookingSymbols.repository]),

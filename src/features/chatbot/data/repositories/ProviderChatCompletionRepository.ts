@@ -52,26 +52,24 @@ const socialMessages = new Set([
   "谢谢",
 ]);
 
-export class ProviderChatCompletionRepository implements ChatCompletionRepository {
-  constructor(
-    private readonly provider: ChatModelProvider,
-    private readonly tools: ChatTool[],
-    private readonly faqRetriever?: FaqRetriever,
-  ) {}
-
-  async complete(
+export function ProviderChatCompletionRepository(
+  provider: ChatModelProvider,
+  tools: ChatTool[],
+  faqRetriever?: FaqRetriever,
+): ChatCompletionRepository {
+  async function complete(
     messages: ChatMessage[],
     language: string,
   ): Promise<GroundedChatResponse> {
     let response: GroundedChatResponse | undefined;
-    for await (const event of this.stream(messages, language)) {
+    for await (const event of stream(messages, language)) {
       if (event.type === "complete") response = event.response;
     }
     if (!response) throw new Error("assistant_response_missing");
     return response;
   }
 
-  async *stream(
+  async function* stream(
     messages: ChatMessage[],
     language: string,
     signal?: AbortSignal,
@@ -86,7 +84,7 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
       .replace(/\s+/g, " ");
     const retriever =
       normalizedQuestion && !socialMessages.has(normalizedQuestion)
-        ? this.faqRetriever
+        ? faqRetriever
         : undefined;
     const chunks =
       (await retriever?.search(latestQuestion, language, signal).catch(() => {
@@ -122,7 +120,7 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
       role,
       content,
     }));
-    const toolDefinitions = this.tools.map(({ definition }) => definition);
+    const toolDefinitions = tools.map(({ definition }) => definition);
     const actions: ChatActionResult[] = [];
     let fullContent = "";
     let callsExecuted = 0;
@@ -137,7 +135,7 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
       let toolTurn:
         | Extract<ChatModelStreamEvent, { type: "tool_calls" }>
         | undefined;
-      for await (const event of this.provider.stream(
+      for await (const event of provider.stream(
         modelMessages,
         providerSignal(),
         groundingContext,
@@ -178,7 +176,7 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
           });
           continue;
         }
-        const tool = this.tools.find(
+        const tool = tools.find(
           ({ definition }) => definition.name === toolCall.name,
         );
         if (!tool) {
@@ -213,7 +211,7 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
     }
 
     if (needsFinalText) {
-      for await (const event of this.provider.stream(
+      for await (const event of provider.stream(
         modelMessages,
         providerSignal(),
         groundingContext,
@@ -248,4 +246,5 @@ export class ProviderChatCompletionRepository implements ChatCompletionRepositor
       },
     };
   }
+  return { complete, stream };
 }

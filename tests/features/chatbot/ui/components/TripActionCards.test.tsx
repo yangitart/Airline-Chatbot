@@ -4,10 +4,13 @@ import {
   render,
   screen,
   within,
+  waitFor,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import type { Booking } from "@/src/features/bookings/domain/models/Booking";
-import { TripOperationError } from "@/src/features/chatbot/domain/repositories/ChatClient";
+import { left, right } from "fp-ts/Either";
+import { FlightSearchActionCard } from "@/src/features/chatbot/ui/components/FlightSearchActionCard";
+import type { FlightSearchResult } from "@/src/features/flights/domain/models/FlightSearch";
 import {
   BookingActionCard,
   ChatActionCards,
@@ -17,9 +20,15 @@ const client = vi.hoisted(() => ({
   getBooking: vi.fn(),
   createCheckout: vi.fn(),
   checkIn: vi.fn(),
+  createBooking: vi.fn(),
 }));
-vi.mock("@/src/features/chatbot/ioc/chatServices", () => ({
-  chatServices: { bookingClient: client, client: {} },
+vi.mock("@/src/features/bookings/ioc/bookingServices", () => ({
+  bookingServices: {
+    getMyBooking: { execute: client.getBooking },
+    createDemoBooking: { execute: client.createBooking },
+    createCheckout: { execute: client.createCheckout },
+    checkIn: { execute: client.checkIn },
+  },
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -75,13 +84,15 @@ afterEach(() => {
 });
 
 it("loads the current booking and waits for confirmation before checking in the selected leg", async () => {
-  client.getBooking.mockResolvedValue(booking);
-  client.checkIn.mockResolvedValue({
-    flightLeg: "return",
-    checkedInAt: "2026-11-05T09:00:00Z",
-    demoSeat: "12C",
-    boardingPassReference: "DEMO-9012CD34EF",
-  });
+  client.getBooking.mockResolvedValue(right(booking));
+  client.checkIn.mockResolvedValue(
+    right({
+      flightLeg: "return",
+      checkedInAt: "2026-11-05T09:00:00Z",
+      demoSeat: "12C",
+      boardingPassReference: "DEMO-9012CD34EF",
+    }),
+  );
   openBooking();
   const checkIn = await screen.findByRole("button", {
     name: "tripOperations.checkIn · tripOperations.return",
@@ -107,14 +118,14 @@ it("loads the current booking and waits for confirmation before checking in the 
 });
 
 it("uses the saved booking for checkout after confirmation and displays server errors", async () => {
-  client.getBooking.mockResolvedValue({
-    ...booking,
-    status: "pending_payment",
-    paymentStatus: "checkout_pending",
-  });
-  client.createCheckout.mockRejectedValue(
-    new TripOperationError("payment_verifying"),
+  client.getBooking.mockResolvedValue(
+    right({
+      ...booking,
+      status: "pending_payment",
+      paymentStatus: "checkout_pending",
+    }),
   );
+  client.createCheckout.mockResolvedValue(left("payment_verifying"));
   openBooking();
   fireEvent.click(
     await screen.findByRole("button", { name: "tripOperations.payTest" }),
@@ -127,6 +138,96 @@ it("uses the saved booking for checkout after confirmation and displays server e
   expect((await screen.findByRole("alert")).textContent).toBe(
     "tripOperations.errors.payment_verifying",
   );
+});
+
+it("requests sign-in when a booking use case returns an expired-session error", async () => {
+  const onSignIn = vi.fn();
+  client.getBooking.mockResolvedValue(left("auth_required"));
+  render(
+    <BookingActionCard
+      choices={[{ id: booking.id, reference: "AI-AB12CD34EF" }]}
+      onSignIn={onSignIn}
+    />,
+  );
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "chatbot.tripActions.openBooking AI-AB12CD34EF",
+    }),
+  );
+  await waitFor(() => expect(onSignIn).toHaveBeenCalledOnce());
+  expect(client.createCheckout).not.toHaveBeenCalled();
+  expect(client.checkIn).not.toHaveBeenCalled();
+});
+
+it("creates a booking only after confirmation and reuses it when checkout is retried", async () => {
+  const result: FlightSearchResult = {
+    origin: "DEL",
+    destination: "BOM",
+    departure_date: "2026-12-10",
+    return_date: null,
+    passengers: 1,
+    cabin_class: "economy",
+    is_mock: true,
+    notice: "Demo inventory",
+    return_flights: [],
+    flights: [
+      {
+        id: "flight",
+        offer_id: "offer",
+        flight_number: "AI 101",
+        departure: "08:00",
+        arrival: "10:00",
+        duration: "2h",
+        departure_date: "2026-12-10",
+        arrival_date: "2026-12-10",
+        fare_minor: 10000,
+        currency: "INR",
+        number_of_bookable_seats: 3,
+        is_demo: true,
+        source_label: "Demo",
+      },
+    ],
+  };
+  client.createBooking.mockResolvedValue(right(booking));
+  client.createCheckout.mockResolvedValue(left("checkout_expired"));
+  render(
+    <FlightSearchActionCard
+      actionId="action"
+      result={result}
+      isAuthenticated
+      onSignIn={vi.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: /AI 101/ }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "chatbot.reviewCheckout" }),
+  );
+  expect(client.createBooking).not.toHaveBeenCalled();
+  expect(client.createCheckout).not.toHaveBeenCalled();
+  fireEvent.click(
+    screen.getByRole("button", { name: "chatbot.createPaymentLink" }),
+  );
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    "tripOperations.checkoutExpired",
+  );
+  expect(client.createBooking).toHaveBeenCalledWith({
+    flightInstanceId: "flight",
+    returnFlightInstanceId: undefined,
+    cabinClass: "economy",
+    passengerCount: 1,
+    expectedOutboundFareMinor: 10000,
+    expectedReturnFareMinor: undefined,
+    idempotencyKey: "chat:action",
+  });
+  expect(client.createCheckout).toHaveBeenCalledWith(booking.id);
+  fireEvent.click(
+    screen.getByRole("button", { name: "chatbot.reviewCheckout" }),
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "chatbot.createPaymentLink" }),
+  );
+  await waitFor(() => expect(client.createCheckout).toHaveBeenCalledTimes(2));
+  expect(client.createBooking).toHaveBeenCalledOnce();
 });
 
 it("renders both cards and displays the departure in the airport's time zone", () => {

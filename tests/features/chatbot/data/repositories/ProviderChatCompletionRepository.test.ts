@@ -63,7 +63,7 @@ it("retains successful cards in order when another tool throws in the same turn"
       execute: async () => ({ action: statusResult, modelResult: {} }),
     },
   ];
-  const repository = new ProviderChatCompletionRepository(
+  const repository = ProviderChatCompletionRepository(
     { stream, complete: vi.fn() },
     tools,
   );
@@ -114,7 +114,7 @@ it("continues normal chat when FAQ retrieval fails", async () => {
   const faqRetriever: FaqRetriever = {
     search: vi.fn().mockRejectedValue(new Error("faq index unavailable")),
   };
-  const repository = new ProviderChatCompletionRepository(
+  const repository = ProviderChatCompletionRepository(
     { stream, complete: vi.fn() },
     [],
     faqRetriever,
@@ -146,7 +146,7 @@ it("skips FAQ retrieval for greetings but retrieves evidence for a greeting with
       yield { type: "delta", content: "Hola" };
     });
   const search = vi.fn().mockResolvedValue([]);
-  const repository = new ProviderChatCompletionRepository(
+  const repository = ProviderChatCompletionRepository(
     { stream, complete: vi.fn() },
     [],
     { search },

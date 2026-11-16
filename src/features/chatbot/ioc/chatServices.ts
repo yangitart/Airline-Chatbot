@@ -1,11 +1,23 @@
 import type {
-  ChatBookingClient,
-  ChatClient,
-} from "../domain/repositories/ChatClient";
+  listConversationsUseCase,
+  getConversationUseCase,
+  deleteConversationUseCase,
+  sendMessageUseCase,
+} from "../domain/useCases/clientChatUseCases";
 import { injector } from "@/src/ioc/utils/injector";
-import { CHAT_BOOKING_CLIENT, CHAT_CLIENT } from "./ChatModule";
+import { ChatSymbols } from "./ChatSymbols";
 
 export const chatServices = {
-  client: injector<ChatClient>(CHAT_CLIENT),
-  bookingClient: injector<ChatBookingClient>(CHAT_BOOKING_CLIENT),
+  listConversations: injector<ReturnType<typeof listConversationsUseCase>>(
+    ChatSymbols.listConversations,
+  ),
+  getConversation: injector<ReturnType<typeof getConversationUseCase>>(
+    ChatSymbols.getConversation,
+  ),
+  deleteConversation: injector<ReturnType<typeof deleteConversationUseCase>>(
+    ChatSymbols.deleteConversation,
+  ),
+  sendMessage: injector<ReturnType<typeof sendMessageUseCase>>(
+    ChatSymbols.sendMessage,
+  ),
 };

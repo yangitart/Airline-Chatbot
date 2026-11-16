@@ -27,7 +27,6 @@ export function useAssistantConversation({
   requestSignIn: () => void;
   onAccountChange: () => void;
 }) {
-  const client = chatServices.client;
   const previousUserId = useRef(user?.id ?? null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
@@ -51,7 +50,9 @@ export function useAssistantConversation({
     setHistoryLoading(true);
     setHistoryError(null);
     try {
-      const result = await client.listConversations(controller.signal);
+      const result = await chatServices.listConversations.execute(
+        controller.signal,
+      );
       if (!controller.signal.aborted) setConversations(result);
     } catch (error) {
       if (controller.signal.aborted) return;
@@ -61,7 +62,7 @@ export function useAssistantConversation({
     } finally {
       if (!controller.signal.aborted) setHistoryLoading(false);
     }
-  }, [client, requestSignIn, user]);
+  }, [requestSignIn, user]);
 
   useEffect(() => {
     if (!open || !historyOpen || !user) return;
@@ -132,7 +133,10 @@ export function useAssistantConversation({
 
   const openConversation = (id: string) =>
     changeConversation(async (signal) => {
-      const conversation = await client.getConversation(id, signal);
+      const conversation = await chatServices.getConversation.execute(
+        id,
+        signal,
+      );
       signal.throwIfAborted();
       setConversationId(conversation.id);
       setMessages(conversation.messages.slice(-48));
@@ -143,7 +147,7 @@ export function useAssistantConversation({
   const deleteConversation = async (id: string) => {
     if (activeRequest.current || changingConversation) return;
     await changeConversation(async (signal) => {
-      await client.deleteConversation(id, signal);
+      await chatServices.deleteConversation.execute(id, signal);
       signal.throwIfAborted();
       historyRequest.current?.abort();
       setHistoryLoading(false);
@@ -181,7 +185,7 @@ export function useAssistantConversation({
       let pendingFrame: number | null = null;
 
       try {
-        const result = await client.sendMessage(
+        const result = await chatServices.sendMessage.execute(
           {
             conversationId: conversationId ?? undefined,
             message: content,
@@ -242,7 +246,7 @@ export function useAssistantConversation({
         if (!controller.signal.aborted) setResponding(false);
       }
     },
-    [client, conversationId, requestSignIn, language, user],
+    [conversationId, requestSignIn, language, user],
   );
 
   return {

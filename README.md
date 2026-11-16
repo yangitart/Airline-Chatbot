@@ -40,6 +40,8 @@ The updated seed adds round trips between Delhi and London Heathrow and between 
 4. Run `npx supabase db reset` to recreate the **local** database and replay every migration and seed from scratch. This deletes local test data.
 5. Start Next.js with `npm run dev`.
 
+The chat follows `UI -> use case -> repository -> data source`, using function factories for services and keeping transport models and mappers in the data layer. The browser chat API receives the shared Axios REST client, including for streaming. Booking cards use the booking feature's public use cases. See [chat architecture](src/features/chatbot/README.md#architecture) for the browser/server flows and layer responsibilities.
+
 ## Travel assistant setup
 
 Configure `CHAT_AI_PROVIDER=gemini` and `GEMINI_API_KEY` for chat responses. The default model is `gemini-3.5-flash`; override it with `GEMINI_CHAT_MODEL` if needed. The same server-only Gemini key generates FAQ embeddings with `gemini-embedding-001` at 1,536 dimensions. The server composition also supports `groq` (`GROQ_API_KEY`, optional `GROQ_CHAT_MODEL`) and `openai` (`OPENAI_API_KEY`, optional `OPENAI_CHAT_MODEL`) for generation. Use `SUPABASE_SECRET_KEY` or the existing `SUPABASE_SERVICE_ROLE_KEY` for server administration.

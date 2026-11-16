@@ -1,6 +1,7 @@
 # Airline Chatbot — agent instructions
 
 ## Product and current milestone
+
 - Build the travel assistant as a Next.js application backed by Supabase Auth and Supabase Postgres.
 - Current code includes Google authentication, public search of Supabase flight rows, demo bookings, Stripe test-mode Checkout wiring, owner-scoped profiles, demo check-in, and stored demo flight status lookup.
 - Spec 005 uses Gemini by default for chat generation, with Groq and OpenAI selectable through the server-side provider composition. FAQ RAG uses Gemini embeddings and versioned Supabase pgvector retrieval; keep it behind `CHAT_FAQ_RAG_ENABLED` until the remote schema and Veyra corpus are ready. Persist owner-scoped conversation history in Supabase and route booking/payment actions through existing server use cases with explicit confirmation.
@@ -10,6 +11,7 @@
 - Keep FAQ and experience links within Veyra. The archived Air India research is excluded from Veyra answers. The active chat does not query the FAQ index. JSON source and indexing tools remain prepared for a later RAG phase.
 
 ## Repository architecture
+
 - src/app: Next.js App Router pages, layouts, metadata, callback routes, and thin Route Handlers/Server Actions.
 - src/components: generic components reused across features. Form controls are Formik-aware adapters in components/forms.
 - src/core: cross-cutting API clients, Supabase clients, routes, shared state, validation, locale, theme, and utilities.
@@ -22,12 +24,14 @@
 ## Frontend conventions
 
 ### Route and feature responsibilities
+
 - Keep app/page.tsx and other route files thin; compose a feature view from the route.
 - Feature-specific views, components, stores, and hooks live under features/<feature>/ui. For example, flight search belongs in features/flights/ui.
 - Shared navigation/forms/design primitives belong in src/components only when multiple features can reuse them.
 - The root travel shell owns the persistent navigation, session state, sign-in dialog, and section transitions. Travel views supply their own content through the shared section layout.
 
 ### Formik and shared components
+
 - New forms use Formik. Create reusable Formik field adapters in src/components/forms with Formik hooks/context, labels, validation states, and accessible errors.
 - Keep form layout and feature validation schemas inside the feature UI.
 - Prefer semantic HTML, Tailwind/CSS, and the project's own shared components for new work. Do not introduce new HeroUI imports.
@@ -36,11 +40,13 @@
 - Some inherited feature files still refer to removed Science Plan APIs/types and are not registered by the active app composition root. Do not wire those screens back in without migrating their dependencies to Airline/Supabase contracts.
 
 ### Internationalization
+
 - Use the existing i18next/react-i18next setup in src/core/locales; do not hard-code user-visible copy in feature views/components.
 - Add matching translation keys to every supported locale resource (`en`, `es`, `hi`, `fr`, `pt-BR`, `zh-CN`). Keep keys grouped by feature and avoid reusing keys whose meanings differ.
 - Language selection goes through i18n.changeLanguage and persists the selected supported locale. Format dates/numbers using the active locale.
 
 ### Core API and Supabase
+
 - Keep Supabase browser/server client factories under src/core/api/supabase. Client Components use the browser client; Server Components, Server Actions, Route Handlers, and middleware use the cookie-aware server client.
 - Use @supabase/ssr for cookie-based sessions. The middleware refreshes sessions; the OAuth callback exchanges the PKCE code.
 - Keep Supabase URL and publishable key in root .env.local and Vercel environment variables. Keep the server secret key (`SUPABASE_SECRET_KEY`, with legacy `SUPABASE_SERVICE_ROLE_KEY` fallback) out of `NEXT_PUBLIC` variables and browser code.
@@ -58,12 +64,16 @@
 - The repository root is the Next.js app; deploy it to Vercel. Supabase supplies Auth and Postgres. Do not add a separate FastAPI service or Railway deployment.
 
 ### Feature data flow and Inversify
+
 - Put API/Supabase transport calls in feature data_sources. Map transport models to domain models in data/mappers.
 - Domain defines entities/types, repository interfaces, and use cases without importing Axios, Supabase, or React.
 - Data repositories implement domain interfaces and convert transport errors using core/api response helpers.
+- Implement feature data sources, repositories and provider adapters as function factories with injected dependencies captured in closures, following the existing flight and booking style. Error types may extend `Error`.
+- Browser HTTP data sources receive the shared Axios `REST_CLIENT` through their feature module and `applyDependencies`. Chat streaming uses that same instance with Axios's fetch adapter and a stream response. Server Supabase data sources receive the cookie-aware client for the current request.
 - UI calls domain use cases, not fetch/Axios/Supabase directly.
 - Register feature data sources, repositories, and use cases in the feature's ioc module. Register that module in src/ioc/application.container.ts after shared network/Supabase dependencies.
-- Compose dependencies in the feature ioc layer with applyDependencies and Inversify. Export resolved feature services from feature ioc/*Services.ts facades; UI components consume those exports and must not call injector or access the application container directly.
+- Compose dependencies in the feature ioc layer with applyDependencies and Inversify. Export resolved feature services from feature ioc/\*Services.ts facades; UI components consume those exports and must not call injector or access the application container directly.
+- Chat browser services expose use cases, backed by separate API data sources, repositories and mappers. Supabase chat history and FAQ retrieval also separate transport from mapping and repository behavior. Chat cards consume booking use cases through `bookings/ioc/bookingServices.ts`; keep booking HTTP calls and transport mappers inside `bookings`.
 - The root Inversify container is the client composition root. Server Route Handlers may use a feature server factory to compose request-side use cases/repositories; create cookie-bound Supabase clients once per request and pass that instance into the feature server factory. Do not put the cookie-bound client in the global container: each request carries its own cookies and user session. A request-scoped Inversify container is possible, but should only be introduced if it materially simplifies composition; it does not replace per-request client creation. Keep HTTP JSON serialization in the shared response helpers.
 - The active flight Route Handler delegates to a server use case and a request-bound Supabase data source. `supabase/seed.sql` supplies demo inventory; it must remain labeled demo until a live provider is configured.
 - Chat generation and embedding calls are server-side adapters under `features/chatbot`; use the same Gemini embedding model and dimensions for indexing and retrieval. Keep prompt/tool orchestration, SSE streaming, citations, selected-language enforcement, and history persistence in the feature's domain/data layers.
@@ -73,12 +83,14 @@
 - The GraphQL URL/query helpers still exist only for unregistered legacy user/nomenclature modules. Do not use them for Airline features; remove them once those legacy consumers are retired.
 
 ## Supabase security
+
 - OAuth uses Supabase Auth's Google provider and PKCE callback. Configure the callback/redirect allowlist in Supabase and the Supabase callback URL in Google Cloud.
 - Verify identity server-side with Supabase Auth claims/user methods before authorizing server operations; never trust a client-supplied user ID.
 - Enable Row Level Security for every app-owned table and add only the policies required by the feature.
 - Keep search demo data explicitly marked as mock. Account-free search must not reveal private user data.
 
 ## Working rules
+
 - Keep code explainable to a junior engineer and make small, reviewable vertical changes.
 - Update this file when architecture changes; update README and the active spec/tasks with setup and scope changes.
 - Keep local secrets in ignored .env.local; update .env.example with variable names only.

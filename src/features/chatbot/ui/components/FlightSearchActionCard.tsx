@@ -7,9 +7,9 @@ import type {
   FlightOption,
   FlightSearchResult,
 } from "@/src/features/flights/domain/models/FlightSearch";
-import { ChatError } from "../../domain/models/ChatError";
-import { TripOperationError } from "../../domain/repositories/ChatClient";
-import { chatServices } from "../../ioc/chatServices";
+import { TripOperationError } from "@/src/features/bookings/domain/models/TripOperationError";
+import { readBookingResult } from "../utils/readBookingResult";
+import { bookingServices } from "@/src/features/bookings/ioc/bookingServices";
 
 function money(locale: string, flight: FlightOption, passengers: number) {
   return new Intl.NumberFormat(locale, {
@@ -97,7 +97,6 @@ export function FlightSearchActionCard({
 }) {
   const { t, i18n } = useTranslation();
   const confirmTitleId = useId();
-  const client = chatServices.bookingClient;
   const checkoutRequest = useRef<AbortController | null>(null);
   const [outbound, setOutbound] = useState<FlightOption | null>(null);
   const [returnFlight, setReturnFlight] = useState<FlightOption | null>(null);
@@ -138,24 +137,32 @@ export function FlightSearchActionCard({
     try {
       let currentBookingId = bookingId;
       if (!currentBookingId) {
-        currentBookingId = await client.createBooking({
-          flightInstanceId: outbound.id,
-          returnFlightInstanceId: returnFlight?.id,
-          cabinClass: result.cabin_class,
-          passengerCount: result.passengers,
-          expectedOutboundFareMinor: outbound.fare_minor,
-          expectedReturnFareMinor: returnFlight?.fare_minor,
-          idempotencyKey: `chat:${actionId}`,
-        });
+        const createdBooking = readBookingResult(
+          await bookingServices.createDemoBooking.execute({
+            flightInstanceId: outbound.id,
+            returnFlightInstanceId: returnFlight?.id,
+            cabinClass: result.cabin_class,
+            passengerCount: result.passengers,
+            expectedOutboundFareMinor: outbound.fare_minor,
+            expectedReturnFareMinor: returnFlight?.fare_minor,
+            idempotencyKey: `chat:${actionId}`,
+          }),
+        );
+        currentBookingId = createdBooking.id;
         if (controller.signal.aborted) return;
         setBookingId(currentBookingId);
       }
 
-      const url = await client.createCheckout(currentBookingId);
+      const url = readBookingResult(
+        await bookingServices.createCheckout.execute(currentBookingId),
+      );
       if (!controller.signal.aborted) window.location.assign(url);
     } catch (error) {
       if (controller.signal.aborted) return;
-      if (error instanceof ChatError && error.code === "auth_required") {
+      if (
+        error instanceof TripOperationError &&
+        error.code === "auth_required"
+      ) {
         onSignIn();
         return;
       }
@@ -165,7 +172,7 @@ export function FlightSearchActionCard({
             ? "tripOperations.checkoutExpired"
             : `tripOperations.errors.${error.code}`
           : "chatbot.checkoutError";
-      setError(t(key));
+      setError(t(key, { defaultValue: t("chatbot.checkoutError") }));
       setConfirming(false);
     } finally {
       checkoutRequest.current = null;
