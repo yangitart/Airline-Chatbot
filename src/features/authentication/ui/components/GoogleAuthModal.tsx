@@ -68,7 +68,9 @@ export function GoogleAuthModal({
       const credentials = { email: email.trim(), password };
       const result = signingIn
         ? resetMode
-          ? await googleAuthenticationServices.requestPasswordReset.execute(credentials.email)
+          ? await googleAuthenticationServices.requestPasswordReset.execute(
+              credentials.email,
+            )
           : await googleAuthenticationServices.emailSignIn.execute(credentials)
         : await googleAuthenticationServices.emailSignUp.execute(credentials);
       if (isLeft(result)) throw new Error(result.left);

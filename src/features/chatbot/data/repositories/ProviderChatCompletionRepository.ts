@@ -16,41 +16,7 @@ import {
 } from "../../domain/models/ChatAction";
 import type { FaqRetriever } from "../../domain/repositories/FaqRetriever";
 import type { ChatModelProvider } from "../providers/ChatModelProvider";
-
-const socialMessages = new Set([
-  "hi",
-  "hello",
-  "hey",
-  "good morning",
-  "good afternoon",
-  "good evening",
-  "thanks",
-  "thank you",
-  "hola",
-  "buenos días",
-  "buenas tardes",
-  "buenas noches",
-  "gracias",
-  "bonjour",
-  "bonsoir",
-  "salut",
-  "merci",
-  "olá",
-  "oi",
-  "bom dia",
-  "boa tarde",
-  "boa noite",
-  "obrigado",
-  "obrigada",
-  "नमस्ते",
-  "नमस्कार",
-  "धन्यवाद",
-  "你好",
-  "您好",
-  "早上好",
-  "晚上好",
-  "谢谢",
-]);
+import { socialMessages } from "../../domain/constants/socialMessages";
 
 export function ProviderChatCompletionRepository(
   provider: ChatModelProvider,

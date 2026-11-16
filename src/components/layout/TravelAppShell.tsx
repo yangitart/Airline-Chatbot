@@ -24,6 +24,7 @@ import {
 import { TravelPageBackdrop } from "./TravelPageBackdrop";
 import { TravelFooter } from "./TravelFooter";
 import { TravelShellContext } from "./TravelShellContext";
+
 export function TravelAppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();

@@ -1,7 +1,7 @@
 import { BrowserSupabaseClientFactory } from "@/src/core/api/supabase/client";
-import type { User } from "@supabase/supabase-js";
 import { APP_ROUTES } from "@/src/core/routes/routes";
 import { GoogleUserModel } from "../models/GoogleUserModel";
+import { mapSupabaseUser } from "../mappers/GoogleUserMapper";
 
 export interface GoogleAuthenticationDataSource {
   signIn(): Promise<string>;
@@ -14,29 +14,6 @@ export interface GoogleAuthenticationDataSource {
     listener: (user: GoogleUserModel | null) => void,
   ): () => void;
   signOut(): Promise<void>;
-}
-
-function mapSupabaseUser(user: User): GoogleUserModel {
-  const fullName = user.user_metadata.full_name;
-  const displayName = user.user_metadata.name;
-  const avatarUrl = user.user_metadata.avatar_url;
-  const picture = user.user_metadata.picture;
-  return {
-    id: user.id,
-    email: user.email ?? "",
-    name:
-      typeof fullName === "string"
-        ? fullName
-        : typeof displayName === "string"
-          ? displayName
-          : "",
-    picture:
-      typeof avatarUrl === "string"
-        ? avatarUrl
-        : typeof picture === "string"
-          ? picture
-          : "",
-  };
 }
 
 export const GoogleAuthenticationDataSourceImpl = (
